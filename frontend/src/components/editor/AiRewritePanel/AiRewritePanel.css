@@ -1,0 +1,81 @@
+.ai-rewrite {
+  display: grid;
+  gap: 1rem;
+}
+
+.ai-rewrite__scope {
+  border-radius: 10px;
+  background: var(--color-background);
+  padding: 0.8rem;
+}
+
+.ai-rewrite__scope p {
+  max-height: 100px;
+  margin: 0.35rem 0 0;
+  overflow-y: auto;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+.ai-rewrite__controls {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.ai-rewrite select,
+.ai-rewrite textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.65rem;
+}
+
+.ai-rewrite__controls select {
+  flex: 1;
+}
+
+.ai-rewrite button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+
+.ai-rewrite button.is-primary,
+.ai-rewrite__controls button {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.ai-rewrite__result {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ai-rewrite__result h3 {
+  margin: 0;
+}
+
+.ai-rewrite__result textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.ai-rewrite__result > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.ai-rewrite .is-spinning {
+  animation: ai-rewrite-spin 0.9s linear infinite;
+}
+
+@keyframes ai-rewrite-spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,123 @@
+.template-quick-start {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 701px) and (max-height: 900px) {
+  .template-quick-start {
+    gap: 8px;
+  }
+
+  .template-quick-start > button {
+    gap: 9px;
+    min-height: 78px;
+    padding: 11px 12px;
+    border-radius: 13px;
+  }
+
+  .template-quick-start__icon {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .template-quick-start button > span:nth-child(2) {
+    gap: 3px;
+  }
+
+  .template-quick-start strong {
+    font-size: 12px;
+  }
+
+  .template-quick-start small {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+}
+
+.template-quick-start > button {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 104px;
+  padding: 16px;
+  color: inherit;
+  text-align: left;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgb(15 23 42 / 3%);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.template-quick-start > button:hover {
+  border-color: #c4b5fd;
+  transform: translateY(-2px);
+}
+
+.template-quick-start__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  color: #6d28d9;
+  background: #f3e8ff;
+  border-radius: 11px;
+}
+
+.template-quick-start button > span:nth-child(2) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.template-quick-start strong {
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.template-quick-start small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.template-quick-start__arrow {
+  flex: 0 0 15px;
+  color: #a78bfa;
+}
+
+.template-quick-start__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 90px;
+  color: var(--color-text-secondary);
+}
+
+.template-quick-start__loading svg {
+  animation: template-quick-spin 0.8s linear infinite;
+}
+
+@keyframes template-quick-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .template-quick-start {
+    grid-template-columns: 1fr;
+  }
+}

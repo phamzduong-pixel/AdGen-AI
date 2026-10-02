@@ -1,0 +1,156 @@
+.active-sessions > header {
+  align-items: center;
+}
+
+.active-sessions > header > div {
+  flex: 1;
+}
+
+.active-sessions__refresh {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: var(--settings-muted);
+  background: transparent;
+  border: 1px solid var(--settings-border);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.active-sessions__status {
+  padding: 24px 0 8px;
+  text-align: center;
+}
+
+.active-sessions__list {
+  display: grid;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.active-session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--settings-border);
+  border-radius: 11px;
+}
+
+.active-session__icon {
+  display: grid;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border-radius: 10px;
+}
+
+.active-session__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.active-session__title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.active-session__title strong {
+  font-size: 12px;
+}
+
+.active-session__title span {
+  padding: 3px 7px;
+  color: #047857;
+  font-size: 8px;
+  font-weight: 750;
+  background: #ecfdf5;
+  border-radius: 99px;
+}
+
+.active-session p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active-session small {
+  color: var(--settings-muted);
+  font-size: 9px;
+}
+
+.active-session > button,
+.active-sessions__logout-all,
+.active-sessions__modal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 11px;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  background: transparent;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.active-sessions__logout-all {
+  margin-top: 15px;
+}
+
+.active-session button:disabled,
+.active-sessions__logout-all:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.active-sessions__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.active-sessions__modal-actions button {
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.active-sessions__modal-actions button.is-danger {
+  color: #fff;
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+:root[data-theme="dark"] .active-session__icon {
+  color: #c4b5fd;
+  background: #312e81;
+}
+
+@media (max-width: 650px) {
+  .active-session {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .active-session__content {
+    width: calc(100% - 52px);
+  }
+
+  .active-session > button {
+    width: 100%;
+  }
+
+  .active-sessions__logout-all {
+    width: 100%;
+  }
+}

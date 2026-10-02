@@ -1,0 +1,14 @@
+@import "../../components/dashboard/StatCard/StatCard.css";
+@import "../../components/dashboard/ActivityChart/ActivityChart.css";
+@import "../../components/dashboard/PlatformChart/PlatformChart.css";
+.dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.dashboard-charts { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, .8fr); gap: 14px; margin-top: 18px; }
+.dashboard-skeleton { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+.dashboard-skeleton span { min-height: 120px; background: linear-gradient(90deg, #f1f5f9, #fafafa, #f1f5f9); background-size: 200% 100%; border-radius: 15px; animation: dashboard-shimmer 1.3s infinite; }
+@keyframes dashboard-shimmer { to { background-position: -200% 0; } }
+.dashboard-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 310px; margin-top: 18px; color: #94a3b8; text-align: center; background: #fff; border: 1px dashed #cbd5e1; border-radius: 16px; }
+.dashboard-empty svg { width: 34px; height: 34px; color: #8b5cf6; }
+.dashboard-empty h2 { margin: 12px 0 4px; color: #334155; font-size: 16px; }
+.dashboard-empty p { font-size: 12px; }
+@media (max-width: 1000px) { .dashboard-stats, .dashboard-skeleton { grid-template-columns: repeat(2, 1fr); } .dashboard-charts { grid-template-columns: 1fr; } }
+@media (max-width: 540px) { .dashboard-stats, .dashboard-skeleton { grid-template-columns: 1fr; } }

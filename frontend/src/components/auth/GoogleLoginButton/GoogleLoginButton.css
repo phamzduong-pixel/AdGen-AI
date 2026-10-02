@@ -1,0 +1,76 @@
+.google-login {
+  position: relative;
+  min-height: 44px;
+}
+
+.google-login__button,
+.google-login__button > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.google-login--disabled {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.google-login__loading,
+.google-login-unavailable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  color: #64748b;
+  font: inherit;
+  font-size: 14px;
+  background: #f8fafc;
+  border: 1px solid #dfe3eb;
+  border-radius: 8px;
+}
+
+.google-login__button:not(:empty) + .google-login__loading {
+  display: none;
+}
+
+.google-login-unavailable {
+  cursor: not-allowed;
+}
+
+.google-login-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.google-login-unavailable {
+  gap: 9px;
+  padding: 0 14px;
+}
+
+.google-login__mark {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #4285f4;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.google-login__config-note {
+  margin-left: 3px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.google-login__loading {
+  gap: 8px;
+}

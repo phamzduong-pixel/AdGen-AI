@@ -1,0 +1,51 @@
+﻿# Tài liệu hệ thống AdGen AI
+
+> Phiên bản tài liệu: 02/10/2026  
+> Phạm vi: mã nguồn hiện tại trong repository `AdGenAI`
+
+Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thống đang có. Mỗi tài liệu trỏ về module hoặc file nguồn liên quan để dễ kiểm tra khi mã nguồn thay đổi.
+
+## Mục lục
+
+| Tài liệu | Nội dung |
+| --- | --- |
+| [00-tong-quan-he-thong.md](./00-tong-quan-he-thong.md) | Báo cáo tổng hợp hệ thống, kiến trúc, Gen AI, dữ liệu, vận hành, kiểm thử và giới hạn hiện tại |
+| [01-AdGen_AI_system.md](./01-AdGen_AI_system.md) | Mục tiêu, kiến trúc, thành phần, môi trường và giới hạn |
+| [02-chuc-nang-he-thong.md](./02-chuc-nang-he-thong.md) | Các chức năng người dùng, frontend và backend |
+| [03-luong-xu-ly-ai.md](./03-luong-xu-ly-ai.md) | Luồng AI từ brief/tin nhắn đến kết quả |
+| [04-co-so-du-lieu.md](./04-co-so-du-lieu.md) | Mô hình dữ liệu, quan hệ, ràng buộc và migration |
+| [05-api-va-frontend.md](./05-api-va-frontend.md) | Các nhóm API, route giao diện và quy ước tích hợp |
+| [06-trien-khai-va-van-hanh.md](./06-trien-khai-va-van-hanh.md) | Chạy local, Docker, Render, biến môi trường và kiểm tra |
+| [07-quy-uoc-dong-bo-tai-lieu.md](./07-quy-uoc-dong-bo-tai-lieu.md) | Cách cập nhật tài liệu khi hệ thống thay đổi |
+| [09-ke-hoach-tao-anh-video.md](./09-ke-hoach-tao-anh-video.md) | Kế hoạch tạo ảnh, tạo video và chỉnh sửa video |
+| [PROJECT_TREE.md](./PROJECT_TREE.md) | Cây thư mục source hiện tại và phạm vi các thư mục runtime bị loại khỏi tài liệu |
+
+## Nguồn sự thật
+
+- Backend entrypoint/router: `backend/app/main.py`, `backend/app/api/`.
+- Nghiệp vụ: `backend/app/services/`.
+- Mô hình dữ liệu: `backend/app/models/`.
+- Request/response: `backend/app/schemas/`.
+- Database schema theo phiên bản: `backend/alembic/versions/`.
+- Giao diện: `frontend/src/pages/`, `frontend/src/components/`, `frontend/src/services/api/`.
+- Cấu hình chạy: `docker-compose.yml`, `render.yaml`, các file `.env.example`.
+
+README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập trung vào cấu tạo và nghiệp vụ.
+
+## Trạng thái cần biết
+
+- Backend dùng FastAPI, SQLAlchemy, Alembic, JWT và Gemini `gemini-2.5-flash`.
+- Frontend dùng React/Vite, Axios; realtime dùng Fetch API stream.
+- SQLite hỗ trợ local/test; PostgreSQL là lựa chọn production.
+- Upload hiện lưu filesystem và cần persistent disk hoặc object storage khi triển khai lâu dài.
+- Access token hiện chưa có refresh token; khi hết hạn người dùng đăng nhập lại.
+
+## Cập nhật vận hành gần nhất
+
+- Local development hiện dùng database mới `backend/adgen_dev.db`; database cũ `chatbot.db` được giữ nguyên vì schema của nó lệch migration và chưa được repair tự động.
+- Database mới được tạo bằng bootstrap explicit, đạt schema `PASS` và revision `20261001_0016`.
+- Runtime guard fail-closed: backend không tự tạo bảng, tự repair schema hoặc tự stamp database legacy.
+- `python -m app.database.bootstrap --confirm-empty` chỉ dành cho database được xác nhận rỗng; `python -m app.database.legacy_reconciliation` chỉ đọc và báo cáo.
+- Tài khoản demo local có username `AdGenAI`, email `adgenai@example.com`; không ghi mật khẩu vào tài liệu hoặc repository.
+- Bubble tin nhắn người dùng đã được chỉnh về căn trái để nội dung dài xuống dòng đúng.
+

@@ -1,0 +1,22 @@
+.chat-page-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 12px auto;
+  padding: 10px 14px;
+
+  color: #b91c1c;
+  font-size: 13px;
+  text-align: center;
+
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .chat-page-error {
+    margin-inline: 12px;
+  }
+}

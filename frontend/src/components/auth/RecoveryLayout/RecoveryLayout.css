@@ -1,0 +1,225 @@
+.recovery-page {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 88px 22px 40px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(124, 58, 237, 0.16), transparent 30%),
+    radial-gradient(circle at 88% 86%, rgba(79, 70, 229, 0.14), transparent 30%),
+    #f8f7ff;
+}
+
+.recovery-brand {
+  position: absolute;
+  top: 28px;
+  left: clamp(22px, 5vw, 64px);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #1f2937;
+  font-size: 20px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.recovery-brand__logo {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.22);
+}
+
+.recovery-card {
+  width: min(100%, 460px);
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(51, 46, 129, 0.13);
+}
+
+.recovery-card__icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 18px;
+  place-items: center;
+  color: #fff;
+  font-size: 21px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 14px;
+}
+
+.recovery-card__header {
+  margin-bottom: 24px;
+}
+
+.recovery-card__header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 30px;
+  letter-spacing: -0.035em;
+}
+
+.recovery-card__header p {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.recovery-form {
+  display: grid;
+  gap: 14px;
+}
+
+.recovery-field {
+  display: grid;
+  gap: 7px;
+}
+
+.recovery-field > label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.recovery-field__control {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #dfe3eb;
+  border-radius: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recovery-field__control:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.11);
+}
+
+.recovery-field__control--error {
+  border-color: #ef4444;
+}
+
+.recovery-field__control > svg {
+  flex: 0 0 auto;
+  margin-left: 15px;
+  color: #64748b;
+}
+
+.recovery-field__control input {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  padding: 0 13px;
+  color: #111827;
+  font: inherit;
+  font-size: 15px;
+  background: transparent;
+  border: 0;
+  outline: 0;
+}
+
+.recovery-field__error {
+  min-height: 18px;
+  margin: -2px 0 -4px;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.recovery-field__hint {
+  margin: -3px 0 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.recovery-form__error {
+  margin: 0;
+  padding: 10px 12px;
+  color: #991b1b;
+  font-size: 13px;
+  line-height: 1.5;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+}
+
+.recovery-primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border: 0;
+  border-radius: 13px;
+  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.2);
+  cursor: pointer;
+}
+
+.recovery-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.recovery-back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 21px;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.recovery-back-link:hover {
+  color: #4338ca;
+}
+
+.recovery-primary-button:focus-visible,
+.recovery-back-link:focus-visible,
+.recovery-brand:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .recovery-page {
+    align-items: start;
+    padding: 82px 14px 24px;
+  }
+
+  .recovery-brand {
+    top: 20px;
+    left: 18px;
+  }
+
+  .recovery-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .recovery-card__header h1 {
+    font-size: 27px;
+  }
+}

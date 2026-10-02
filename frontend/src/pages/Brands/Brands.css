@@ -1,0 +1,259 @@
+.brands-page__primary,
+.brands-page__empty button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 9px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+
+.brands-page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: 520px;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  padding: 0.65rem 0.85rem;
+}
+
+.brands-page__toolbar input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
+.brands-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1rem;
+}
+
+.brand-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 1rem;
+}
+
+.brand-card header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-card header > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+
+.brand-card h2,
+.brand-card p {
+  margin: 0;
+}
+
+.brand-card h2 {
+  font-size: 1rem;
+}
+
+.brand-card header p,
+.brand-card__description,
+.brand-card__meta {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.brand-card__mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.brand-card__default {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #b7791f;
+  font-size: 0.75rem;
+}
+
+.brand-card__description {
+  min-height: 42px;
+  margin-top: 1rem;
+  line-height: 1.55;
+}
+
+.brand-card__meta {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
+
+.brand-card__meta span {
+  border-radius: 999px;
+  background: var(--color-background);
+  padding: 0.3rem 0.55rem;
+}
+
+.brand-card footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.8rem;
+}
+
+.brand-card footer button,
+.brands-page__confirm button {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-primary);
+  padding: 0.5rem 0.65rem;
+}
+
+.brand-card footer button:first-child {
+  margin-right: auto;
+}
+
+.brand-card footer .is-danger,
+.brands-page__confirm .is-danger {
+  color: var(--color-danger, #dc2626);
+}
+
+.brands-page__state,
+.brands-page__empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 14px;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.brands-page__empty > svg {
+  font-size: 2rem;
+}
+
+.brands-page__empty h2,
+.brands-page__empty p {
+  margin: 0;
+}
+
+.brand-detail {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.brand-detail h3,
+.brand-detail p {
+  margin: 0;
+}
+
+.brand-detail__summary,
+.brand-detail__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.brand-detail__summary > div,
+.brand-detail__stats > div {
+  display: grid;
+  gap: 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.85rem;
+}
+
+.brand-detail small,
+.brand-detail span,
+.brand-detail__heading p {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+.brand-detail__stats {
+  margin-top: 0.7rem;
+}
+
+.brand-detail__stats strong {
+  font-size: 1.25rem;
+}
+
+.brand-detail__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.brand-detail__upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+}
+
+.brand-detail__upload input {
+  display: none;
+}
+
+.brand-detail__assets {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.brand-detail__assets > div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  padding: 0.65rem;
+}
+
+.brand-detail__assets button {
+  border: 0;
+  background: transparent;
+  color: var(--color-danger, #dc2626);
+}
+
+.brand-detail__assets .brand-detail__asset-name {
+  justify-self: start;
+  color: var(--color-primary);
+  text-align: left;
+}
+
+.brands-page__confirm {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+@media (max-width: 760px) {
+  .brand-detail__summary,
+  .brand-detail__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

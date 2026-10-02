@@ -1,0 +1,18 @@
+.campaign-card { padding: 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 15px; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.campaign-card:hover { transform: translateY(-2px); border-color: #c4b5fd; box-shadow: 0 10px 24px rgb(76 29 149 / 8%); }
+.campaign-card > header { display: flex; align-items: center; justify-content: space-between; }
+.campaign-card__status { padding: 4px 8px; font-size: 9px; font-weight: 750; border-radius: 99px; }
+.campaign-card__status.is-draft { color: #475569; background: #f1f5f9; }
+.campaign-card__status.is-active { color: #15803d; background: #dcfce7; }
+.campaign-card__status.is-completed { color: #1d4ed8; background: #dbeafe; }
+.campaign-card__status.is-archived { color: #7c3aed; background: #ede9fe; }
+.campaign-card header small { color: #94a3b8; font-size: 9px; }
+.campaign-card h2 { margin: 14px 0 5px; color: #1e293b; font-size: 16px; }
+.campaign-card > p { min-height: 36px; color: #64748b; font-size: 11px; line-height: 1.5; }
+.campaign-card dl { display: grid; grid-template-columns: 1fr 1fr 70px; gap: 8px; margin: 14px 0; padding: 11px; background: #f8fafc; border-radius: 10px; }
+.campaign-card dl div { min-width: 0; }
+.campaign-card dt { color: #94a3b8; font-size: 8.5px; }
+.campaign-card dd { margin: 3px 0 0; overflow: hidden; color: #334155; font-size: 10.5px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.campaign-card footer { display: flex; gap: 6px; }
+.campaign-card footer button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 31px; padding: 0 9px; color: #5b21b6; font: inherit; font-size: 10px; font-weight: 650; background: #f5f3ff; border: 0; border-radius: 8px; cursor: pointer; }
+.campaign-card footer button.is-danger { margin-left: auto; color: #dc2626; background: #fef2f2; }

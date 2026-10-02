@@ -1,0 +1,91 @@
+.brand-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.brand-form fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.brand-form legend {
+  padding: 0 0.4rem;
+  font-weight: 700;
+}
+
+.brand-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.brand-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.brand-form label.is-wide {
+  grid-column: 1 / -1;
+}
+
+.brand-form input,
+.brand-form textarea,
+.brand-form select {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  font-weight: 400;
+}
+
+.brand-form textarea {
+  resize: vertical;
+}
+
+.brand-form__check {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.brand-form__check input {
+  width: auto;
+}
+
+.brand-form .is-error {
+  color: var(--color-danger, #dc2626);
+}
+
+.brand-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.brand-form__actions button {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+}
+
+.brand-form__actions .is-primary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .brand-form__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-form label.is-wide {
+    grid-column: auto;
+  }
+}

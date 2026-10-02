@@ -1,0 +1,70 @@
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0.65rem 1rem;
+}
+
+.editor-toolbar__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.editor-toolbar button,
+.editor-toolbar__export,
+.editor-toolbar__campaign select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-primary);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.editor-toolbar button.is-primary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.editor-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.editor-toolbar__export select {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.editor-toolbar__campaign {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.editor-toolbar__campaign label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .editor-toolbar__campaign {
+    width: 100%;
+    margin-left: 0;
+  }
+}

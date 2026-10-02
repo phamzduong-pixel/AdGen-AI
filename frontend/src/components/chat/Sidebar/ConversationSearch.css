@@ -1,0 +1,56 @@
+.conversation-search { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; padding: 0 8px; min-height: 33px; color: #94a3b8; background: #fff; border: 1px solid #e2e8f0; border-radius: 9px; }
+.conversation-search input { flex: 1; min-width: 0; color: #334155; font: inherit; font-size: 12px; background: transparent; border: 0; outline: 0; }
+.conversation-search input::-webkit-search-cancel-button { display: none; }
+.conversation-search button { display: grid; place-items: center; padding: 3px; color: #64748b; background: transparent; border: 0; cursor: pointer; }
+
+/* ===== Dark Mode Styles ===== */
+:root[data-theme="dark"] .conversation-search,
+html.dark .conversation-search {
+  color: #94a3b8;
+  background: #141d2e;
+  border-color: #1e293b;
+}
+
+:root[data-theme="dark"] .conversation-search input,
+html.dark .conversation-search input {
+  color: #f8fafc;
+}
+
+:root[data-theme="dark"] .conversation-search input::placeholder,
+html.dark .conversation-search input::placeholder {
+  color: #64748b;
+}
+
+:root[data-theme="dark"] .conversation-search button,
+html.dark .conversation-search button {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .conversation-search button:hover,
+html.dark .conversation-search button:hover {
+  color: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .conversation-search {
+    color: #94a3b8;
+    background: #141d2e;
+    border-color: #1e293b;
+  }
+
+  :root[data-theme="system"] .conversation-search input {
+    color: #f8fafc;
+  }
+
+  :root[data-theme="system"] .conversation-search input::placeholder {
+    color: #64748b;
+  }
+
+  :root[data-theme="system"] .conversation-search button {
+    color: #94a3b8;
+  }
+
+  :root[data-theme="system"] .conversation-search button:hover {
+    color: #f8fafc;
+  }
+}

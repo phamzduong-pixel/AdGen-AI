@@ -1,0 +1,36 @@
+.verify-code-timer {
+  margin: -5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.verify-resend-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  color: #6366f1;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.verify-resend-button:hover:not(:disabled) {
+  background: #f5f3ff;
+}
+
+.verify-resend-button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.verify-resend-button:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.35);
+  outline-offset: 2px;
+}

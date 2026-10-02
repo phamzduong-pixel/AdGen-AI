@@ -1,0 +1,6 @@
+.dashboard-stat-card { display: flex; align-items: flex-start; gap: 13px; min-height: 120px; padding: 17px; background: #fff; border: 1px solid #e2e8f0; border-radius: 15px; box-shadow: 0 2px 8px rgb(15 23 42 / 4%); }
+.dashboard-stat-card > span { display: grid; flex: 0 0 38px; place-items: center; width: 38px; height: 38px; color: #6d28d9; background: #f3e8ff; border-radius: 11px; }
+.dashboard-stat-card p, .dashboard-stat-card strong, .dashboard-stat-card small { display: block; margin: 0; }
+.dashboard-stat-card p { color: #64748b; font-size: 11px; font-weight: 650; }
+.dashboard-stat-card strong { margin-top: 5px; color: #172033; font-size: 25px; line-height: 1; }
+.dashboard-stat-card small { margin-top: 8px; color: #94a3b8; font-size: 10px; }

@@ -1,0 +1,20 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+
+  width: 280px;
+  min-width: 280px;
+  height: 100vh;
+
+  background: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+
+  transition:
+    width 0.24s ease,
+    min-width 0.24s ease;
+}
+
+.sidebar--collapsed {
+  width: 76px;
+  min-width: 76px;
+}

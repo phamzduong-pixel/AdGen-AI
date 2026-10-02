@@ -1,0 +1,72 @@
+.brand-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 190px;
+  color: var(--color-text-secondary);
+}
+
+.brand-selector select {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.45rem 0.65rem;
+}
+
+.brand-selector--compact {
+  max-width: 210px;
+}
+
+.brand-selector--compact select {
+  border: 0;
+  background: transparent;
+  padding: 0.35rem 0;
+}
+
+@media (max-width: 640px) {
+  .brand-selector--compact {
+    min-width: 44px;
+    max-width: 150px;
+  }
+}
+
+/* ===== Dark Mode Styles ===== */
+:root[data-theme="dark"] .brand-selector select,
+html.dark .brand-selector select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+:root[data-theme="dark"] .brand-selector select option,
+html.dark .brand-selector select option {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+:root[data-theme="dark"] .brand-selector--compact select,
+html.dark .brand-selector--compact select {
+  background: transparent;
+  color: #f1f5f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .brand-selector select {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+
+  :root[data-theme="system"] .brand-selector select option {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+
+  :root[data-theme="system"] .brand-selector--compact select {
+    background: transparent;
+    color: #f1f5f9;
+  }
+}

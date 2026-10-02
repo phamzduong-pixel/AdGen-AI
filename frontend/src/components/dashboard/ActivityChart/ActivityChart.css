@@ -1,0 +1,11 @@
+.dashboard-chart-card { padding: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; }
+.dashboard-chart-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dashboard-chart-card h2, .dashboard-chart-card p { margin: 0; }
+.dashboard-chart-card h2 { color: #1e293b; font-size: 15px; }
+.dashboard-chart-card p { margin-top: 3px; color: #94a3b8; font-size: 11px; }
+.dashboard-chart-card header > span { color: #6d28d9; font-size: 10px; font-weight: 700; background: #f5f3ff; padding: 5px 8px; border-radius: 7px; }
+.activity-chart { margin-top: 18px; }
+.activity-chart svg { display: block; width: 100%; height: 210px; overflow: visible; }
+.activity-chart__area { fill: url("#activity-fill"); stroke: none; }
+.activity-chart__line { fill: none; stroke: #7c3aed; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.activity-chart__labels { display: flex; justify-content: space-between; margin-top: 4px; color: #94a3b8; font-size: 9px; }

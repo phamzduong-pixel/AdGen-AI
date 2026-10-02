@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="AdGen AI">
+  <defs>
+    <linearGradient id="adgen-gradient" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#adgen-gradient)"/>
+  <text x="24" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#fff">A</text>
+</svg>

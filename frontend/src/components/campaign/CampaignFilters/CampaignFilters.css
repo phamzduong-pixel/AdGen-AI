@@ -1,0 +1,7 @@
+.campaign-filters { display: flex; gap: 9px; margin-bottom: 17px; padding: 11px; background: #fff; border: 1px solid #e2e8f0; border-radius: 13px; }
+.campaign-filters label { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 180px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 9px; }
+.campaign-filters label svg { color: #94a3b8; }
+.campaign-filters input, .campaign-filters select { min-height: 36px; color: #334155; font: inherit; font-size: 11px; background: #fff; border: 0; outline: 0; }
+.campaign-filters input { flex: 1; min-width: 0; }
+.campaign-filters select { padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 9px; }
+@media (max-width: 680px) { .campaign-filters { flex-wrap: wrap; } .campaign-filters label { flex-basis: 100%; } .campaign-filters select { flex: 1; } }

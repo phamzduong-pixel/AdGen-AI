@@ -1,0 +1,41 @@
+.conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: 100%;
+
+  padding: 12px 14px;
+
+  color: var(--text);
+
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.conversation-item:hover {
+  background: var(--hover);
+}
+
+.conversation-item--selected {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.conversation-item__icon {
+  font-size: 18px;
+}
+
+.conversation-item__title {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 14px;
+}

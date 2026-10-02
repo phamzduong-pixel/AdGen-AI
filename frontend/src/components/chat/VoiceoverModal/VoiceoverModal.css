@@ -1,0 +1,435 @@
+﻿/* Voiceover Studio Modal & AudioPlayer Styles */
+
+.adgen-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.adgen-modal-card {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--text-main, #f8fafc);
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.adgen-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color, #334155);
+}
+
+.adgen-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adgen-modal-icon {
+  font-size: 24px;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 8px;
+  border-radius: 10px;
+  line-height: 1;
+}
+
+.adgen-modal-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.adgen-modal-title p {
+  margin: 2px 0 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.adgen-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  font-size: 20px;
+  transition: all 0.15s;
+}
+
+.adgen-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.adgen-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.adgen-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+
+.adgen-alert--error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.adgen-cleaner-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #34d399;
+}
+
+.adgen-cleaner-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.adgen-btn-link {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.adgen-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adgen-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-main, #e2e8f0);
+}
+
+.adgen-textarea-wrap {
+  position: relative;
+}
+
+.adgen-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  padding-bottom: 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #334155);
+  background: var(--bg-input, #0f172a);
+  color: var(--text-main, #f8fafc);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.adgen-textarea:focus {
+  border-color: #3b82f6;
+}
+
+.adgen-char-count {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+.adgen-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .adgen-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.adgen-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #334155);
+  background: var(--bg-input, #0f172a);
+  color: var(--text-main, #f8fafc);
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.adgen-select:focus {
+  border-color: #3b82f6;
+}
+
+.adgen-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adgen-slider-label {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.adgen-slider {
+  flex: 1;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.adgen-result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.adgen-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color, #334155);
+}
+
+.adgen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+}
+
+.adgen-btn--secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main, #f1f5f9);
+}
+
+.adgen-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.adgen-btn--primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.adgen-btn--primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.adgen-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.adgen-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================
+   AUDIO PLAYER STYLES
+   ========================================================== */
+
+.adgen-audio-player {
+  background: var(--bg-card, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-top: 8px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.adgen-audio-player--compact {
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+.adgen-audio-player__main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.adgen-audio-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-main, #f8fafc);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.adgen-audio-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.adgen-audio-btn--play {
+  width: 40px;
+  height: 40px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 16px;
+}
+
+.adgen-audio-btn--play:hover {
+  background: #2563eb;
+  transform: scale(1.04);
+}
+
+.adgen-audio-btn--icon {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.adgen-audio-btn--icon:hover {
+  color: #fff;
+}
+
+.adgen-audio-speed-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.adgen-audio-player__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adgen-audio-player__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adgen-audio-player__badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.adgen-audio-player__voice {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.adgen-audio-player__progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adgen-audio-player__seekbar {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.adgen-audio-player__seekbar::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+.adgen-audio-player__time {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, #94a3b8);
+}
+
+.adgen-audio-player__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -1,0 +1,229 @@
+.conversation-item {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-height: 36px;
+  padding: 0 7px 0 9px;
+
+  color: #475569;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  cursor: pointer;
+  outline: none;
+
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.conversation-item:hover {
+  color: #111827;
+  background: #eef2f7;
+}
+
+.conversation-item:focus-visible {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+}
+
+.conversation-item--selected {
+  color: #4338ca;
+  background: #eef2ff;
+  border-color: #e0e7ff;
+}
+
+.conversation-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+
+  width: 20px;
+  height: 20px;
+}
+
+.conversation-item__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.conversation-item__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+
+  font-size: 13px;
+  font-weight: 550;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation-item__pin {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  color: #64748b;
+}
+
+.conversation-item__more-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  color: #64748b;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 140ms ease,
+    color 140ms ease,
+    background-color 140ms ease;
+}
+
+.conversation-item:hover .conversation-item__more-button,
+.conversation-item:focus-within .conversation-item__more-button,
+.conversation-item--menu-open .conversation-item__more-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.conversation-item__more-button:hover,
+.conversation-item__more-button:focus-visible {
+  color: #111827;
+  background: #fff;
+  outline: none;
+}
+
+.conversation-item__rename-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.conversation-item__rename {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 7px;
+
+  color: #0f172a;
+  font: inherit;
+  font-size: 13px;
+
+  background: #fff;
+  border: 1px solid #818cf8;
+  border-radius: 7px;
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 12%);
+}
+
+.conversation-item__rename[aria-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgb(220 38 38 / 10%);
+}
+
+.conversation-item__rename-error {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 5px);
+  left: 0;
+
+  width: max-content;
+  max-width: 210px;
+  padding: 6px 8px;
+
+  color: #b91c1c;
+  font-size: 11px;
+
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 10%);
+}
+
+.conversation-item--collapsed {
+  justify-content: center;
+  width: 44px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===== Dark Mode Styles ===== */
+:root[data-theme="dark"] .conversation-item,
+html.dark .conversation-item {
+  color: #94a3b8;
+}
+
+:root[data-theme="dark"] .conversation-item:hover,
+html.dark .conversation-item:hover {
+  color: #f1f5f9;
+  background: #1e293b;
+}
+
+:root[data-theme="dark"] .conversation-item--selected,
+html.dark .conversation-item--selected {
+  color: #c7d2fe;
+  background: #1e1b4b;
+  border-color: #4338ca;
+}
+
+:root[data-theme="dark"] .conversation-item__more-button:hover,
+:root[data-theme="dark"] .conversation-item__more-button:focus-visible,
+html.dark .conversation-item__more-button:hover,
+html.dark .conversation-item__more-button:focus-visible {
+  color: #f8fafc;
+  background: #273449;
+}
+
+:root[data-theme="dark"] .conversation-item__rename,
+html.dark .conversation-item__rename {
+  background: #0f172a;
+  border-color: #6366f1;
+  color: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .conversation-item {
+    color: #94a3b8;
+  }
+
+  :root[data-theme="system"] .conversation-item:hover {
+    color: #f1f5f9;
+    background: #1e293b;
+  }
+
+  :root[data-theme="system"] .conversation-item--selected {
+    color: #c7d2fe;
+    background: #1e1b4b;
+    border-color: #4338ca;
+  }
+
+  :root[data-theme="system"] .conversation-item__more-button:hover,
+  :root[data-theme="system"] .conversation-item__more-button:focus-visible {
+    color: #f8fafc;
+    background: #273449;
+  }
+
+  :root[data-theme="system"] .conversation-item__rename {
+    background: #0f172a;
+    border-color: #6366f1;
+    color: #f8fafc;
+  }
+}

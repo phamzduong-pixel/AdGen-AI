@@ -1,0 +1,64 @@
+.message-list {
+  flex: 1;
+
+  width: 100%;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  overflow-anchor: none;
+
+  background: var(--color-background, #ffffff);
+}
+
+/* The desktop welcome screen is designed to fit between the header and composer. */
+@media (min-width: 701px) {
+  .message-list--empty {
+    overflow: hidden;
+  }
+}
+
+:root[data-theme="dark"] .message-list,
+html.dark .message-list {
+  background: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .message-list {
+    background: #0f172a;
+  }
+}
+
+.message-list__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  width: min(100%, 940px);
+  min-height: 100%;
+
+  margin: 0 auto;
+
+  /*
+    Chừa khoảng trống phía dưới để tin nhắn cuối
+    không bị ChatInput che mất.
+  */
+  padding: 28px 18px 42px;
+}
+
+/* Empty state must share the available content height with the composer. */
+.message-list--empty {
+  overflow: hidden;
+}
+
+.message-list--empty .message-list__inner {
+  min-height: 100%;
+}
+
+.message-list--empty .empty-state {
+  min-height: 0;
+  flex: 1 1 auto;
+}

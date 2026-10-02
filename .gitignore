@@ -1,0 +1,39 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/venv/
+backend/uploads/
+*.db
+*.sqlite*
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+*.log
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local environments and generated artifacts
+backend/venv/
+backend/venv_backup/
+backend/.venv/
+backend/.pytest_cache/
+backend/__pycache__/
+frontend/node_modules/
+frontend/dist/
+
+# Local databases and uploaded data
+*.db
+*.sqlite
+*.sqlite3
+backend/uploads/

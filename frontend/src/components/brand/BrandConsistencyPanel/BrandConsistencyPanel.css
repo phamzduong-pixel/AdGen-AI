@@ -1,0 +1,50 @@
+.brand-check,
+.brand-check__loading {
+  display: grid;
+  gap: 1rem;
+}
+
+.brand-check__loading {
+  place-items: center;
+  min-height: 130px;
+  color: var(--color-text-secondary);
+}
+
+.brand-check__score {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+  color: #dc2626;
+  padding: 1rem;
+}
+
+.brand-check__score.is-good {
+  background: color-mix(in srgb, #16a34a 10%, transparent);
+  color: #15803d;
+}
+
+.brand-check__score svg {
+  font-size: 1.4rem;
+}
+
+.brand-check h3,
+.brand-check p {
+  margin: 0;
+}
+
+.brand-check h3 {
+  font-size: 0.95rem;
+}
+
+.brand-check ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.brand-check small {
+  color: var(--color-text-secondary);
+}
