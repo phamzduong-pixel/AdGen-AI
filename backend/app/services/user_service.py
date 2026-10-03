@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import HTTPException
 from fastapi import status
+from fastapi import UploadFile
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -20,6 +23,100 @@ from app.schemas.user import UserProfileResponse
 from app.schemas.user import UserSettingsResponse
 from app.schemas.user import UserSettingsUpdate
 from app.schemas.user import UserUpdate
+from app.services.file_storage import LocalFileStorage
+from app.services.file_storage import StorageSizeLimitError
+
+LOCAL_AVATAR_PREFIX = "local-avatar:"
+MAX_AVATAR_SIZE = 5 * 1024 * 1024
+AVATAR_MIME_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
+
+
+def avatar_url_for_client(user: User) -> str | None:
+    """Return a safe, browser-usable avatar URL without exposing disk paths."""
+    if user.avatar_url and user.avatar_url.startswith(LOCAL_AVATAR_PREFIX):
+        return "/users/me/avatar"
+    return user.avatar_url
+
+
+def _local_avatar_location(user: User) -> str | None:
+    value = user.avatar_url or ""
+    return value.removeprefix(LOCAL_AVATAR_PREFIX) if value.startswith(LOCAL_AVATAR_PREFIX) else None
+
+
+def _validate_avatar_upload(file: UploadFile) -> tuple[str, str]:
+    filename = Path((file.filename or "").replace("\\", "/")).name
+    extension = Path(filename).suffix.lower()
+    content_type = (file.content_type or "").lower()
+    if not filename or AVATAR_MIME_TYPES.get(extension) != content_type:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ảnh đại diện chỉ hỗ trợ JPG, PNG hoặc WEBP")
+    return extension, content_type
+
+
+async def _validate_avatar_signature(file: UploadFile, extension: str) -> None:
+    header = await file.read(16)
+    await file.seek(0)
+    valid = (
+        (extension in {".jpg", ".jpeg"} and header.startswith(b"\xff\xd8\xff"))
+        or (extension == ".png" and header.startswith(b"\x89PNG\r\n\x1a\n"))
+        or (extension == ".webp" and header.startswith(b"RIFF") and header[8:12] == b"WEBP")
+    )
+    if not valid:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nội dung tệp không phải là ảnh hợp lệ")
+
+
+async def upload_avatar_service(file: UploadFile, db: Session, current_user: User, storage: LocalFileStorage) -> UserProfileResponse:
+    old_location = _local_avatar_location(current_user)
+    stored = None
+    try:
+        extension, _ = _validate_avatar_upload(file)
+        await _validate_avatar_signature(file, extension)
+        stored = await storage.save(file, extension, MAX_AVATAR_SIZE, 1024 * 1024)
+        current_user.avatar_url = f"{LOCAL_AVATAR_PREFIX}{stored.location}"
+        db.commit()
+        db.refresh(current_user)
+    except StorageSizeLimitError as error:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail="Ảnh đại diện không được vượt quá 5 MB") from error
+    except HTTPException:
+        db.rollback()
+        if stored:
+            storage.delete(stored.location)
+        raise
+    except Exception as error:
+        db.rollback()
+        if stored:
+            storage.delete(stored.location)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Không thể lưu ảnh đại diện") from error
+    finally:
+        await file.close()
+    if old_location:
+        storage.delete(old_location)
+    return get_profile_service(db, current_user)
+
+
+def get_avatar_path_service(current_user: User, storage: LocalFileStorage) -> Path:
+    location = _local_avatar_location(current_user)
+    if not location:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chưa có ảnh đại diện")
+    try:
+        return storage.resolve(location)
+    except FileNotFoundError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ảnh đại diện không còn tồn tại") from error
+
+
+def delete_avatar_service(db: Session, current_user: User, storage: LocalFileStorage) -> UserProfileResponse:
+    location = _local_avatar_location(current_user)
+    current_user.avatar_url = None
+    db.commit()
+    db.refresh(current_user)
+    if location:
+        storage.delete(location)
+    return get_profile_service(db, current_user)
 
 
 def get_profile_service(
@@ -59,6 +156,7 @@ def get_profile_service(
         email=current_user.email,
         created_at=current_user.created_at,
         email_verified=current_user.email_verified,
+        avatar_url=avatar_url_for_client(current_user),
         total_conversations=int(total_conversations or 0),
         total_saved_contents=int(total_saved or 0),
         total_campaigns=int(total_campaigns or 0),

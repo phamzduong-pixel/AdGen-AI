@@ -7,6 +7,7 @@ validated operation data and the adapter constructs an argument list itself.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -96,6 +97,21 @@ class FFmpegVideoProcessor:
             "-vf", video_filter, "-c:v", "libx264", "-c:a", "aac",
             "-movflags", "+faststart", str(destination),
         ])
+    @staticmethod
+    def _fontfile_filter() -> str:
+        """Return a portable, explicit font file for FFmpeg drawtext."""
+        configured = os.getenv("ADGEN_VIDEO_FONT_FILE", "").strip()
+        candidates = [
+            Path(configured) if configured else None,
+            Path(os.getenv("WINDIR", "C:/Windows")) / "Fonts" / "arial.ttf",
+            Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+            Path("/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"),
+        ]
+        for candidate in candidates:
+            if candidate and candidate.is_file():
+                safe_path = str(candidate).replace("\\", "/").replace(":", "\\:")
+                return f"fontfile='{safe_path}':"
+        return ""
     def text_overlay(self, source: Path, destination: Path, text: str, start: float, end: float,
                      position: str, font_size: int, text_color: str, background: bool) -> None:
         text_path = destination.with_suffix(".txt")
@@ -105,7 +121,7 @@ class FFmpegVideoProcessor:
             y_position = {"top": "40", "center": "(h-text_h)/2", "bottom": "h-text_h-40"}[position]
             box = ":box=1:boxcolor=black@0.55:boxborderw=14" if background else ""
             draw = (
-                f"drawtext=textfile='{safe_path}':fontsize={font_size}:fontcolor={text_color}:"
+                f"drawtext={self._fontfile_filter()}textfile='{safe_path}':fontsize={font_size}:fontcolor={text_color}:"
                 f"x=(w-text_w)/2:y={y_position}:enable='between(t,{start:.3f},{end:.3f})'{box}"
             )
             self._run([

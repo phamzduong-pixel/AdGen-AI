@@ -27,6 +27,7 @@ from app.services.auth_service import (
     register_user,
     login_user,
 )
+from app.services.google_auth_service import GOOGLE_CLIENT_ID_PATTERN
 from app.services.google_auth_service import login_with_google
 from app.services.password_reset_service import request_password_reset
 from app.services.password_reset_service import reset_password
@@ -52,6 +53,7 @@ from app.core.config import settings
 from app.models.user_session import UserSession
 
 from app.models.user import User
+from app.services.user_service import avatar_url_for_client
 
 
 router = APIRouter(
@@ -104,6 +106,14 @@ def login(
         request,
     )
 
+
+@router.get("/google/config")
+def google_config():
+    """Expose only the public Google OAuth client id to the frontend."""
+    client_id = settings.GOOGLE_CLIENT_ID
+    return {
+        "client_id": client_id if GOOGLE_CLIENT_ID_PATTERN.fullmatch(client_id) else None,
+    }
 
 @router.post(
     "/google",
@@ -184,8 +194,9 @@ def me(
     ),
 ):
 
-    return current_user
-
+    return UserResponse.model_validate(current_user).model_copy(
+        update={"avatar_url": avatar_url_for_client(current_user)}
+    )
 
 @router.get("/sessions", response_model=list[SessionResponse])
 def sessions(

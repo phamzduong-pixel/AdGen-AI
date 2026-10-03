@@ -1,6 +1,6 @@
-﻿# Tài liệu hệ thống AdGen AI
+# Tài liệu hệ thống AdGen AI
 
-> Phiên bản tài liệu: 02/10/2026  
+> Phiên bản tài liệu: 04/10/2026
 > Phạm vi: mã nguồn hiện tại trong repository `AdGenAI`
 
 Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thống đang có. Mỗi tài liệu trỏ về module hoặc file nguồn liên quan để dễ kiểm tra khi mã nguồn thay đổi.
@@ -17,6 +17,8 @@ Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thốn
 | [05-api-va-frontend.md](./05-api-va-frontend.md) | Các nhóm API, route giao diện và quy ước tích hợp |
 | [06-trien-khai-va-van-hanh.md](./06-trien-khai-va-van-hanh.md) | Chạy local, Docker, Render, biến môi trường và kiểm tra |
 | [07-quy-uoc-dong-bo-tai-lieu.md](./07-quy-uoc-dong-bo-tai-lieu.md) | Cách cập nhật tài liệu khi hệ thống thay đổi |
+| [15-runtime-hardening-and-handoff.md](./15-runtime-hardening-and-handoff.md) | Báo cáo bàn giao runtime, bảo mật endpoint, database bootstrap, kiểm thử và nhận diện giao diện |
+
 | [09-ke-hoach-tao-anh-video.md](./09-ke-hoach-tao-anh-video.md) | Kế hoạch tạo ảnh, tạo video và chỉnh sửa video |
 | [PROJECT_TREE.md](./PROJECT_TREE.md) | Cây thư mục source hiện tại và phạm vi các thư mục runtime bị loại khỏi tài liệu |
 

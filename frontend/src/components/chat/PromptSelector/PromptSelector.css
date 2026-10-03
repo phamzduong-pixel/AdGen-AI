@@ -13,70 +13,163 @@
 
 .prompt-selector__control {
   position: relative;
-
   display: flex;
   align-items: center;
-
   min-width: 150px;
 }
 
 .prompt-selector__select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
   height: 38px;
-
-  padding: 0 34px 0 12px;
-
+  padding: 0 11px 0 12px;
   color: #334155;
-  font-family: inherit;
+  font: inherit;
   font-size: 13px;
   font-weight: 650;
-
-  appearance: none;
+  text-align: left;
   background: #ffffff;
   border: 1px solid #dfe3eb;
   border-radius: 10px;
   outline: none;
-
   cursor: pointer;
-
-  transition:
-    border-color 0.18s ease,
-    background-color 0.18s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.prompt-selector__select:hover {
+.prompt-selector__select:hover:not(:disabled) {
+  background: #f8fafc;
   border-color: #cbd5e1;
 }
 
-.prompt-selector__select:focus {
+.prompt-selector__select:focus-visible {
   border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
 }
 
-.prompt-selector__control svg {
-  position: absolute;
-  right: 11px;
+.prompt-selector__select.is-open {
+  background: #ffffff;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+}
 
+.prompt-selector__select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.prompt-selector__select > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prompt-selector__select > svg {
+  flex: 0 0 auto;
   width: 15px;
   height: 15px;
-
   color: #94a3b8;
+  transition: transform 0.18s ease;
+}
 
-  pointer-events: none;
+.prompt-selector__select.is-open > svg {
+  transform: rotate(180deg);
+}
+
+.prompt-selector__menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  width: 100%;
+  min-width: 190px;
+  max-height: min(300px, 45vh);
+  padding: 6px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 14px 32px rgb(15 23 42 / 16%), 0 2px 8px rgb(15 23 42 / 8%);
+  animation: prompt-menu-in 0.14s ease-out;
+}
+
+@keyframes prompt-menu-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.prompt-selector__group + .prompt-selector__group {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.prompt-selector__group-label {
+  padding: 5px 9px 4px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.prompt-selector__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.prompt-selector__option:hover,
+.prompt-selector__option.is-active {
+  color: #3730a3;
+  background: #eef2ff;
+}
+
+.prompt-selector__option.is-selected {
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+.prompt-selector__option svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
 }
 
 .prompt-selector--compact .prompt-selector__control {
-  min-width: 118px;
+  min-width: 150px;
 }
 
 .prompt-selector--compact .prompt-selector__select {
   height: 36px;
-
   background: #f8fafc;
   border-color: transparent;
 }
 
-.prompt-selector--compact .prompt-selector__select:hover {
-  background: #eef2f7;
+.prompt-selector--compact .prompt-selector__select:hover:not(:disabled),
+.prompt-selector--compact .prompt-selector__select.is-open {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.prompt-selector--compact .prompt-selector__menu {
+  min-width: 180px;
 }
 
 /* ===== Dark Mode Styles ===== */
@@ -86,71 +179,65 @@ html.dark .prompt-selector__label {
 }
 
 :root[data-theme="dark"] .prompt-selector__select,
-html.dark .prompt-selector__select {
+html.dark .prompt-selector__select,
+:root[data-theme="dark"] .prompt-selector__menu,
+html.dark .prompt-selector__menu {
   color: #f1f5f9;
   background: #0f172a;
   border-color: #334155;
 }
 
-:root[data-theme="dark"] .prompt-selector__select option,
-html.dark .prompt-selector__select option {
-  background: #0f172a;
-  color: #f1f5f9;
-}
-
-:root[data-theme="dark"] .prompt-selector__select:hover,
-html.dark .prompt-selector__select:hover {
+:root[data-theme="dark"] .prompt-selector__select:hover:not(:disabled),
+html.dark .prompt-selector__select:hover:not(:disabled),
+:root[data-theme="dark"] .prompt-selector__select.is-open,
+html.dark .prompt-selector__select.is-open {
+  background: #172033;
   border-color: #475569;
 }
 
-:root[data-theme="dark"] .prompt-selector__select:focus,
-html.dark .prompt-selector__select:focus {
-  border-color: #6366f1;
+:root[data-theme="dark"] .prompt-selector__group + .prompt-selector__group,
+html.dark .prompt-selector__group + .prompt-selector__group {
+  border-color: #1e293b;
 }
 
-:root[data-theme="dark"] .prompt-selector--compact .prompt-selector__select,
-html.dark .prompt-selector--compact .prompt-selector__select {
-  background: #0f172a;
-  border: 1px solid #334155;
-  color: #f1f5f9;
+:root[data-theme="dark"] .prompt-selector__group-label,
+html.dark .prompt-selector__group-label {
+  color: #94a3b8;
 }
 
-:root[data-theme="dark"] .prompt-selector--compact .prompt-selector__select:hover,
-html.dark .prompt-selector--compact .prompt-selector__select:hover {
+:root[data-theme="dark"] .prompt-selector__option,
+html.dark .prompt-selector__option {
+  color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .prompt-selector__option:hover,
+html.dark .prompt-selector__option:hover,
+:root[data-theme="dark"] .prompt-selector__option.is-active,
+html.dark .prompt-selector__option.is-active {
+  color: #c4b5fd;
   background: #273449;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] .prompt-selector__label {
-    color: #94a3b8;
-  }
+:root[data-theme="dark"] .prompt-selector__option.is-selected,
+html.dark .prompt-selector__option.is-selected {
+  color: #a5b4fc;
+}
 
-  :root[data-theme="system"] .prompt-selector__select {
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .prompt-selector__select,
+  :root[data-theme="system"] .prompt-selector__menu {
     color: #f1f5f9;
     background: #0f172a;
     border-color: #334155;
   }
 
-  :root[data-theme="system"] .prompt-selector__select option {
-    background: #0f172a;
-    color: #f1f5f9;
+  :root[data-theme="system"] .prompt-selector__option {
+    color: #e2e8f0;
   }
 
-  :root[data-theme="system"] .prompt-selector__select:hover {
-    border-color: #475569;
-  }
-
-  :root[data-theme="system"] .prompt-selector__select:focus {
-    border-color: #6366f1;
-  }
-
-  :root[data-theme="system"] .prompt-selector--compact .prompt-selector__select {
-    background: #0f172a;
-    border: 1px solid #334155;
-    color: #f1f5f9;
-  }
-
-  :root[data-theme="system"] .prompt-selector--compact .prompt-selector__select:hover {
+  :root[data-theme="system"] .prompt-selector__option:hover,
+  :root[data-theme="system"] .prompt-selector__option.is-active {
+    color: #c4b5fd;
     background: #273449;
   }
 }
@@ -159,15 +246,16 @@ html.dark .prompt-selector--compact .prompt-selector__select:hover {
   min-width: 190px;
   height: 36px;
   padding: 0 11px;
-  border: 1px solid #dfe3eb;
-  border-radius: 10px;
   color: #334155;
-  background: #fff;
   font: inherit;
   font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #dfe3eb;
+  border-radius: 10px;
   outline: none;
 }
 
 .prompt-selector__custom-name:focus {
   border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
 }

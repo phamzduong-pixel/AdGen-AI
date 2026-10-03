@@ -124,7 +124,7 @@ class VideoEditPlanService:
     ) -> ConversationalEditPlan:
         instruction = _plain(request.instruction)
         if self._unsupported_instruction(instruction):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="The requested video operation is not supported")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="The requested video operation is not supported")
 
         parsed: list[tuple[int, VideoEditRequest]] = []
 
@@ -152,7 +152,7 @@ class VideoEditPlanService:
         elif remain_match:
             parsed.append((remain_match.start(), TrimVideoOperation(operation="trim", start=0.0, end=_number(remain_match.group(1)))))
         elif re.search(r"\b(?:cat|trim)\b", instruction):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Trim requires a valid time range")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Trim requires a valid time range")
 
         aspect_match = re.search(r"\b(16:9|9:16|1:1|4:5)\b", instruction)
         if aspect_match and re.search(r"\b(?:ty le|aspect|crop|doc|ngang|vertical|portrait|tiktok|story)\b", instruction):
@@ -175,7 +175,7 @@ class VideoEditPlanService:
                 position=_position(instruction),
             )))
         elif re.search(r"\b(?:cta|call to action)\b", instruction):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="CTA requires quoted text")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="CTA requires quoted text")
 
         text_match = re.search(r"\b(?:them text|add text|text overlay)\b\s*[:\-]?\s*(['\"])(.*?)\1", instruction)
         if text_match:
@@ -194,7 +194,7 @@ class VideoEditPlanService:
                 position=_position(instruction),
             )))
         elif re.search(r"\b(?:them text|add text|text overlay)\b", instruction):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Text overlay requires quoted text")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Text overlay requires quoted text")
 
         subtitle_pattern = re.compile(
             r"\b(?:subtitle|phu de)\b\s*[:\-]?\s*(['\"])(.*?)\1\s*(?:tu|from)\s*(\d+(?:[.,]\d+)?)\s*(?:giay|s)?\s*(?:den|to)\s*(\d+(?:[.,]\d+)?)",
@@ -211,7 +211,7 @@ class VideoEditPlanService:
                 })
             parsed.append((subtitle_matches[0].start(), SubtitleOperation(operation="subtitle", entries=entries, position=_position(instruction))))
         elif re.search(r"\b(?:subtitle|phu de)\b", instruction):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Subtitle requires quoted text and timing")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Subtitle requires quoted text and timing")
 
         if re.search(r"\b(?:tat tieng|mute|muted)\b", instruction):
             match = re.search(r"\b(?:tat tieng|mute|muted)\b", instruction)
@@ -228,14 +228,14 @@ class VideoEditPlanService:
             match = re.search(r"\b(?:ghep|merge|join)\b", instruction)
             source_ids = [source_asset_id, *request.merge_source_asset_ids]
             if len(set(source_ids)) < 2:
-                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Merge requires at least two valid source assets")
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Merge requires at least two valid source assets")
             parsed.append((match.start(), MergeVideoOperation(operation="merge", source_asset_ids=list(dict.fromkeys(source_ids)))))
 
         if not parsed:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="No supported video operation was found")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="No supported video operation was found")
         parsed.sort(key=lambda item: item[0])
         if len(parsed) > MAX_CONVERSATIONAL_OPERATIONS:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Too many video operations in one request")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Too many video operations in one request")
         return ConversationalEditPlan(source_asset_id=source_asset_id, operations=[operation for _, operation in parsed])
 
     def _get_source(self, db: Session, conversation_id: int, source_asset_id: int, current_user: User) -> MediaAsset:
@@ -256,12 +256,12 @@ class VideoEditPlanService:
         metadata = self.video_service._probe_source(source)
         if source.duration_seconds is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Source video has no duration metadata",
             )
         if abs(float(source.duration_seconds) - metadata.duration_seconds) > 0.25:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Source video metadata is not consistent",
             )
         return source, metadata
@@ -284,19 +284,19 @@ class VideoEditPlanService:
         for index, operation in enumerate(plan.operations):
             if isinstance(operation, TrimVideoOperation):
                 if operation.end > duration:
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Trim timing exceeds the current video duration")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Trim timing exceeds the current video duration")
                 duration = operation.end - operation.start
             elif isinstance(operation, TextOverlayOperation):
                 if operation.end > duration:
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Overlay timing exceeds the current video duration")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Overlay timing exceeds the current video duration")
             elif isinstance(operation, SubtitleOperation):
                 if any(entry.end > duration for entry in operation.entries):
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Subtitle timing exceeds the current video duration")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Subtitle timing exceeds the current video duration")
             elif isinstance(operation, MergeVideoOperation):
                 if index != 0:
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Merge must be the first operation in a plan")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Merge must be the first operation in a plan")
                 if plan.source_asset_id not in operation.source_asset_ids:
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Merge must include the route source asset")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Merge must include the route source asset")
                 preflight_sources = [
                     self._preflight_source(
                         db=db,
@@ -320,14 +320,14 @@ class VideoEditPlanService:
                 }
                 if len(compatibility) != 1:
                     raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                         detail="Merge sources are not compatible",
                     )
                 durations = [item.duration_seconds for item in metadata]
                 duration = sum(durations)
                 if duration > settings.MAX_VIDEO_DURATION_SECONDS:
                     raise HTTPException(
-                        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                         detail="Merged video exceeds the duration limit",
                     )
         return source
@@ -505,7 +505,7 @@ class VideoEditPlanService:
                 elif isinstance(operation, MergeVideoOperation):
                     asset = self.video_service.merge(**kwargs)
                 else:
-                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Unsupported video operation")
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Unsupported video operation")
             except Exception as error:
                 raise ConversationalEditExecutionError(
                     created_assets=created,

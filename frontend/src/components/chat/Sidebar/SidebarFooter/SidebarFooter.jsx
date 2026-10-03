@@ -11,6 +11,7 @@ import {
   FiX,
 } from "react-icons/fi";
 
+import UserAvatar from "../../../user/UserAvatar";
 import useAuth from "../../../../hooks/useAuth";
 import "./SidebarFooter.css";
 
@@ -51,7 +52,7 @@ function SidebarFooter({ collapsed = false, user = null }) {
   return (
     <div className="sidebar-footer">
       <div className={`sidebar-user ${collapsed ? "sidebar-user--collapsed" : ""}`}>
-        <div className="sidebar-user__avatar"><span>{initials}</span></div>
+        <UserAvatar user={account} className="sidebar-user__avatar" fallback={<span>{initials}</span>} alt={`Ảnh đại diện của ${displayName}`} />
         {!collapsed && (
           <>
             <div className="sidebar-user__info"><strong>{displayName}</strong><span>{email}</span></div>

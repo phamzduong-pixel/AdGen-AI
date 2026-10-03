@@ -369,3 +369,26 @@ database, cần đăng ký lại tài khoản demo.
 - Tests: `backend/tests/`, `frontend/tests/`
 - Deployment: `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`,
   `render.yaml`
+
+## 13. Cập nhật nhận diện giao diện và logo (04/10/2026)
+
+Section giao diện đã được đồng bộ theo nhận diện Login/Register và source frontend hiện tại:
+
+- Chuẩn hóa token `--brand-mark-*` trong `frontend/src/styles/variables.css` cho mọi logo thương hiệu.
+- Chế độ sáng dùng nền lavender `#eef2ff`, chữ/icon indigo `#4f46e5`, viền xanh nhạt và bóng nhẹ.
+- Chế độ tối và system dark dùng nền indigo `#1e1b4b`, chữ/icon lavender `#a5b4fc`, viền `#312e81`.
+- Áp dụng cho logo DG tại Sidebar, Login, Register, Recovery và Workspace; biểu tượng thương hiệu ở màn hình Chat cũng dùng cùng bộ màu.
+- Logo tia sét trong tiêu đề cuộc trò chuyện đã được bỏ theo thiết kế mới; Header chỉ còn tên cuộc trò chuyện và trạng thái hệ thống.
+- Avatar người dùng trong Profile/Sidebar vẫn là thành phần tài khoản riêng, không bị trộn với logo thương hiệu.
+- Chat light/dark đã đồng bộ nền hội thoại, footer quanh ô nhập và composer; composer dark chỉ sáng hơn nhẹ để giữ phân cấp thị giác.
+
+Các file nguồn chính: `frontend/src/styles/variables.css`, `frontend/src/pages/Login/Login.css`, `frontend/src/pages/Register/Register.css`, `frontend/src/components/auth/RecoveryLayout/RecoveryLayout.css`, `frontend/src/layouts/WorkspaceLayout/WorkspaceLayout.css`, `frontend/src/components/chat/EmptyState/EmptyState.css`, `frontend/src/components/chat/Sidebar/SidebarHeader/SidebarHeader.css`, `frontend/src/components/chat/Header/HeaderTitle/HeaderTitle.jsx`.
+
+Bằng chứng kiểm tra section này:
+
+- `npm run lint`: PASS.
+- `npm test`: PASS, 38/38 frontend tests.
+- `npm run build`: PASS, Vite production build thành công.
+- `git diff --check`: PASS.
+
+Các kết quả trên xác nhận implementation và frontend unit/build checks; chưa thay thế cho visual QA thủ công trên mọi trình duyệt/kích thước màn hình.

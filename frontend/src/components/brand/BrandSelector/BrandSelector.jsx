@@ -1,4 +1,4 @@
-import { FiBriefcase } from "react-icons/fi";
+import { FiBriefcase, FiChevronDown } from "react-icons/fi";
 import "./BrandSelector.css";
 
 function BrandSelector({
@@ -13,7 +13,7 @@ function BrandSelector({
       className={`brand-selector ${compact ? "brand-selector--compact" : ""}`}
       title="Chọn hồ sơ thương hiệu cho nội dung AI"
     >
-      <FiBriefcase aria-hidden="true" />
+      <FiBriefcase className="brand-selector__icon" aria-hidden="true" />
       <select
         value={value ?? ""}
         onChange={(event) =>
@@ -29,6 +29,7 @@ function BrandSelector({
           </option>
         ))}
       </select>
+      <FiChevronDown className="brand-selector__chevron" aria-hidden="true" />
     </label>
   );
 }

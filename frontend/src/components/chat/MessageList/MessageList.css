@@ -62,3 +62,11 @@ html.dark .message-list {
   min-height: 0;
   flex: 1 1 auto;
 }
+
+/* Keep the conversation canvas aligned with the area around the composer. */
+.message-list { background: var(--color-main-bg); }
+:root[data-theme="dark"] .message-list,
+html.dark .message-list { background: var(--color-main-bg); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .message-list { background: var(--color-main-bg); }
+}

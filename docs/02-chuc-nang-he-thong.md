@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Tài khoản | Đăng ký, login local, Google Login tùy chọn, email verification, quên/reset password OTP, logout phiên | `auth.py`, `auth_service.py`, token services | Login, Register, VerifyEmail, ForgotPassword, ResetPassword, ActiveSessions |
 | Chat AI | CRUD hội thoại, ghim, đổi tên, gửi message, stream, sửa và sinh lại phản hồi | `conversation.py`, `message.py`, `message_service.py` | Chat, nhóm `chat/*`, `useChat`, `useConversation` |
-| Brief quảng cáo | Nhập sản phẩm, đối tượng, mục tiêu, platform, tone, ngôn ngữ, độ dài | `schemas/message.py`, `prompts/ad_brief.py` | `AdBriefForm` |
+| Thông tin quảng cáo | Nhập sản phẩm, đối tượng, mục tiêu, platform, tone, ngôn ngữ, độ dài | `schemas/message.py`, `prompts/ad_brief.py` | `AdBriefForm` |
 | Nền tảng nội dung | Facebook, TikTok, Instagram, Shopee, Google Ads và Khác; mục Khác bắt buộc tên nơi đăng | `platforms.py`, `prompt_service.py`, `message_service.py` | PromptSelector, AdBriefForm, Campaign và Template |
 | Thương hiệu | CRUD brand, chọn brand, asset, consistency check, thống kê | `brand.py`, `brand_service.py`, `brand_prompt.py` | Brands, BrandSelector, BrandConsistencyPanel |
 | Template | System/custom template, tạo/sửa/xóa custom, favorite | `template.py`, `template_service.py` | Templates, TemplateQuickStart |
@@ -22,7 +22,7 @@
 ## 2.2. Chat và tạo nội dung
 
 1. Người dùng chọn hoặc tạo conversation.
-2. Có thể chọn brand, template hoặc điền `AdBrief`.
+2. Có thể chọn brand, template hoặc điền thông tin quảng cáo.
 3. Frontend gửi `conversation_id`, `content`, `prompt_type`, `ad_brief`, `brand_id` và `attachment_ids` nếu có.
 4. Backend kiểm tra conversation/brand/file thuộc user hiện tại.
 5. Tin nhắn user được lưu trước; AI nhận lịch sử và context.

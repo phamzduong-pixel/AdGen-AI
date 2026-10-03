@@ -19,7 +19,7 @@ import { checkBrandContent } from "../../services/api/brandApi";
 import { getCampaigns } from "../../services/api/campaignApi";
 import { evaluateContent } from "../../services/api/contentToolsApi";
 import { getUserErrorMessage } from "../../utils/apiError";
-import { LEGACY_PLATFORM_LABELS, PLATFORM_OPTIONS, getPlatformLabel } from "../../constants/platforms";
+import { PLATFORM_OPTIONS, getPlatformLabel } from "../../constants/platforms";
 import {
   buildEditorMarkdown,
   exportEditorContent,

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { getGoogleClientId } from "../../../services/api/authApi";
 import "./GoogleLoginButton.css";
 
 const GOOGLE_SCRIPT_ID = "google-identity-services";
@@ -16,14 +17,8 @@ function loadGoogleIdentityServices() {
   googleScriptPromise = new Promise((resolve, reject) => {
     const existingScript = document.getElementById(GOOGLE_SCRIPT_ID);
     const script = existingScript || document.createElement("script");
-
     script.addEventListener("load", resolve, { once: true });
-    script.addEventListener(
-      "error",
-      () => reject(new Error("Không thể tải Google Identity Services")),
-      { once: true },
-    );
-
+    script.addEventListener("error", () => reject(new Error("Không thể tải Google Identity Services")), { once: true });
     if (!existingScript) {
       script.id = GOOGLE_SCRIPT_ID;
       script.src = "https://accounts.google.com/gsi/client?hl=vi";
@@ -31,27 +26,55 @@ function loadGoogleIdentityServices() {
       document.head.appendChild(script);
     }
   });
-
   return googleScriptPromise;
 }
 
 function isConfiguredGoogleClientId(id) {
-  if (!id) return false;
-  if (!GOOGLE_CLIENT_ID_PATTERN.test(id)) return false;
-  if (id.includes("example") || id.includes("your-client-id")) return false;
-  return true;
+  if (!id || !GOOGLE_CLIENT_ID_PATTERN.test(id)) return false;
+  return !id.includes("example") && !id.includes("your-client-id");
 }
 
 function GoogleLoginButton({ onCredential, disabled = false }) {
   const containerRef = useRef(null);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
-  const hasValidClientId = isConfiguredGoogleClientId(clientId);
+  const envClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() || "";
+  const envClientIdIsValid = isConfiguredGoogleClientId(envClientId);
+  const [clientId, setClientId] = useState(() => (envClientIdIsValid ? envClientId : ""));
+  const [configLoading, setConfigLoading] = useState(() => !envClientIdIsValid);
+  const [configError, setConfigError] = useState("");
   const [scriptError, setScriptError] = useState("");
 
   useEffect(() => {
     credentialHandler = onCredential;
-    if (!hasValidClientId || disabled) return undefined;
+    return () => {
+      if (credentialHandler === onCredential) credentialHandler = undefined;
+    };
+  }, [onCredential]);
 
+  useEffect(() => {
+    if (envClientIdIsValid) return undefined;
+    let active = true;
+    getGoogleClientId()
+      .then((serverClientId) => {
+        if (!active) return;
+        if (isConfiguredGoogleClientId(serverClientId)) {
+          setClientId(serverClientId);
+          setConfigError("");
+        } else {
+          setConfigError("Google OAuth chưa được cấu hình trên máy chủ.");
+        }
+      })
+      .catch(() => {
+        if (active) setConfigError("Không thể kiểm tra cấu hình Google OAuth.");
+      })
+      .finally(() => {
+        if (active) setConfigLoading(false);
+      });
+    return () => { active = false; };
+  }, [envClientIdIsValid]);
+
+  const hasValidClientId = isConfiguredGoogleClientId(clientId);
+  useEffect(() => {
+    if (!hasValidClientId || disabled) return undefined;
     let active = true;
     loadGoogleIdentityServices()
       .then(() => {
@@ -77,51 +100,29 @@ function GoogleLoginButton({ onCredential, disabled = false }) {
         });
       })
       .catch(() => {
-        if (active) {
-          setScriptError(
-            "Không tải được đăng nhập Google. Hãy kiểm tra kết nối mạng.",
-          );
-        }
+        if (active) setScriptError("Không tải được đăng nhập Google. Hãy kiểm tra kết nối mạng.");
       });
+    return () => { active = false; };
+  }, [clientId, disabled, hasValidClientId]);
 
-    return () => {
-      active = false;
-      if (credentialHandler === onCredential) credentialHandler = undefined;
-    };
-  }, [clientId, disabled, hasValidClientId, onCredential]);
-
+  if (configLoading) {
+    return <div className="google-login-unavailable google-login-loading-state" role="status">Đang tải đăng nhập Google...</div>;
+  }
   if (!hasValidClientId) {
     return (
-      <button
-        type="button"
-        className="google-login-unavailable"
-        disabled
-        title="Chưa cấu hình Google OAuth Client ID hợp lệ"
-      >
+      <button type="button" className="google-login-unavailable" disabled title={configError || "Google OAuth chưa được cấu hình"}>
         <span className="google-login__mark" aria-hidden="true">G</span>
         <span>Đăng nhập bằng Google</span>
         <small className="google-login__config-note">Chưa cấu hình</small>
       </button>
     );
   }
-
-  if (scriptError) {
-    return (
-      <p className="google-login-error" role="alert">
-        {scriptError}
-      </p>
-    );
-  }
+  if (scriptError) return <p className="google-login-error" role="alert">{scriptError}</p>;
 
   return (
-    <div
-      className={`google-login${disabled ? " google-login--disabled" : ""}`}
-      aria-busy={disabled}
-    >
+    <div className={`google-login${disabled ? " google-login--disabled" : ""}`} aria-busy={disabled}>
       <div ref={containerRef} className="google-login__button" />
-      {!window.google?.accounts?.id && (
-        <span className="google-login__loading">Đang tải Google...</span>
-      )}
+      {!window.google?.accounts?.id && <span className="google-login__loading">Đang tải Google...</span>}
     </div>
   );
 }

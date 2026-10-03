@@ -28,14 +28,8 @@ export const generateVoiceover = async ({
     message_id: messageId != null ? String(messageId) : null,
   };
 
-  const response = await api.post(
-    "/voiceover/generate",
-    payload,
-    { timeout: 60_000 }
-  );
-
+  const response = await api.post("/voiceover/generate", payload, { timeout: 60_000 });
   const data = response.data;
-  // Ensure absolute audio URL for HTML5 Audio element
   if (data.audio_url && !data.audio_url.startsWith("http")) {
     data.audio_url = `${API_BASE_URL}${data.audio_url}`;
   }
@@ -43,4 +37,14 @@ export const generateVoiceover = async ({
     data.download_url = `${API_BASE_URL}${data.download_url}`;
   }
   return data;
+};
+
+// Audio endpoints require JWT. Always fetch them through the authenticated
+// Axios client; never append a token to a media URL.
+export const fetchVoiceoverAudio = async (url) => {
+  const response = await api.get(url, {
+    responseType: "blob",
+    timeout: 60_000,
+  });
+  return response.data;
 };

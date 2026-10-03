@@ -188,3 +188,123 @@ html.dark .sidebar-collapse-button:hover {
     background: #1e293b;
   }
 }
+
+/* Shared brand palette overrides */
+.sidebar-header {
+  border-bottom-color: var(--color-sidebar-border);
+}
+.sidebar-header__logo,
+.sidebar-header__new-chat {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-accent)
+  );
+  box-shadow: 0 8px 18px
+    color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+.sidebar-header__title {
+  color: var(--color-text-primary);
+}
+.sidebar-header__subtitle {
+  color: var(--color-text-muted);
+}
+.sidebar-header__collapse {
+  color: var(--color-text-secondary);
+}
+.sidebar-header__collapse:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+:root[data-theme="dark"] .sidebar-header__title,
+html.dark .sidebar-header__title {
+  color: var(--color-text-primary);
+}
+:root[data-theme="dark"] .sidebar-header__subtitle,
+html.dark .sidebar-header__subtitle {
+  color: var(--color-text-muted);
+}
+:root[data-theme="dark"] .sidebar-header__collapse,
+html.dark .sidebar-header__collapse {
+  color: var(--color-text-secondary);
+}
+:root[data-theme="dark"] .sidebar-header__collapse:hover,
+html.dark .sidebar-header__collapse:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+/* DG brand mark: same rounded badge language as the former header icon. */
+.sidebar-brand__logo {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  color: #f8fbff;
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px rgb(16 36 95 / 28%);
+  -webkit-text-stroke: 0.55px rgb(255 255 255 / 72%);
+  background: linear-gradient(145deg, #0038ff 0%, #4f46e5 54%, #7c3aed 100%);
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 13px;
+  box-shadow:
+    0 10px 22px rgb(0 56 255 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 18%);
+}
+
+:root[data-theme="dark"] .sidebar-brand__logo,
+html.dark .sidebar-brand__logo {
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 32%);
+  box-shadow:
+    0 10px 24px rgb(0 0 0 / 28%),
+    inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .sidebar-brand__logo {
+    color: #ffffff;
+    border-color: rgb(255 255 255 / 32%);
+    box-shadow:
+      0 10px 24px rgb(0 0 0 / 28%),
+      inset 0 1px 0 rgb(255 255 255 / 20%);
+  }
+}
+
+/* Match DG badge colors with the former lightning mark. */
+.sidebar-brand__logo {
+  color: #4f46e5;
+  text-shadow: none;
+  -webkit-text-stroke: 0.45px rgb(79 70 229 / 35%);
+  background: #eef2ff;
+  border-color: #dfe7ff;
+  box-shadow: 0 8px 18px rgb(79 70 229 / 12%);
+}
+
+:root[data-theme="dark"] .sidebar-brand__logo,
+html.dark .sidebar-brand__logo {
+  color: #a5b4fc;
+  -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
+  background: #1e1b4b;
+  border-color: #312e81;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .sidebar-brand__logo {
+    color: #a5b4fc;
+    -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
+    background: #1e1b4b;
+    border-color: #312e81;
+    box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
+  }
+}
+/* Shared brand mark colors */
+.sidebar-brand__logo {
+  color: var(--brand-mark-fg);
+  text-shadow: none;
+  -webkit-text-stroke: 0.45px color-mix(in srgb, var(--brand-mark-fg) 35%, transparent);
+  background: var(--brand-mark-bg);
+  border-color: var(--brand-mark-border);
+  box-shadow: 0 8px 18px var(--brand-mark-shadow);
+}

@@ -345,7 +345,7 @@ class ConversationManagementApiTest(unittest.TestCase):
         conversation_id = created.json()["id"]
         captured = {}
 
-        def fake_stream_ai(history, prompt_type):
+        def fake_stream_ai(history, prompt_type, custom_platform_name=None, brand_context="", product_context="", **kwargs):
             captured["history"] = history
             captured["prompt_type"] = prompt_type
             yield "Nội dung quảng cáo"

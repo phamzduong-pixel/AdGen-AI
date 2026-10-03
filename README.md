@@ -385,7 +385,7 @@ Cập nhật lần cuối: **08/09/2026**.
 | Bố cục và cuộn trang | Hoàn thành | Khung gốc tự giãn theo nội dung; workspace không còn bị cắt nền/viền khi cuộn; có khoảng an toàn cuối trang trên desktop và mobile. |
 | Giao diện sáng/tối/hệ thống | Hoàn thành | Áp dụng ngay qua `ThemeContext` và lưu lựa chọn an toàn ở local storage. |
 | Tùy chọn Chat | Hoàn thành | Tự động cuộn, hiển thị thời gian, xác nhận trước khi xóa và mở hội thoại gần nhất đã được sử dụng trong luồng Chat. |
-| Tùy chọn AI | Hoàn thành | Nền tảng, giọng văn, ngôn ngữ và độ dài đã lưu local, đồng bộ backend và tự động điền vào biểu mẫu AdBrief. |
+| Tùy chọn AI | Hoàn thành | Nền tảng, giọng văn, ngôn ngữ và độ dài đã lưu local, đồng bộ backend và tự động điền vào biểu mẫu thông tin quảng cáo. |
 | Xuất dữ liệu | Hoàn thành | Markdown, TXT, PDF và tùy chọn kèm thời gian đã có. Tự động áp dụng định dạng xuất mặc định tại các điểm xuất dữ liệu. |
 | Đổi mật khẩu | Hoàn thành | Kiểm tra xác nhận mật khẩu, gọi backend và kết thúc phiên hiện tại sau khi đổi thành công. |
 | Quản lý thiết bị đăng nhập | Hoàn thành | Tải lại danh sách, thu hồi từng phiên và đăng xuất khỏi tất cả thiết bị. |
@@ -417,7 +417,7 @@ Section này đã hoàn thành toàn diện việc rà soát kỹ thuật, dọn
    - Bổ sung cơ chế lưu trữ bền vững JSON Lines cho `LearningDatasetService` tại `backend/data/learning_dataset.jsonl`, bảo toàn dữ liệu đánh giá và tinh chỉnh AI (Evaluation, Fine-tuning).
 
 5. **Hoàn thiện giao diện người dùng Frontend**:
-   - `AdBriefForm`: Tự động áp dụng các cài đặt mặc định (`defaultTone`, `defaultLanguage`, `defaultLength`) vào form khi tạo brief quảng cáo mới.
+   - `AdBriefForm`: Tự động áp dụng các cài đặt mặc định (`defaultTone`, `defaultLanguage`, `defaultLength`) vào form khi tạo yêu cầu quảng cáo mới.
    - `exportConversation.js` & `Chat.jsx`: Chuẩn hóa cú pháp import và tự động áp dụng định dạng xuất mặc định đã lưu khi xuất nhanh lịch sử hội thoại.
    - Sửa lỗi lint `react-hooks/set-state-in-effect` theo chuẩn React.
 
@@ -428,3 +428,16 @@ Section này đã hoàn thành toàn diện việc rà soát kỹ thuật, dọn
    - Production Build: **573 modules build thành công** trong 2.4s.
 
 
+
+## Runtime hardening và quy trình database hiện hành
+
+Database rỗng và database đã có dữ liệu dùng hai quy trình khác nhau. Với database hoàn toàn rỗng và disposable, chạy `python -m app.database.bootstrap --confirm-empty` (hoặc `python -m app.database.prepare_database`) trong `backend`; lệnh chỉ tạo schema sau khi validate manifest/model và không sửa database đã tồn tại. Với database đã có dữ liệu ở revision hợp lệ, backup trước rồi chạy `alembic upgrade head` để áp dụng migration mới. Schema legacy/lệch/không rõ lịch sử sẽ bị fail-closed và cần báo cáo chỉ đọc bằng `python -m app.database.legacy_reconciliation`.
+
+Không sửa migration đã phát hành, không stamp để che mismatch, không drop bảng và không xóa database. Backend Docker chạy bước chuẩn bị database trước Uvicorn; Docker Compose dùng PostgreSQL volume, còn Render dùng PostgreSQL managed và frontend build bằng `npm ci` từ lockfile. Frontend đã đồng bộ lockfile với Node 22/npm 10.9.2; kiểm tra sạch bằng `npx --yes npm@10.9.2 ci`, `npm test`, `npm run lint`, `npm run build`.
+
+Voice Studio yêu cầu JWT cho generate và stream/download audio. Audio legacy không có owner bị từ chối; frontend dùng Axios Blob với header xác thực, không đưa JWT vào URL. Gemini được dùng qua API; learning dataset chỉ là dữ liệu ghi nhận cho đánh giá/quy trình huấn luyện riêng, không đồng nghĩa tự training/fine-tuning. Trend registry không tự thu thập trend trực tuyến. Regex validator chỉ là heuristic, không bảo đảm claim đúng sự thật.
+
+Xem quy trình đầy đủ tại [docs/15-runtime-hardening-and-handoff.md](docs/15-runtime-hardening-and-handoff.md).
+## Cập nhật giao diện và nhận diện thương hiệu — 04/10/2026
+
+Đã đồng bộ màu logo thương hiệu và giao diện Chat với Login/Register cho cả light, dark và system dark. Logo DG tại Sidebar, Login/Register, Recovery và Workspace dùng nền lavender/indigo thống nhất; biểu tượng thương hiệu ở Chat dùng cùng token. Logo tia sét trong tiêu đề Chat đã được bỏ; avatar người dùng vẫn độc lập. Kiểm tra sau cập nhật: `npm run lint` PASS, `npm test` PASS (38/38), `npm run build` PASS.

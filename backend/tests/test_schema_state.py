@@ -144,7 +144,7 @@ class SchemaStateTests(unittest.TestCase):
 
     def test_runtime_allows_only_canonical_schema_at_current_head(self):
         engine = self.make_current_schema()
-        self.add_revision_marker(engine, "20261001_0016")
+        self.add_revision_marker(engine, "20261003_0017")
         with patch.object(database_module, "engine", engine), patch.object(
             Base.metadata, "create_all"
         ) as create_all:
@@ -159,7 +159,7 @@ class SchemaStateTests(unittest.TestCase):
         result = bootstrap_database(engine)
 
         self.assertEqual(result.state.state, "MANAGED_CANONICAL_SCHEMA")
-        self.assertEqual(result.state.current_revisions, ("20261001_0016",))
+        self.assertEqual(result.state.current_revisions, ("20261003_0017",))
         self.assertEqual(result.state.schema_status, "PASS")
 
     def test_bootstrap_rejects_unmanaged_canonical_schema_without_changes(self):

@@ -22,6 +22,11 @@ from app.services.prompt_service import normalize_prompt_type
 from app.services.conversation_service import save_generated_conversation_title
 from app.services.conversation_service import should_generate_conversation_title
 from app.services.brand_prompt import build_brand_context
+from app.services.context_engine.context_pruner import context_pruner
+from app.services.context_engine.models import FollowUpIntentType
+from app.services.context_engine.service import conversation_context_service
+from app.services.product_aware.models import AudienceProfile, ProductAwareContext, ProductProfile
+from app.services.product_aware.service import product_aware_engine
 
 
 def validate_prompt_type(
@@ -288,6 +293,59 @@ def resolve_message_brand(
     ).first()
 
 
+
+AI_MAX_TURN_PAIRS = 6
+
+
+def build_ai_context(
+    history: list[dict],
+    current_instruction: str,
+    prompt_type: str | None,
+    brand: BrandProfile | None,
+) -> tuple[list[dict], str]:
+    """Prune history while preserving the original brief and current attachments."""
+    follow_up = conversation_context_service.resolve_conversation_context(
+        user_message=current_instruction,
+        history=history,
+        current_prompt_type=prompt_type,
+    )
+    ai_history = context_pruner.prune_relevant_history(
+        history,
+        max_turn_pairs=AI_MAX_TURN_PAIRS,
+    )
+    instruction = conversation_context_service.format_follow_up_prompt_instruction(follow_up)
+    if instruction:
+        for index in range(len(ai_history) - 1, -1, -1):
+            if ai_history[index].get("role") == "user":
+                ai_history[index] = dict(ai_history[index])
+                ai_history[index]["content"] = f"{ai_history[index].get('content', '')}\n\n{instruction}"
+                break
+
+    extracted = follow_up.extracted_product
+    if extracted.is_empty():
+        return ai_history, ""
+    platform = follow_up.target_platform or prompt_type or extracted.platform or "other"
+    product = ProductProfile(
+        name=extracted.product_name or "Sản phẩm chưa đặt tên",
+        description=extracted.description,
+        usp=extracted.usp,
+        price=extracted.price,
+        offer=extracted.offer,
+        key_features=extracted.key_features,
+    )
+    audience = AudienceProfile(demographics=extracted.target_audience)
+    product_context = product_aware_engine.build_full_context(
+        ProductAwareContext(
+            product=product,
+            platform=platform,
+            audience=audience,
+            brand_name=brand.name if brand else None,
+            brand_voice=brand.default_tone if brand else None,
+        ),
+        include_trends=False,
+    )
+    return ai_history, product_context
+
 def create_message_service(
     message: MessageCreate,
     db: Session,
@@ -349,6 +407,9 @@ def create_message_service(
         db=db,
         conversation_id=conversation.id,
     )
+    ai_history, product_context = build_ai_context(
+        history, content, prompt_type, brand
+    )
     should_generate_title = should_generate_conversation_title(
         db=db,
         conversation=conversation,
@@ -356,9 +417,10 @@ def create_message_service(
 
     try:
         assistant_content = ask_ai(
-            history=history,
+            history=ai_history,
             prompt_type=prompt_type,
             custom_platform_name=custom_platform_name,
+            product_context=product_context,
             **(
                 {"brand_context": build_brand_context(brand)}
                 if brand
@@ -595,6 +657,9 @@ def stream_message_service(
         db=db,
         conversation_id=conversation.id,
     )
+    ai_history, product_context = build_ai_context(
+        history, content, prompt_type, brand
+    )
     should_generate_title = should_generate_conversation_title(
         db=db,
         conversation=conversation,
@@ -602,12 +667,15 @@ def stream_message_service(
 
     def generate() -> Generator[str, None, None]:
         full_response = ""
+        stream_completed = False
+        stream_cancelled = False
 
         try:
             for chunk in stream_ai(
-                history=history,
+                history=ai_history,
                 prompt_type=prompt_type,
                 custom_platform_name=custom_platform_name,
+                product_context=product_context,
                 **(
                     {"brand_context": build_brand_context(brand)}
                     if brand
@@ -617,7 +685,9 @@ def stream_message_service(
                 full_response += chunk
 
                 yield chunk
+            stream_completed = True
         except GeneratorExit:
+            stream_cancelled = True
             raise
         except Exception as error:
             db.rollback()
@@ -629,7 +699,7 @@ def stream_message_service(
             )
             yield f"\n{marker}\n"
         finally:
-            if full_response.strip():
+            if full_response.strip() and (stream_completed or stream_cancelled):
                 assistant_message = Message(
                     conversation_id=conversation.id,
                     role="assistant",
@@ -727,15 +797,21 @@ def edit_message_stream_service(
         db=db,
         conversation_id=conversation_id,
     )
+    ai_history, product_context = build_ai_context(
+        history, content, prompt_type, brand
+    )
 
     def generate() -> Generator[str, None, None]:
         full_response = ""
+        stream_completed = False
+        stream_cancelled = False
 
         try:
             for chunk in stream_ai(
-                history=history,
+                history=ai_history,
                 prompt_type=prompt_type,
                 custom_platform_name=custom_platform_name,
+                product_context=product_context,
                 **(
                     {"brand_context": build_brand_context(brand)}
                     if brand
@@ -745,7 +821,9 @@ def edit_message_stream_service(
                 full_response += chunk
 
                 yield chunk
+            stream_completed = True
         except GeneratorExit:
+            stream_cancelled = True
             raise
         except Exception as error:
             db.rollback()
@@ -757,7 +835,7 @@ def edit_message_stream_service(
             )
             yield f"\n{marker}\n"
         finally:
-            if full_response.strip():
+            if full_response.strip() and (stream_completed or stream_cancelled):
                 assistant_message = Message(
                     conversation_id=conversation_id,
                     role="assistant",

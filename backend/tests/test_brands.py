@@ -126,7 +126,7 @@ class BrandApiTest(unittest.TestCase):
         self.db.commit()
         captured = {}
 
-        def fake_stream(history, prompt_type, brand_context):
+        def fake_stream(history, prompt_type, custom_platform_name=None, brand_context="", product_context="", **kwargs):
             captured["history"] = history
             captured["brand_context"] = brand_context
             yield "Nội dung đúng thương hiệu"

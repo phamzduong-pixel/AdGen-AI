@@ -1,14 +1,8 @@
-import { FiZap } from "react-icons/fi";
-
 import "./HeaderTitle.css";
 
 function HeaderTitle({ title = "Cuộc trò chuyện mới" }) {
   return (
     <div className="header-title">
-      <div className="header-title__icon">
-        <FiZap />
-      </div>
-
       <div className="header-title__content">
         <h2>{title}</h2>
 

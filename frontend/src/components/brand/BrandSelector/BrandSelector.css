@@ -1,72 +1,143 @@
 .brand-selector {
+  position: relative;
   display: inline-flex;
+  flex: 0 1 220px;
   align-items: center;
-  gap: 0.45rem;
-  min-width: 190px;
-  color: var(--color-text-secondary);
+  min-width: 185px;
+  max-width: 240px;
+  height: 36px;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.brand-selector:hover:not(:has(select:disabled)) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.brand-selector:focus-within {
+  background: #ffffff;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+}
+
+.brand-selector__icon {
+  position: absolute;
+  left: 11px;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+  pointer-events: none;
 }
 
 .brand-selector select {
-  min-width: 0;
   width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  padding: 0.45rem 0.65rem;
+  height: 100%;
+  min-width: 0;
+  padding: 0 32px 0 34px;
+  overflow: hidden;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  outline: 0;
+  cursor: pointer;
+}
+
+.brand-selector select:disabled {
+  cursor: not-allowed;
+}
+
+.brand-selector__chevron {
+  position: absolute;
+  right: 10px;
+  width: 15px;
+  height: 15px;
+  color: #94a3b8;
+  pointer-events: none;
 }
 
 .brand-selector--compact {
-  max-width: 210px;
+  flex-basis: 220px;
 }
 
 .brand-selector--compact select {
-  border: 0;
-  background: transparent;
-  padding: 0.35rem 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .brand-selector--compact {
+    flex-basis: 150px;
+    max-width: none;
+  }
 }
 
 @media (max-width: 640px) {
+  .brand-selector {
+    min-width: 0;
+    max-width: none;
+  }
+
   .brand-selector--compact {
-    min-width: 44px;
-    max-width: 150px;
+    flex: 1 1 145px;
   }
 }
 
 /* ===== Dark Mode Styles ===== */
-:root[data-theme="dark"] .brand-selector select,
-html.dark .brand-selector select {
+:root[data-theme="dark"] .brand-selector,
+html.dark .brand-selector {
+  color: #94a3b8;
   background: #0f172a;
   border-color: #334155;
+}
+
+:root[data-theme="dark"] .brand-selector:hover:not(:has(select:disabled)),
+html.dark .brand-selector:hover:not(:has(select:disabled)) {
+  background: #172033;
+  border-color: #475569;
+}
+
+:root[data-theme="dark"] .brand-selector:focus-within,
+html.dark .brand-selector:focus-within {
+  background: #0f172a;
+  border-color: #818cf8;
+}
+
+:root[data-theme="dark"] .brand-selector select,
+html.dark .brand-selector select {
   color: #f1f5f9;
 }
 
 :root[data-theme="dark"] .brand-selector select option,
 html.dark .brand-selector select option {
+  color: #f1f5f9;
   background: #0f172a;
-  color: #f1f5f9;
-}
-
-:root[data-theme="dark"] .brand-selector--compact select,
-html.dark .brand-selector--compact select {
-  background: transparent;
-  color: #f1f5f9;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] .brand-selector select {
+  :root[data-theme="system"] .brand-selector {
+    color: #94a3b8;
     background: #0f172a;
     border-color: #334155;
+  }
+
+  :root[data-theme="system"] .brand-selector select {
     color: #f1f5f9;
   }
 
   :root[data-theme="system"] .brand-selector select option {
+    color: #f1f5f9;
     background: #0f172a;
-    color: #f1f5f9;
-  }
-
-  :root[data-theme="system"] .brand-selector--compact select {
-    background: transparent;
-    color: #f1f5f9;
   }
 }

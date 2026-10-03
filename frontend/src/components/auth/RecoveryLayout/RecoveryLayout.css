@@ -223,3 +223,11 @@
     font-size: 27px;
   }
 }
+
+/* Shared brand mark colors */
+.recovery-brand__logo {
+  color: var(--brand-mark-fg);
+  background: var(--brand-mark-bg);
+  border: 1px solid var(--brand-mark-border);
+  box-shadow: 0 8px 18px var(--brand-mark-shadow);
+}

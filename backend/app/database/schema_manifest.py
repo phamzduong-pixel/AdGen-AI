@@ -363,7 +363,32 @@ CANONICAL_SCHEMA_MANIFEST: dict[str, Any] = {
                 _index("ix_email_verification_user_active", ["user_id", "used_at", "created_at"]),
             ],
         ),
-        "media_assets": _table(
+        "voiceover_audios": _table(
+            _c(
+                id=_column("integer", nullable=False, primary_key=True),
+                audio_id=_column("string", nullable=False, length=36),
+                filename=_column("string", nullable=False, length=255),
+                user_id=_column("integer", nullable=False),
+                message_id=_column("integer"),
+                file_size_bytes=_column("integer", nullable=False, default=0, server_default="0"),
+                duration_seconds=_column("float", nullable=False, default=0.0, server_default="0"),
+                voice_id=_column("string", nullable=False, length=120),
+                created_at=_column("datetime", nullable=False, default="utc_now"),
+            ),
+            foreign_keys=[
+                _fk("user_id", "users.id", "CASCADE"),
+                _fk("message_id", "messages.id", "SET NULL"),
+            ],
+            unique_constraints=[
+                _unique(None, ["audio_id"]),
+                _unique(None, ["filename"]),
+            ],
+            indexes=[
+                _index("ix_voiceover_audios_id", ["id"]),
+                _index("ix_voiceover_audios_user_id", ["user_id"]),
+                _index("ix_voiceover_audios_message_id", ["message_id"]),
+            ],
+        ),        "media_assets": _table(
             _c(
                 id=_column("integer", nullable=False, primary_key=True),
                 user_id=_column("integer", nullable=False),

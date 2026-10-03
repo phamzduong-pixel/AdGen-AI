@@ -468,3 +468,32 @@ html.dark .empty-state__suggestion-arrow {
     padding: 10px 12px;
   }
 }
+
+/* Shared brand palette overrides */
+.empty-state__logo { background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); box-shadow: 0 14px 30px color-mix(in srgb, var(--color-primary) 22%, transparent); }
+.empty-state__eyebrow { color: var(--color-secondary); }
+.empty-state__title { color: var(--color-text-primary); }
+.empty-state__description { color: var(--color-text-secondary); }
+.empty-state__suggestion { background: color-mix(in srgb, var(--color-card) 88%, transparent); border-color: var(--color-border); }
+.empty-state__suggestion:hover { border-color: color-mix(in srgb, var(--color-primary) 32%, var(--color-border)); box-shadow: 0 12px 28px color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.empty-state__suggestion-icon { color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, var(--color-card)); }
+.empty-state__suggestion-content strong { color: var(--color-text-primary); }
+.empty-state__suggestion-content span { color: var(--color-text-secondary); }
+.empty-state__suggestion-arrow { color: var(--color-text-muted); }
+:root[data-theme="dark"] .empty-state__suggestion,
+html.dark .empty-state__suggestion { background: var(--color-card); border-color: var(--color-border); color: var(--color-text); }
+:root[data-theme="dark"] .empty-state__suggestion:hover,
+html.dark .empty-state__suggestion:hover { background: var(--color-surface-hover); border-color: var(--color-secondary); }
+:root[data-theme="dark"] .empty-state__suggestion-icon,
+html.dark .empty-state__suggestion-icon { color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 15%, var(--color-card)); }
+:root[data-theme="dark"] .empty-state__suggestion-content strong,
+html.dark .empty-state__suggestion-content strong { color: var(--color-text-primary); }
+:root[data-theme="dark"] .empty-state__suggestion-content span,
+html.dark .empty-state__suggestion-content span { color: var(--color-text-secondary); }
+/* Shared brand mark colors */
+.empty-state__logo {
+  color: var(--brand-mark-fg);
+  background: var(--brand-mark-bg);
+  border: 1px solid var(--brand-mark-border);
+  box-shadow: 0 14px 30px var(--brand-mark-shadow);
+}

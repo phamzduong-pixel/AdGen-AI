@@ -204,9 +204,9 @@ function AdBriefForm({
         {error && <p className="ad-brief-form__error" role="alert">{error}</p>}
 
         <div className="ad-brief-form__actions">
-          {value && <button type="button" onClick={() => { onClear(); setDraft(getInitialBrief()); }}>Bỏ brief</button>}
+          {value && <button type="button" onClick={() => { onClear(); setDraft(getInitialBrief()); }}>Xóa thông tin</button>}
           <button type="button" onClick={onClose}>Đóng</button>
-          <button type="button" className="is-primary" onClick={apply} disabled={disabled}>Áp dụng brief</button>
+          <button type="button" className="is-primary" onClick={apply} disabled={disabled}>Áp dụng thông tin</button>
         </div>
       </div>
     </section>

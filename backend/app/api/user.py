@@ -1,5 +1,8 @@
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import File
+from fastapi import UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
@@ -12,10 +15,14 @@ from app.schemas.user import UserSettingsResponse
 from app.schemas.user import UserSettingsUpdate
 from app.schemas.user import UserUpdate
 from app.services.user_service import change_password_service
+from app.services.user_service import delete_avatar_service
+from app.services.user_service import get_avatar_path_service
 from app.services.user_service import get_profile_service
 from app.services.user_service import get_settings_service
 from app.services.user_service import update_profile_service
 from app.services.user_service import update_settings_service
+from app.services.user_service import upload_avatar_service
+from app.services.upload_service import file_storage
 from app.services.email_verification_service import send_verification_code
 from fastapi import HTTPException
 
@@ -50,6 +57,28 @@ def update_profile(
             pass
     return updated
 
+
+@router.post("/avatar", response_model=UserProfileResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return await upload_avatar_service(file, db, current_user, file_storage)
+
+
+@router.get("/avatar")
+def get_avatar(current_user: User = Depends(get_current_user)):
+    path = get_avatar_path_service(current_user, file_storage)
+    return FileResponse(path=path, content_disposition_type="inline")
+
+
+@router.delete("/avatar", response_model=UserProfileResponse)
+def delete_avatar(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return delete_avatar_service(db, current_user, file_storage)
 
 @router.post("/change-password", response_model=MessageResponse)
 def change_password(

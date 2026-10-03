@@ -26,6 +26,10 @@ export const login = async ({ username, password }) => {
   return response.data;
 };
 
+export const getGoogleClientId = async () => {
+  const response = await api.get("/auth/google/config", { timeout: 5000 });
+  return response.data?.client_id || "";
+};
 export const loginWithGoogle = async (credential) => {
   const response = await api.post("/auth/google", { credential });
   return response.data;

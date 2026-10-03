@@ -223,3 +223,53 @@ html.dark .conversation-search input {
     display: none;
   }
 }
+
+/* Shared brand palette overrides */
+.chat-layout { background: var(--color-main-bg); color: var(--color-text); }
+.chat-layout__header { background: var(--color-header-bg); border-bottom: 1px solid var(--color-header-border); }
+.chat-layout__footer { background: linear-gradient(to top, var(--color-main-bg) 72%, color-mix(in srgb, var(--color-main-bg) 88%, transparent) 88%, transparent); }
+:root[data-theme="dark"] .chat-layout,
+html.dark .chat-layout { background: var(--color-main-bg); }
+:root[data-theme="dark"] .chat-layout__header,
+:root[data-theme="dark"] .chat-header,
+html.dark .chat-layout__header,
+html.dark .chat-header { background: var(--color-header-bg); border-bottom-color: var(--color-header-border); }
+:root[data-theme="dark"] .chat-layout__content,
+html.dark .chat-layout__content { background: var(--color-main-bg); }
+:root[data-theme="dark"] .chat-layout__footer,
+html.dark .chat-layout__footer { background: linear-gradient(to top, var(--color-main-bg) 75%, color-mix(in srgb, var(--color-main-bg) 88%, transparent) 90%, transparent); }
+:root[data-theme="dark"] .sidebar,
+html.dark .sidebar { background: var(--color-sidebar-bg); border-color: var(--color-sidebar-border); }
+:root[data-theme="dark"] .conversation-item--selected,
+html.dark .conversation-item--selected { color: var(--color-accent); background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-sidebar-bg)); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-sidebar-bg)); }
+:root[data-theme="dark"] .sidebar-user,
+:root[data-theme="dark"] .conversation-search,
+:root[data-theme="dark"] .chat-composer,
+html.dark .sidebar-user,
+html.dark .conversation-search,
+html.dark .chat-composer { color: var(--color-text); background: var(--color-card); border-color: var(--color-card-border); }
+:root[data-theme="dark"] .chat-composer__textarea,
+:root[data-theme="dark"] .conversation-search input,
+html.dark .chat-composer__textarea,
+html.dark .conversation-search input { color: var(--color-text-primary); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .chat-layout { background: var(--color-main-bg); }
+  :root[data-theme="system"] .chat-layout__header,
+  :root[data-theme="system"] .chat-header { background: var(--color-header-bg); border-bottom-color: var(--color-header-border); }
+  :root[data-theme="system"] .chat-layout__content { background: var(--color-main-bg); }
+  :root[data-theme="system"] .chat-layout__footer { background: linear-gradient(to top, var(--color-main-bg) 75%, color-mix(in srgb, var(--color-main-bg) 88%, transparent) 90%, transparent); }
+  :root[data-theme="system"] .sidebar { background: var(--color-sidebar-bg); border-color: var(--color-sidebar-border); }
+  :root[data-theme="system"] .conversation-item--selected { color: var(--color-accent); background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-sidebar-bg)); border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-sidebar-bg)); }
+  :root[data-theme="system"] .sidebar-user,
+  :root[data-theme="system"] .conversation-search,
+  :root[data-theme="system"] .chat-composer { color: var(--color-text); background: var(--color-card); border-color: var(--color-card-border); }
+  :root[data-theme="system"] .chat-composer__textarea,
+  :root[data-theme="system"] .conversation-search input { color: var(--color-text-primary); }
+}
+/* Dark mode surface alignment: conversation and composer area share one canvas. */
+.chat-layout__footer { background: var(--color-main-bg); }
+:root[data-theme="dark"] .chat-layout__footer,
+html.dark .chat-layout__footer { background: var(--color-main-bg); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .chat-layout__footer { background: var(--color-main-bg); }
+}

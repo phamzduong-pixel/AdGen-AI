@@ -95,3 +95,8 @@ Database không chứa bytes file upload/voiceover; model chỉ lưu path và me
 `messages`, `saved_contents`, `ad_templates`, `content_documents` và `campaigns` có thêm `platform_name` nullable. `user_settings` có `default_platform_name` nullable. Các cột này chỉ bổ sung dữ liệu, không xóa giá trị `prompt_type`/`platform` cũ; migration `20260727_0009`, `20260727_0010`, `20260727_0011` và cơ chế nâng cấp SQLite đều không phá hủy.
 
 Với dữ liệu cũ, `platform_name` có thể null và UI dùng nhãn tương thích legacy. Với bản ghi mới có `platform = other`, backend yêu cầu `platform_name` dài 2–80 ký tự sau chuẩn hóa.
+## 4.7. Bootstrap và ownership audio
+
+Migration `20261003_0017_voiceover_audio_ownership` thêm bảng `voiceover_audios`, liên kết mỗi file voiceover với user tạo file và message tùy chọn. File không có metadata owner không được tự gán trong quá trình nâng cấp; endpoint protected sẽ từ chối file legacy đó.
+
+Database rỗng phải dùng bootstrap explicit đã validate (`app.database.bootstrap` hoặc `app.database.prepare_database`). Database có dữ liệu phải backup và nâng cấp bằng Alembic; schema lệch hoặc không rõ lịch sử bị fail-closed. Không sửa migration cũ, stamp để che mismatch, drop bảng hoặc xóa database.

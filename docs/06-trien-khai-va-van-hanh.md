@@ -120,3 +120,9 @@ local mới trong trạng thái hiện tại. Chuỗi migration lịch sử `000
 xung đột: revision `0001` tạo trước các object của revision sau và `0008` có
 thể tạo trùng index. Lịch sử này chưa được viết lại vì chưa có bằng chứng an
 toàn cho mọi database đã phát hành.
+
+## 6.8. Quy trình runtime đã đồng bộ
+
+`backend/Dockerfile` chạy `python -m app.database.prepare_database` trước Uvicorn. Database rỗng được bootstrap từ schema đã validate; database canonical hiện hữu chỉ được kiểm tra; mọi schema legacy/lệch đều làm container dừng để tránh tự sửa dữ liệu. Database đã có dữ liệu cần nâng cấp phải chạy `alembic upgrade head` sau backup trước khi deploy. Không dùng `stamp`, `drop_all()` hoặc xóa database để vượt qua lỗi schema.
+
+Frontend dùng Node 22 và npm 10.9.2 để tạo lockfile ổn định. Render giữ `npm ci && npm run build`; chạy clean install/test/lint/build như hướng dẫn ở `docs/15-runtime-hardening-and-handoff.md`.

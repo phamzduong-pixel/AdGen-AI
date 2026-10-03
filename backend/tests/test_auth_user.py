@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -23,6 +25,7 @@ from app.models.message import Message  # noqa: F401
 from app.models.saved_content import SavedContent  # noqa: F401
 from app.models.uploaded_file import UploadedFile  # noqa: F401
 from app.models.user_settings import UserSettings  # noqa: F401
+from app.services.file_storage import LocalFileStorage
 
 
 class AuthUserApiTest(unittest.TestCase):
@@ -98,6 +101,56 @@ class AuthUserApiTest(unittest.TestCase):
         self.assertEqual(self.login(username="missing").status_code, 404)
         self.assertEqual(self.client.get("/users/me").status_code, 401)
 
+    def test_avatar_upload_is_private_and_can_be_removed(self):
+        self.register()
+        self.register("other", "other@example.com")
+        owner_token = self.login().json()["access_token"]
+        other_token = self.login("other").json()["access_token"]
+        owner_headers = {"Authorization": f"Bearer {owner_token}"}
+        other_headers = {"Authorization": f"Bearer {other_token}"}
+        png = b"\x89PNG\r\n\x1a\n" + b"test-avatar"
+
+        with TemporaryDirectory() as temporary_directory:
+            storage = LocalFileStorage(Path(temporary_directory))
+            with patch("app.api.user.file_storage", storage):
+                uploaded = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("avatar.png", png, "image/png")},
+                )
+                self.assertEqual(uploaded.status_code, 200)
+                self.assertEqual(uploaded.json()["avatar_url"], "/users/me/avatar")
+                self.assertEqual(self.client.get("/users/me/avatar").status_code, 401)
+
+                owner_image = self.client.get("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(owner_image.status_code, 200)
+                self.assertEqual(owner_image.content, png)
+                self.assertEqual(self.client.get("/users/me/avatar", headers=other_headers).status_code, 404)
+
+                rejected = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("not-an-image.txt", b"text", "text/plain")},
+                )
+                self.assertEqual(rejected.status_code, 400)
+
+                removed = self.client.delete("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(removed.status_code, 200)
+                self.assertIsNone(removed.json()["avatar_url"])
+                self.assertEqual(self.client.get("/users/me/avatar", headers=owner_headers).status_code, 404)
+    def test_google_config_exposes_only_a_valid_public_client_id(self):
+        settings.GOOGLE_CLIENT_ID = "123456789-testclient.apps.googleusercontent.com"
+        configured = self.client.get("/auth/google/config")
+        self.assertEqual(configured.status_code, 200)
+        self.assertRegex(
+            configured.json()["client_id"],
+            r"^\d+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$",
+        )
+
+        settings.GOOGLE_CLIENT_ID = ""
+        unavailable = self.client.get("/auth/google/config")
+        self.assertEqual(unavailable.status_code, 200)
+        self.assertIsNone(unavailable.json()["client_id"])
     @patch("app.services.google_auth_service._verify_google_id_token")
     def test_google_login_creates_new_user(self, verify_token):
         settings.GOOGLE_CLIENT_ID = (
@@ -136,6 +189,56 @@ class AuthUserApiTest(unittest.TestCase):
             400,
         )
 
+    def test_avatar_upload_is_private_and_can_be_removed(self):
+        self.register()
+        self.register("other", "other@example.com")
+        owner_token = self.login().json()["access_token"]
+        other_token = self.login("other").json()["access_token"]
+        owner_headers = {"Authorization": f"Bearer {owner_token}"}
+        other_headers = {"Authorization": f"Bearer {other_token}"}
+        png = b"\x89PNG\r\n\x1a\n" + b"test-avatar"
+
+        with TemporaryDirectory() as temporary_directory:
+            storage = LocalFileStorage(Path(temporary_directory))
+            with patch("app.api.user.file_storage", storage):
+                uploaded = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("avatar.png", png, "image/png")},
+                )
+                self.assertEqual(uploaded.status_code, 200)
+                self.assertEqual(uploaded.json()["avatar_url"], "/users/me/avatar")
+                self.assertEqual(self.client.get("/users/me/avatar").status_code, 401)
+
+                owner_image = self.client.get("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(owner_image.status_code, 200)
+                self.assertEqual(owner_image.content, png)
+                self.assertEqual(self.client.get("/users/me/avatar", headers=other_headers).status_code, 404)
+
+                rejected = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("not-an-image.txt", b"text", "text/plain")},
+                )
+                self.assertEqual(rejected.status_code, 400)
+
+                removed = self.client.delete("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(removed.status_code, 200)
+                self.assertIsNone(removed.json()["avatar_url"])
+                self.assertEqual(self.client.get("/users/me/avatar", headers=owner_headers).status_code, 404)
+    def test_google_config_exposes_only_a_valid_public_client_id(self):
+        settings.GOOGLE_CLIENT_ID = "123456789-testclient.apps.googleusercontent.com"
+        configured = self.client.get("/auth/google/config")
+        self.assertEqual(configured.status_code, 200)
+        self.assertRegex(
+            configured.json()["client_id"],
+            r"^\d+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$",
+        )
+
+        settings.GOOGLE_CLIENT_ID = ""
+        unavailable = self.client.get("/auth/google/config")
+        self.assertEqual(unavailable.status_code, 200)
+        self.assertIsNone(unavailable.json()["client_id"])
     @patch("app.services.google_auth_service._verify_google_id_token")
     def test_google_login_links_existing_email_without_duplicate(self, verify_token):
         self.register()
@@ -176,6 +279,56 @@ class AuthUserApiTest(unittest.TestCase):
             self.assertEqual(user.auth_provider, "local")
             self.assertTrue(user.email_verified)
 
+    def test_avatar_upload_is_private_and_can_be_removed(self):
+        self.register()
+        self.register("other", "other@example.com")
+        owner_token = self.login().json()["access_token"]
+        other_token = self.login("other").json()["access_token"]
+        owner_headers = {"Authorization": f"Bearer {owner_token}"}
+        other_headers = {"Authorization": f"Bearer {other_token}"}
+        png = b"\x89PNG\r\n\x1a\n" + b"test-avatar"
+
+        with TemporaryDirectory() as temporary_directory:
+            storage = LocalFileStorage(Path(temporary_directory))
+            with patch("app.api.user.file_storage", storage):
+                uploaded = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("avatar.png", png, "image/png")},
+                )
+                self.assertEqual(uploaded.status_code, 200)
+                self.assertEqual(uploaded.json()["avatar_url"], "/users/me/avatar")
+                self.assertEqual(self.client.get("/users/me/avatar").status_code, 401)
+
+                owner_image = self.client.get("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(owner_image.status_code, 200)
+                self.assertEqual(owner_image.content, png)
+                self.assertEqual(self.client.get("/users/me/avatar", headers=other_headers).status_code, 404)
+
+                rejected = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("not-an-image.txt", b"text", "text/plain")},
+                )
+                self.assertEqual(rejected.status_code, 400)
+
+                removed = self.client.delete("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(removed.status_code, 200)
+                self.assertIsNone(removed.json()["avatar_url"])
+                self.assertEqual(self.client.get("/users/me/avatar", headers=owner_headers).status_code, 404)
+    def test_google_config_exposes_only_a_valid_public_client_id(self):
+        settings.GOOGLE_CLIENT_ID = "123456789-testclient.apps.googleusercontent.com"
+        configured = self.client.get("/auth/google/config")
+        self.assertEqual(configured.status_code, 200)
+        self.assertRegex(
+            configured.json()["client_id"],
+            r"^\d+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$",
+        )
+
+        settings.GOOGLE_CLIENT_ID = ""
+        unavailable = self.client.get("/auth/google/config")
+        self.assertEqual(unavailable.status_code, 200)
+        self.assertIsNone(unavailable.json()["client_id"])
     @patch("app.services.google_auth_service._verify_google_id_token")
     def test_google_login_rejects_invalid_token(self, verify_token):
         settings.GOOGLE_CLIENT_ID = (
@@ -201,6 +354,56 @@ class AuthUserApiTest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 503)
 
+    def test_avatar_upload_is_private_and_can_be_removed(self):
+        self.register()
+        self.register("other", "other@example.com")
+        owner_token = self.login().json()["access_token"]
+        other_token = self.login("other").json()["access_token"]
+        owner_headers = {"Authorization": f"Bearer {owner_token}"}
+        other_headers = {"Authorization": f"Bearer {other_token}"}
+        png = b"\x89PNG\r\n\x1a\n" + b"test-avatar"
+
+        with TemporaryDirectory() as temporary_directory:
+            storage = LocalFileStorage(Path(temporary_directory))
+            with patch("app.api.user.file_storage", storage):
+                uploaded = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("avatar.png", png, "image/png")},
+                )
+                self.assertEqual(uploaded.status_code, 200)
+                self.assertEqual(uploaded.json()["avatar_url"], "/users/me/avatar")
+                self.assertEqual(self.client.get("/users/me/avatar").status_code, 401)
+
+                owner_image = self.client.get("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(owner_image.status_code, 200)
+                self.assertEqual(owner_image.content, png)
+                self.assertEqual(self.client.get("/users/me/avatar", headers=other_headers).status_code, 404)
+
+                rejected = self.client.post(
+                    "/users/me/avatar",
+                    headers=owner_headers,
+                    files={"file": ("not-an-image.txt", b"text", "text/plain")},
+                )
+                self.assertEqual(rejected.status_code, 400)
+
+                removed = self.client.delete("/users/me/avatar", headers=owner_headers)
+                self.assertEqual(removed.status_code, 200)
+                self.assertIsNone(removed.json()["avatar_url"])
+                self.assertEqual(self.client.get("/users/me/avatar", headers=owner_headers).status_code, 404)
+    def test_google_config_exposes_only_a_valid_public_client_id(self):
+        settings.GOOGLE_CLIENT_ID = "123456789-testclient.apps.googleusercontent.com"
+        configured = self.client.get("/auth/google/config")
+        self.assertEqual(configured.status_code, 200)
+        self.assertRegex(
+            configured.json()["client_id"],
+            r"^\d+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$",
+        )
+
+        settings.GOOGLE_CLIENT_ID = ""
+        unavailable = self.client.get("/auth/google/config")
+        self.assertEqual(unavailable.status_code, 200)
+        self.assertIsNone(unavailable.json()["client_id"])
     @patch("app.services.google_auth_service._verify_google_id_token")
     def test_google_login_rejects_placeholder_client_id(self, verify_token):
         settings.GOOGLE_CLIENT_ID = (

@@ -16,11 +16,11 @@ class SchemaManifestTests(unittest.TestCase):
         Base.metadata.create_all(engine)
         return engine
 
-    def test_current_sqlite_schema_has_22_tables_and_content_activities(self):
+    def test_current_sqlite_schema_has_23_tables_and_content_activities(self):
         engine = self.make_current_schema()
         tables = set(inspect(engine).get_table_names())
 
-        self.assertEqual(len(tables), 22)
+        self.assertEqual(len(tables), 23)
         self.assertIn("content_activities", tables)
 
     def test_current_sqlite_schema_passes_manifest_and_model_validation(self):

@@ -17,6 +17,7 @@ from app.models.user_session import UserSession
 from app.models.media_asset import MediaAsset
 from app.models.media_job import MediaJob
 from app.models.media_request import MediaEditRequest
+from app.models.voiceover_audio import VoiceoverAudio
 
 __all__ = [
     "Campaign",
@@ -41,4 +42,5 @@ __all__ = [
     "MediaAsset",
     "MediaJob",
     "MediaEditRequest",
+    "VoiceoverAudio",
 ]

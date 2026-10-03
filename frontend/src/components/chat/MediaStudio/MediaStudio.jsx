@@ -40,7 +40,10 @@ const VIDEO_RATIOS = [["16:9", "Ngang 16:9"], ["9:16", "Dọc 9:16"], ["1:1", "V
 const AI_VIDEO_RATIOS = [["16:9", "Ngang 16:9"], ["9:16", "Dọc 9:16"]];
 const VIDEO_OPERATIONS = [["trim", "Cắt video"], ["aspect_crop", "Đổi tỷ lệ / crop"], ["text_overlay", "Thêm text"], ["cta_overlay", "Thêm CTA"], ["subtitle", "Phụ đề"], ["volume", "Âm lượng"], ["mute", "Tắt tiếng"], ["merge", "Ghép video"]];
 
-const numberValue = (value, fallback) => (value === "" ? fallback : Number(value));
+const numberValue = (value, fallback) => {
+  const parsed = value === "" ? fallback : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
 
 function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
   const toast = useToast();
@@ -97,11 +100,15 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
       const mediaAssets = nextAssets.filter((asset) => ["image", "video"].includes(asset.kind));
       const hydrated = await Promise.all(mediaAssets.map(async (asset) => {
         if (asset.status !== "completed") return asset;
-        releaseObjectUrl(asset.id);
-        const blob = await downloadMediaAsset(asset.id);
-        const objectUrl = URL.createObjectURL(blob);
-        objectUrlsRef.current.set(asset.id, objectUrl);
-        return { ...asset, objectUrl };
+        try {
+          releaseObjectUrl(asset.id);
+          const blob = await downloadMediaAsset(asset.id);
+          const objectUrl = URL.createObjectURL(blob);
+          objectUrlsRef.current.set(asset.id, objectUrl);
+          return { ...asset, objectUrl, previewError: false };
+        } catch {
+          return { ...asset, objectUrl: null, previewError: true };
+        }
       }));
       setAssets(hydrated);
       return true;
@@ -162,15 +169,19 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
 
   useEffect(() => {
     if (!open) return undefined;
-    setSourceAssetId(null);
-    setReferenceFile(null);
-    setImageGenerationState("idle");
-    setImageGenerationError("");
-    setLatestImageAssetId(null);
-    setConversationalPlan(null);
-    setConversationalExecution(null);
-    setConversationalRequestKey(null);
     const refreshId = window.setTimeout(() => {
+      setSourceAssetId(null);
+      setReferenceFile(null);
+      setImageGenerationState("idle");
+      setImageGenerationError("");
+      setLatestImageAssetId(null);
+      setVideoSourceAssetId(null);
+      setVideoFile(null);
+      setMergeSelection([]);
+      setConversationalInstruction("");
+      setConversationalPlan(null);
+      setConversationalExecution(null);
+      setConversationalRequestKey(null);
       void loadAssets();
       void loadVideoJobs();
     }, 0);
@@ -231,6 +242,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
       let selectedId = videoSourceAssetId;
       if (videoFile) {
         const uploaded = (await uploadFiles(activeId, [videoFile]))[0];
+        if (!uploaded?.id) throw new Error("Không thể tải video lên.");
         selectedId = (await registerVideoUpload(activeId, uploaded.id)).id;
       }
       if (!selectedId) throw new Error("Hãy chọn hoặc tải lên một video trước.");
@@ -405,7 +417,9 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
               {videoGenerationJobs.slice(0, 3).map((job) => <div className="media-studio__status" key={job.id}>Job #{job.id}: {job.status}{job.status === "failed" ? ` · ${getVideoJobErrorMessage(job)}` : ""}</div>)}
             </div>
             
+ <div className="media-studio__technical-editor">
  <VideoEditorForm isBusy={isBusy} videoFile={videoFile} setVideoFile={setVideoFile} videoInputRef={videoInputRef} operation={videoOperation} setOperation={setVideoOperation} ratio={videoRatio} setRatio={setVideoRatio} start={start} setStart={setStart} end={end} setEnd={setEnd} text={overlayText} setText={setOverlayText} position={position} setPosition={setPosition} fontSize={fontSize} setFontSize={setFontSize} textColor={textColor} setTextColor={setTextColor} volume={volume} setVolume={setVolume} entries={subtitleEntries} setEntries={setSubtitleEntries} selectedVideo={selectedVideo} videoAssets={videoAssets} sourceAssetId={videoSourceAssetId} mergeSelection={mergeSelection} setMergeSelection={setMergeSelection} onExecute={handleVideoEdit} />
+ </div>
              <ConversationalEditor isBusy={isBusy} selectedVideo={selectedVideo} instruction={conversationalInstruction} setInstruction={setConversationalInstruction} plan={conversationalPlan} execution={conversationalExecution} onPlan={handleCreateVideoEditPlan} onExecute={handleExecuteVideoEditPlan} onPreviewAsset={handlePreviewAsset} onDownloadAsset={handleDownload} />
            </>}
         </section>
@@ -414,7 +428,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
           <div className="media-studio__grid">
             {(mode === "video" ? videoAssets : imageAssets).map((asset) => (
               <article className={`media-studio__asset ${(mode === "video" ? videoSourceAssetId : sourceAssetId) === asset.id ? "is-selected" : ""} ${mode === "image" && latestImageAssetId === asset.id ? "is-latest" : ""}`} key={asset.id}>
-                {asset.status === "completed" ? (asset.kind === "video" ? <video src={asset.objectUrl} controls preload="metadata" /> : <img src={asset.objectUrl} alt={asset.prompt} />) : <div className="media-studio__status">{asset.status === "failed" ? "X\u1eed l\u00fd th\u1ea5t b\u1ea1i" : "\u0110ang x\u1eed l\u00fd..."}</div>}
+                {asset.status === "completed" && asset.objectUrl ? (asset.kind === "video" ? <video src={asset.objectUrl} controls preload="metadata" /> : <img src={asset.objectUrl} alt={asset.prompt} />) : <div className="media-studio__status">{asset.status === "failed" ? "X\u1eed l\u00fd th\u1ea5t b\u1ea1i" : asset.previewError ? "Kh\u00f4ng t\u1ea3i \u0111\u01b0\u1ee3c b\u1ea3n xem tr\u01b0\u1edbc" : "\u0110ang x\u1eed l\u00fd..."}</div>}
                 <div>
                   <span>V{asset.version_number} \u00b7 {asset.operation} \u00b7 {asset.status}</span>
                   <div className="media-studio__asset-actions">
@@ -476,7 +490,7 @@ function VideoEditorForm({ isBusy, videoFile, setVideoFile, videoInputRef, opera
 }
 
 function ConversationalEditor({ isBusy, selectedVideo, instruction, setInstruction, plan, execution, onPlan, onExecute, onPreviewAsset, onDownloadAsset }) {
-  return <div className="media-studio__ai-generation">
+  return <div className="media-studio__ai-generation media-studio__conversation-editor">
     <div className="media-studio__eyebrow"><FiEdit3 /> Chỉnh sửa video bằng hội thoại</div>
     <p className="media-studio__hint">Chọn source trong thư viện, mô tả yêu cầu, xem kế hoạch có cấu trúc rồi mới thực thi.</p>
     <textarea value={instruction} onChange={(event) => setInstruction(event.target.value)} placeholder="Ví dụ: cắt video còn 15 giây, đổi sang 9:16, thêm CTA..." rows={4} maxLength={2000} disabled={isBusy} />
@@ -484,7 +498,7 @@ function ConversationalEditor({ isBusy, selectedVideo, instruction, setInstructi
     {plan && <div className="media-studio__status">
       <strong>Kế hoạch cho V{selectedVideo?.version_number}:</strong>
       <ol>{getConversationalOperationNames(plan).map((operation, index) => <li key={`${operation}-${index}`}>{operation}</li>)}</ol>
-      <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {execution?.status === "processing" ? "Check request status" : "Execute plan"}</button>
+      <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {execution?.status === "processing" ? "Kiểm tra trạng thái" : "Thực thi kế hoạch"}</button>
     </div>}
     {execution && <div className="media-studio__status">
       <strong>{execution.status === "completed" ? "Hoàn tất" : execution.status === "partial" ? "Hoàn tất một phần" : "Thất bại"}</strong>

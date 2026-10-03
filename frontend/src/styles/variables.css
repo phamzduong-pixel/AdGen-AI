@@ -19,7 +19,7 @@
   --color-warning: #f59e0b;
 
   --color-card: #ffffff;
-  --color-card-border: #e2e8f0;
+  --color-card-border: #d6e3ff;
 
   --color-sidebar-bg: #f8fafc;
   --color-sidebar-border: #e5e7eb;
@@ -109,5 +109,107 @@ html.dark {
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* AdGen AI shared product palette — aligned with Login/Register. */
+:root {
+  --color-primary: #0038ff;
+  --color-primary-hover: #2548d6;
+  --color-secondary: #6366f1;
+  --color-accent: #7c3aed;
+  --color-primary-rgb: 0 56 255;
+  --color-background: #f8fbff;
+  --color-main-bg: #f8fbff;
+  --color-surface: #eef3ff;
+  --color-surface-hover: #e6eeff;
+  --color-card: #ffffff;
+  --color-card-border: #d6e3ff;
+  --color-text: #1f2c49;
+  --color-text-primary: #10245f;
+  --color-text-secondary: #52658f;
+  --color-text-muted: #7b8caf;
+  --color-border: #d6e3ff;
+  --color-border-subtle: #e8efff;
+  --color-sidebar-bg: #f7faff;
+  --color-sidebar-border: #dfe8fb;
+  --color-header-bg: rgba(255, 255, 255, 0.94);
+  --color-header-border: #d6e3ff;
+}
+
+:root[data-theme="dark"],
+html.dark {
+  --color-primary: #8ea2ff;
+  --color-primary-hover: #a5b4fc;
+  --color-secondary: #a78bfa;
+  --color-accent: #c4b5fd;
+  --color-primary-rgb: 142 162 255;
+  --color-background: #0b1225;
+  --color-main-bg: #0b1225;
+  --color-surface: #151f3b;
+  --color-surface-hover: #1d2b4b;
+  --color-card: #151f3b;
+  --color-card-border: #314166;
+  --color-text: #f5f7ff;
+  --color-text-primary: #f5f7ff;
+  --color-text-secondary: #b7c4e8;
+  --color-text-muted: #8494bd;
+  --color-border: #314166;
+  --color-border-subtle: #202d4d;
+  --color-sidebar-bg: #0a1021;
+  --color-sidebar-border: #202d4d;
+  --color-header-bg: rgba(11, 18, 37, 0.94);
+  --color-header-border: #202d4d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"],
+  html.dark[data-theme="system"] {
+    --color-primary: #8ea2ff;
+    --color-primary-hover: #a5b4fc;
+    --color-secondary: #a78bfa;
+    --color-accent: #c4b5fd;
+    --color-primary-rgb: 142 162 255;
+    --color-background: #0b1225;
+    --color-main-bg: #0b1225;
+    --color-surface: #151f3b;
+    --color-surface-hover: #1d2b4b;
+    --color-card: #151f3b;
+    --color-card-border: #314166;
+    --color-text: #f5f7ff;
+    --color-text-primary: #f5f7ff;
+    --color-text-secondary: #b7c4e8;
+    --color-text-muted: #8494bd;
+    --color-border: #314166;
+    --color-border-subtle: #202d4d;
+    --color-sidebar-bg: #0a1021;
+    --color-sidebar-border: #202d4d;
+    --color-header-bg: rgba(11, 18, 37, 0.94);
+    --color-header-border: #202d4d;
+  }
+}
+/* Brand mark tokens shared by every AdGen AI logo. */
+:root {
+  --brand-mark-bg: #eef2ff;
+  --brand-mark-fg: #4f46e5;
+  --brand-mark-border: #dfe7ff;
+  --brand-mark-shadow: rgb(79 70 229 / 12%);
+}
+
+:root[data-theme="dark"],
+html.dark {
+  --brand-mark-bg: #1e1b4b;
+  --brand-mark-fg: #a5b4fc;
+  --brand-mark-border: #312e81;
+  --brand-mark-shadow: rgb(0 0 0 / 28%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"],
+  html.dark[data-theme="system"] {
+    --brand-mark-bg: #1e1b4b;
+    --brand-mark-fg: #a5b4fc;
+    --brand-mark-border: #312e81;
+    --brand-mark-shadow: rgb(0 0 0 / 28%);
   }
 }

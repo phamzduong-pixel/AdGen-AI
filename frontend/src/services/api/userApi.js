@@ -10,6 +10,22 @@ export const updateUserProfile = async (data) => {
   return response.data;
 };
 
+export const uploadUserAvatar = async (file) => {
+  const data = new FormData();
+  data.append("file", file);
+  const response = await api.post("/users/me/avatar", data);
+  return response.data;
+};
+
+export const getUserAvatarBlob = async () => {
+  const response = await api.get("/users/me/avatar", { responseType: "blob" });
+  return response.data;
+};
+
+export const deleteUserAvatar = async () => {
+  const response = await api.delete("/users/me/avatar");
+  return response.data;
+};
 export const changePassword = async (data) => {
   const response = await api.post("/users/me/change-password", data);
   return response.data;

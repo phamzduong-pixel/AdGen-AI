@@ -71,6 +71,7 @@ REVISION_OBJECTS: dict[str, tuple[str, ...]] = {
         "unique:media_edit_requests.uq_media_edit_requests_scope_key",
         "index:media_edit_requests.*",
     ),
+    "20261003_0017": ("table:voiceover_audios", "index:voiceover_audios.*"),
 }
 
 

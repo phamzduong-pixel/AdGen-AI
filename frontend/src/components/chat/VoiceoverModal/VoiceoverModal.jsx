@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   FiX,
@@ -32,7 +32,7 @@ export default function VoiceoverModal({
   const [textToRead, setTextToRead] = useState("");
   const [originalScript, setOriginalScript] = useState("");
   const [isCleaning, setIsCleaning] = useState(false);
-  const [cleanedStats, setCleanedStats] = useState(null);
+
   const [extractionMeta, setExtractionMeta] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
@@ -41,18 +41,19 @@ export default function VoiceoverModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    setError(null);
-    setAudioResult(null);
-    setExtractionMeta(null);
     const safeInitial = typeof initialText === "string" ? initialText : "";
-    setOriginalScript(safeInitial);
+    const resetId = window.setTimeout(() => {
+      setError(null);
+      setAudioResult(null);
+      setExtractionMeta(null);
+      setOriginalScript(safeInitial);
+    }, 0);
 
     // Fetch voices
     getAvailableVoices()
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setVoices(data);
-          if (!selectedVoice) setSelectedVoice(data[0].id);
         }
       })
       .catch((err) => {
@@ -61,12 +62,12 @@ export default function VoiceoverModal({
 
     // Auto extract pure spoken dialogue from the script
     if (safeInitial.trim()) {
-      setIsCleaning(true);
+      window.setTimeout(() => setIsCleaning(true), 0);
       cleanScript(safeInitial)
         .then((res) => {
           if (res) {
             if (res.status === "no_dialogue") {
-              setTextToRead("");
+              window.setTimeout(() => setTextToRead(""), 0);
               setExtractionMeta({
                 status: "no_dialogue",
                 warning: res.warning_message || "Không tìm thấy cấu trúc lời thoại rõ ràng (VO / Lời thoại). Vui lòng nhập lời thoại cần đọc vào ô bên dưới.",
@@ -79,10 +80,7 @@ export default function VoiceoverModal({
                 warning: res.warning_message,
                 count: res.dialogue_blocks_count || 1,
               });
-              setCleanedStats({
-                removed: res.dialogue_blocks_count || 1,
-                savedChars: Math.max(0, (res.original_length || 0) - (res.cleaned_length || 0)),
-              });
+
             }
           }
         })
@@ -94,8 +92,9 @@ export default function VoiceoverModal({
           setIsCleaning(false);
         });
     } else {
-      setTextToRead("");
+      window.setTimeout(() => setTextToRead(""), 0);
     }
+    return () => window.clearTimeout(resetId);
   }, [isOpen, initialText]);
 
   if (!isOpen) return null;
@@ -136,7 +135,6 @@ export default function VoiceoverModal({
 
   const handleRestoreOriginal = () => {
     setTextToRead(originalScript);
-    setCleanedStats(null);
   };
 
   const modalContent = (

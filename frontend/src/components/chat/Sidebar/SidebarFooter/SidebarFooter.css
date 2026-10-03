@@ -349,3 +349,29 @@ html.dark .profile-modal__close:hover {
     background: #273449;
   }
 }
+
+/* Shared brand palette overrides */
+.sidebar-footer { border-top-color: var(--color-sidebar-border); }
+.sidebar-footer__settings { color: var(--color-text-secondary); }
+.sidebar-footer__settings:hover { color: var(--color-text-primary); background: var(--color-surface-hover); }
+.sidebar-user { color: var(--color-text-primary); background: var(--color-card); border-color: var(--color-card-border); }
+.sidebar-user__avatar,
+.profile-modal__avatar { background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); }
+.sidebar-user__name,
+.profile-modal h2 { color: var(--color-text-primary); }
+.sidebar-user__email,
+.profile-modal p { color: var(--color-text-muted); }
+.account-menu { color: var(--color-text); background: var(--color-card); border-color: var(--color-card-border); }
+.account-menu button { color: var(--color-text-secondary); }
+.account-menu button:hover { color: var(--color-text-primary); background: var(--color-surface-hover); }
+.profile-modal__panel { background: var(--color-card); }
+:root[data-theme="dark"] .sidebar-user,
+html.dark .sidebar-user { color: var(--color-text-primary); background: var(--color-card); border-color: var(--color-card-border); }
+:root[data-theme="dark"] .account-menu,
+html.dark .account-menu { color: var(--color-text); background: var(--color-card); border-color: var(--color-card-border); }
+:root[data-theme="dark"] .account-menu button,
+html.dark .account-menu button { color: var(--color-text-secondary); }
+:root[data-theme="dark"] .account-menu button:hover,
+html.dark .account-menu button:hover { color: var(--color-text-primary); background: var(--color-surface-hover); }
+:root[data-theme="dark"] .profile-modal__panel,
+html.dark .profile-modal__panel { background: var(--color-card); }

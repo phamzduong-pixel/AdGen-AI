@@ -893,3 +893,130 @@ html.dark .media-studio__delete-confirm-content p { color: #f8fafc; }
 
 :root[data-theme="dark"] .media-studio__delete-confirm-content span,
 html.dark .media-studio__delete-confirm-content span { color: #94a3b8; }
+/* Stable video studio layout: compact sections, consistent rhythm, clear actions. */
+.media-studio {
+  gap: 24px;
+  align-items: start;
+}
+
+.media-studio__form {
+  gap: 0;
+}
+
+.media-studio__tabs {
+  margin-bottom: 16px;
+}
+
+.media-studio__ai-generation,
+.media-studio__technical-editor {
+  padding: 16px;
+  margin: 0 0 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.media-studio__ai-generation .media-studio__eyebrow,
+.media-studio__technical-editor > .media-studio__eyebrow {
+  margin-bottom: 7px;
+}
+
+.media-studio__ai-generation .media-studio__hint,
+.media-studio__technical-editor > .media-studio__hint {
+  margin: 0 0 11px;
+}
+
+.media-studio__ai-generation > textarea {
+  height: 108px;
+  min-height: 108px;
+  margin: 0 0 12px;
+}
+
+.media-studio__ai-generation .media-studio__controls {
+  margin-top: 0;
+}
+
+.media-studio__technical-editor .media-studio__field,
+.media-studio__technical-editor .media-studio__subtitle-list,
+.media-studio__technical-editor .media-studio__merge-list {
+  margin-top: 10px;
+}
+
+.media-studio__technical-editor .media-studio__generate,
+.media-studio__conversation-editor .media-studio__generate {
+  margin-top: 12px;
+}
+
+.media-studio__conversation-editor {
+  margin-bottom: 0;
+}
+
+.media-studio__status {
+  display: block;
+  min-height: 0;
+  margin-top: 10px;
+  padding: 10px 11px;
+  line-height: 1.45;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.media-studio__status strong,
+.media-studio__status p,
+.media-studio__status span,
+.media-studio__status ol {
+  display: block;
+  margin: 0;
+}
+
+.media-studio__status ol {
+  padding-left: 20px;
+}
+
+.media-studio__status p,
+.media-studio__status span,
+.media-studio__status ol {
+  margin-top: 6px;
+}
+
+.media-studio__library {
+  padding-left: 24px;
+}
+
+.media-studio__grid {
+  max-height: 420px;
+}
+
+.media-studio__empty {
+  min-height: 180px;
+}
+
+:root[data-theme="dark"] .media-studio__ai-generation,
+html.dark .media-studio__ai-generation,
+:root[data-theme="dark"] .media-studio__technical-editor,
+html.dark .media-studio__technical-editor {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+@media (max-width: 900px) {
+  .media-studio {
+    gap: 18px;
+  }
+
+  .media-studio__library {
+    padding-left: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .media-studio__ai-generation,
+  .media-studio__technical-editor {
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .media-studio__library {
+    padding-left: 0;
+  }
+}

@@ -74,3 +74,4 @@
 .google-login__loading {
   gap: 8px;
 }
+.google-login-loading-state { cursor: wait; }

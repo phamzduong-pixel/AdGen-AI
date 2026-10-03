@@ -71,7 +71,7 @@ class VideoGenerationService:
     ) -> tuple[tuple[bytes, str], ...]:
         if len(request.reference_asset_ids) > MAX_REFERENCE_IMAGES:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Chỉ được dùng tối đa 3 ảnh tham chiếu",
             )
         if not request.reference_asset_ids:
@@ -98,7 +98,7 @@ class VideoGenerationService:
             asset = by_id[asset_id]
             if not asset.filepath or not asset.content_type:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail="Asset tham chiếu thiếu file hoặc MIME type",
                 )
             try:
@@ -111,7 +111,7 @@ class VideoGenerationService:
                 ) from error
             if asset.content_type not in {"image/png", "image/jpeg", "image/webp"}:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail="MIME ảnh tham chiếu không được hỗ trợ",
                 )
             if len(data) > settings.MAX_UPLOAD_SIZE:
@@ -133,7 +133,7 @@ class VideoGenerationService:
         conversation = self._conversation(db, conversation_id, current_user)
         if request.duration_seconds and request.duration_seconds > settings.MAX_VIDEO_GENERATION_DURATION_SECONDS:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Thời lượng video tạo ra vượt quá giới hạn cho phép",
             )
         references = self._reference_data(db, request, conversation, current_user)
