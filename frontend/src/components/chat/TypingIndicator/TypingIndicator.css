@@ -25,7 +25,7 @@
   width: 6px;
   height: 6px;
 
-  background: #6366f1;
+  background: #7776b8;
   border-radius: 50%;
 
   animation: typing-indicator-bounce 1.2s infinite ease-in-out;
@@ -80,7 +80,7 @@ html.dark .typing-indicator {
 
 :root[data-theme="dark"] .typing-indicator__dot,
 html.dark .typing-indicator__dot {
-  background: #818cf8;
+  background: #a1a3d4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -91,6 +91,6 @@ html.dark .typing-indicator__dot {
   }
 
   :root[data-theme="system"] .typing-indicator__dot {
-    background: #818cf8;
+    background: #a1a3d4;
   }
 }

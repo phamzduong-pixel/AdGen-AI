@@ -45,14 +45,14 @@
 }
 
 .prompt-selector__select:focus-visible {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+  border-color: #a1a3d4;
+  box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
 .prompt-selector__select.is-open {
   background: #ffffff;
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+  border-color: #a1a3d4;
+  box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
 .prompt-selector__select:disabled {
@@ -138,11 +138,11 @@
 .prompt-selector__option:hover,
 .prompt-selector__option.is-active {
   color: #3730a3;
-  background: #eef2ff;
+  background: #f0eefb;
 }
 
 .prompt-selector__option.is-selected {
-  color: #4f46e5;
+  color: #655f9f;
   font-weight: 700;
 }
 
@@ -256,6 +256,6 @@ html.dark .prompt-selector__option.is-selected {
 }
 
 .prompt-selector__custom-name:focus {
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+  border-color: #a1a3d4;
+  box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }

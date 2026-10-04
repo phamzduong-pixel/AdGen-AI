@@ -64,8 +64,8 @@
   flex: 0 0 38px;
   width: 38px;
   height: 38px;
-  color: #6d28d9;
-  background: #f3e8ff;
+  color: #6b5599;
+  background: #f1eafb;
   border-radius: 11px;
 }
 
@@ -94,7 +94,7 @@
 
 .template-quick-start__arrow {
   flex: 0 0 15px;
-  color: #a78bfa;
+  color: #b4a2df;
 }
 
 .template-quick-start__loading {

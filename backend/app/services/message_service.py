@@ -26,7 +26,13 @@ from app.services.context_engine.context_pruner import context_pruner
 from app.services.context_engine.models import FollowUpIntentType
 from app.services.context_engine.service import conversation_context_service
 from app.services.product_aware.models import AudienceProfile, ProductAwareContext, ProductProfile
+from app.services.external_retrieval.brave_search import BraveSearchProvider
+from app.services.external_retrieval.evidence import Evidence
+from app.services.external_retrieval.retrieval_service import ExternalRetrievalService
 from app.services.product_aware.service import product_aware_engine
+from app.services.product_trust.service import assess_product_profile
+
+external_retrieval_service = ExternalRetrievalService(BraveSearchProvider())
 
 
 def validate_prompt_type(
@@ -302,6 +308,7 @@ def build_ai_context(
     current_instruction: str,
     prompt_type: str | None,
     brand: BrandProfile | None,
+    product_evidence: tuple[Evidence, ...] | None = None,
 ) -> tuple[list[dict], str]:
     """Prune history while preserving the original brief and current attachments."""
     follow_up = conversation_context_service.resolve_conversation_context(
@@ -343,8 +350,34 @@ def build_ai_context(
             brand_voice=brand.default_tone if brand else None,
         ),
         include_trends=False,
+        product_evidence=product_evidence,
     )
     return ai_history, product_context
+
+def build_product_trust_assessments(
+    history: list[dict],
+    current_instruction: str,
+    prompt_type: str | None,
+    product_evidence: tuple[Evidence, ...] | None,
+):
+    """Rebuild the same extracted product profile for output policy enforcement."""
+    follow_up = conversation_context_service.resolve_conversation_context(
+        user_message=current_instruction,
+        history=history,
+        current_prompt_type=prompt_type,
+    )
+    extracted = follow_up.extracted_product
+    if extracted.is_empty():
+        return ()
+    product = ProductProfile(
+        name=extracted.product_name or "Sáº£n pháº©m chÆ°a Ä‘áº·t tÃªn",
+        description=extracted.description,
+        usp=extracted.usp,
+        price=extracted.price,
+        offer=extracted.offer,
+        key_features=extracted.key_features,
+    )
+    return assess_product_profile(product, product_evidence or ())
 
 def create_message_service(
     message: MessageCreate,
@@ -363,6 +396,7 @@ def create_message_service(
     )
 
     content = message.content.strip()
+    retrieval_outcome = external_retrieval_service.retrieve(content)
 
     if not content:
         raise HTTPException(
@@ -407,8 +441,13 @@ def create_message_service(
         db=db,
         conversation_id=conversation.id,
     )
+    product_claim_assessments = build_product_trust_assessments(
+        history, content, prompt_type,
+        retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None,
+    )
     ai_history, product_context = build_ai_context(
-        history, content, prompt_type, brand
+        history, content, prompt_type, brand,
+        product_evidence=(retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None),
     )
     should_generate_title = should_generate_conversation_title(
         db=db,
@@ -426,6 +465,9 @@ def create_message_service(
                 if brand
                 else {}
             ),
+            external_retrieval_requested=retrieval_outcome.was_requested,
+            product_claim_assessments=product_claim_assessments,
+            external_retrieval_result=retrieval_outcome.provider_result,
         )
 
         assistant_message = Message(
@@ -613,6 +655,7 @@ def stream_message_service(
     )
 
     content = message.content.strip()
+    retrieval_outcome = external_retrieval_service.retrieve(content)
 
     if not content:
         raise HTTPException(
@@ -657,8 +700,13 @@ def stream_message_service(
         db=db,
         conversation_id=conversation.id,
     )
+    product_claim_assessments = build_product_trust_assessments(
+        history, content, prompt_type,
+        retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None,
+    )
     ai_history, product_context = build_ai_context(
-        history, content, prompt_type, brand
+        history, content, prompt_type, brand,
+        product_evidence=(retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None),
     )
     should_generate_title = should_generate_conversation_title(
         db=db,
@@ -681,6 +729,9 @@ def stream_message_service(
                     if brand
                     else {}
                 ),
+                product_claim_assessments=product_claim_assessments,
+                external_retrieval_requested=retrieval_outcome.was_requested,
+                external_retrieval_result=retrieval_outcome.provider_result,
             ):
                 full_response += chunk
 
@@ -744,6 +795,7 @@ def edit_message_stream_service(
         )
 
     content = message_data.content.strip()
+    retrieval_outcome = external_retrieval_service.retrieve(content)
 
     if not content:
         raise HTTPException(
@@ -798,7 +850,12 @@ def edit_message_stream_service(
         conversation_id=conversation_id,
     )
     ai_history, product_context = build_ai_context(
-        history, content, prompt_type, brand
+        history, content, prompt_type, brand,
+        product_evidence=(retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None),
+    )
+    product_claim_assessments = build_product_trust_assessments(
+        history, content, prompt_type,
+        retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None,
     )
 
     def generate() -> Generator[str, None, None]:
@@ -817,6 +874,9 @@ def edit_message_stream_service(
                     if brand
                     else {}
                 ),
+                product_claim_assessments=product_claim_assessments,
+                external_retrieval_requested=retrieval_outcome.was_requested,
+                external_retrieval_result=retrieval_outcome.provider_result,
             ):
                 full_response += chunk
 

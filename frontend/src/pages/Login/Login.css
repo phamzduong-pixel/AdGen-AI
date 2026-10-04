@@ -14,7 +14,7 @@
   background: linear-gradient(
     145deg,
     rgba(49, 46, 129, 0.98),
-    rgba(79, 70, 229, 0.96) 48%,
+    rgba(101, 95, 159, 0.96) 48%,
     rgba(124, 58, 237, 0.94)
   );
 }
@@ -65,7 +65,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: #4f46e5;
+  color: #655f9f;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -140,7 +140,7 @@
   flex: 0 0 auto;
   width: 25px;
   height: 25px;
-  color: #4f46e5;
+  color: #655f9f;
   font-size: 13px;
   font-weight: 800;
   background: #fff;
@@ -197,7 +197,7 @@
 
 .login-form-header__eyebrow {
   display: block;
-  color: #6366f1;
+  color: #7776b8;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.07em;
@@ -254,8 +254,8 @@
 }
 
 .login-field__control:focus-within {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.11);
+  border-color: #7776b8;
+  box-shadow: 0 0 0 4px rgba(119, 118, 184, 0.11);
 }
 
 .login-field__control--error {
@@ -301,7 +301,7 @@
 
 .login-forgot-password {
   padding: 0;
-  color: #6366f1;
+  color: #7776b8;
   font: inherit;
   font-size: 13px;
   font-weight: 650;
@@ -312,7 +312,7 @@
 }
 
 .login-forgot-password:hover {
-  color: #4338ca;
+  color: #56528e;
 }
 
 .login-error {
@@ -337,16 +337,16 @@
   font: inherit;
   font-size: 15px;
   font-weight: 700;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border: 0;
   border-radius: 13px;
-  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.22);
+  box-shadow: 0 12px 25px rgba(101, 95, 159, 0.22);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .login-submit-button:hover:not(:disabled) {
-  box-shadow: 0 16px 30px rgba(79, 70, 229, 0.28);
+  box-shadow: 0 16px 30px rgba(101, 95, 159, 0.28);
   transform: translateY(-1px);
 }
 
@@ -376,7 +376,7 @@
 
 .login-google-status {
   margin: -5px 0 8px;
-  color: #6366f1;
+  color: #7776b8;
   font-size: 13px;
   text-align: center;
 }
@@ -389,13 +389,13 @@
 }
 
 .login-register-link a {
-  color: #6366f1;
+  color: #7776b8;
   font-weight: 700;
   text-decoration: none;
 }
 
 .login-register-link a:hover {
-  color: #4338ca;
+  color: #56528e;
   text-decoration: underline;
 }
 
@@ -404,7 +404,7 @@
 .login-register-link a:focus-visible,
 .login-brand:focus-visible,
 .login-modal-button:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.35);
+  outline: 3px solid rgba(119, 118, 184, 0.35);
   outline-offset: 3px;
 }
 
@@ -429,7 +429,7 @@
 
   .login-mobile-brand .login-brand__logo {
     color: #fff;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #655f9f, #8067ad);
   }
 
   .login-mobile-brand .login-brand__name {
@@ -473,7 +473,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: linear-gradient(135deg, #0f172a 0%, #312e81 42%, #7c3aed 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #3c3962 42%, #8067ad 100%);
 }
 
 .login-page::before,
@@ -633,12 +633,12 @@
 }
 
 .login-submit-button {
-  background: linear-gradient(135deg, #a78bfa, #6366f1 55%, #22d3ee);
-  box-shadow: 0 14px 30px rgba(99, 102, 241, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #b4a2df, #7776b8 55%, #22d3ee);
+  box-shadow: 0 14px 30px rgba(119, 118, 184, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .login-submit-button:hover:not(:disabled) {
-  box-shadow: 0 18px 36px rgba(99, 102, 241, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  box-shadow: 0 18px 36px rgba(119, 118, 184, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.36);
 }
 
 @media (max-width: 980px) {
@@ -814,7 +814,7 @@
 /* ===== HyperCobalt + Powder Sky refinements ===== */
 .login-showcase,
 .register-showcase {
-  background: linear-gradient(145deg, #0038ff 0%, #2548d6 48%, #5638c8 100%);
+  background: linear-gradient(145deg, #6f79b5 0%, #2548d6 48%, #5638c8 100%);
 }
 
 .login-showcase__title,
@@ -825,7 +825,7 @@
 
 .login-showcase__title span,
 .register-showcase__title span {
-  color: #d6e3ff;
+  color: #e5e1f1;
 }
 
 .login-showcase__description,
@@ -864,7 +864,7 @@
 .login-form-wrapper .password-input:focus-within,
 .register-field__control:focus-within,
 .register-form-wrapper .password-input:focus-within {
-  background: #d6e3ff !important;
+  background: #e5e1f1 !important;
   border-color: #ffffff;
   box-shadow: 0 0 0 4px rgba(214, 227, 255, 0.28), inset 0 1px 2px rgba(0, 56, 255, 0.12);
 }
@@ -873,7 +873,7 @@
 .login-form-wrapper .password-input__leading,
 .register-field__control > svg,
 .register-form-wrapper .password-input__leading {
-  color: #0038ff;
+  color: #6f79b5;
 }
 
 .login-field__control input,
@@ -892,7 +892,7 @@
 
 .login-form-wrapper .password-input__toggle,
 .register-form-wrapper .password-input__toggle {
-  color: #0038ff;
+  color: #6f79b5;
 }
 
 .login-form-wrapper .google-login__loading,
@@ -982,7 +982,7 @@
   color: #1f2c49;
   background:
     radial-gradient(circle at 8% 80%, rgba(214, 227, 255, 0.88), transparent 28%),
-    linear-gradient(135deg, #e6eeff 0%, #f8f8f1 62%, #fffdf7 100%);
+    linear-gradient(135deg, #edeaf7 0%, #f8f8f1 62%, #fffdf7 100%);
   border-right: 1px solid rgba(119, 142, 190, 0.24);
 }
 
@@ -1016,7 +1016,7 @@
   height: 34px;
   color: #fff;
   font-size: 12px;
-  background: #0038ff;
+  background: #6f79b5;
   border-radius: 9px;
   box-shadow: 0 8px 18px rgba(0, 56, 255, 0.24);
 }
@@ -1048,7 +1048,7 @@
 
 .login-showcase__title span,
 .register-showcase__title span {
-  color: #0038ff;
+  color: #6f79b5;
 }
 
 .login-showcase__description,
@@ -1075,7 +1075,7 @@
 .login-feature__icon {
   width: 20px;
   height: 20px;
-  color: #0038ff;
+  color: #6f79b5;
   font-size: 11px;
   background: #fff;
   box-shadow: 0 5px 12px rgba(64, 87, 139, 0.18);
@@ -1089,7 +1089,7 @@
 }
 
 .register-statistic strong {
-  color: #0038ff;
+  color: #6f79b5;
 }
 
 .login-showcase__footer,
@@ -1209,7 +1209,7 @@
 .login-forgot-password,
 .login-register-link a,
 .register-login-link a {
-  color: #0038ff;
+  color: #6f79b5;
 }
 
 .login-forgot-password:hover,
@@ -1221,7 +1221,7 @@
 .login-submit-button,
 .register-submit-button {
   min-height: 43px;
-  background: linear-gradient(135deg, #0038ff 0%, #5278e8 100%);
+  background: linear-gradient(135deg, #6f79b5 0%, #5278e8 100%);
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 56, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -1432,7 +1432,7 @@
 }
 
 .register-agreement > svg {
-  color: #0038ff;
+  color: #6f79b5;
 }
 /* Shared brand mark colors */
 .login-brand__logo,

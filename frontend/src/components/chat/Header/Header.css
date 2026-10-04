@@ -63,4 +63,6 @@
 }
 
 /* Shared brand palette overrides */
-.chat-header { background: var(--color-header-bg); color: var(--color-text-primary); border-bottom: 1px solid var(--color-header-border); }
+.chat-header { background: var(--color-header-bg); color: var(--color-text-primary); border-bottom: 1px solid var(--color-header-border); }.chat-header {
+  border-bottom: 0 !important;
+}

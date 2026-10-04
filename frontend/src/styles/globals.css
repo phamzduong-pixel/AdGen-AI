@@ -264,3 +264,106 @@ html.dark .account-menu button:hover {
     overflow-x: auto;
   }
 }
+
+/* Unified dark palette: keep every workspace surface in the AdGen indigo scale. */
+html.dark body,
+html.dark #root,
+html.dark .workspace-layout,
+html.dark .chat-layout {
+  color: var(--color-text);
+  background: var(--color-main-bg) !important;
+}
+
+html.dark :is(
+  .workspace-layout__sidebar,
+  .workspace-layout__header,
+  .workspace-layout__brand,
+  .sidebar,
+  .chat-layout__header,
+  .chat-header
+) {
+  background: var(--color-sidebar-bg) !important;
+  border-color: var(--color-sidebar-border) !important;
+}
+
+html.dark .workspace-layout__header,
+html.dark .chat-layout__header,
+html.dark .chat-header {
+  background: var(--color-header-bg) !important;
+}
+
+html.dark :is(
+  .dashboard-stat-card,
+  .dashboard-chart-card,
+  .dashboard-empty,
+  .campaign-card,
+  .campaign-content-card,
+  .campaign-page__empty,
+  .library-page__empty,
+  .library-page__search,
+  .profile-card,
+  .profile-stats,
+  .profile-stats article,
+  .profile-modal__panel,
+  .saved-content-card,
+  .ui-modal__panel,
+  .content-score-panel,
+  .variant-modal__panel,
+  .variant-card,
+  .account-menu,
+  .ad-brief-form--popover,
+  .media-studio,
+  .chat-composer,
+  .conversation-search
+) {
+  color: var(--color-text) !important;
+  background: var(--color-card) !important;
+  border-color: var(--color-card-border) !important;
+}
+
+html.dark :is(input, select, textarea) {
+  color: var(--color-text-primary) !important;
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark :is(
+  .workspace-layout h1,
+  .workspace-layout h2,
+  .workspace-layout h3,
+  .dashboard-stat-card strong,
+  .dashboard-chart-card h2,
+  .dashboard-empty h2,
+  .campaign-page__empty h2,
+  .library-page__empty h2,
+  .profile-card h2,
+  .profile-modal h2,
+  .ui-modal h2,
+  .variant-card h3,
+  .content-score-panel h2
+) {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark :is(
+  .workspace-layout__brand small,
+  .dashboard-stat-card p,
+  .dashboard-stat-card small,
+  .dashboard-chart-card p,
+  .profile-modal p,
+  .header-title__status,
+  .sidebar-brand__subtitle
+) {
+  color: var(--color-text-muted) !important;
+}
+
+html.dark :is(
+  .conversation-item:hover,
+  .app-navigation__item:hover,
+  .sidebar-collapse-button:hover,
+  .header-actions__button:hover,
+  .header-actions__icon-button:hover,
+  .account-menu button:hover
+) {
+  color: var(--color-text-primary) !important;
+  background: var(--color-surface-hover) !important;

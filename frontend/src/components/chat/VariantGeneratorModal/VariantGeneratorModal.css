@@ -3,26 +3,26 @@
 .variant-modal__panel { position: relative; display: flex; flex-direction: column; width: min(1120px, 100%); max-height: 90vh; overflow: hidden; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 24px 70px rgb(15 23 42 / 26%); }
 .variant-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; background: #fff; border-bottom: 1px solid #e2e8f0; }
 .variant-modal__title { display: flex; align-items: center; gap: 12px; }
-.variant-modal__title > span { display: grid; place-items: center; width: 40px; height: 40px; color: #fff; background: linear-gradient(135deg, #8b5cf6, #4f46e5); border-radius: 12px; }
+.variant-modal__title > span { display: grid; place-items: center; width: 40px; height: 40px; color: #fff; background: linear-gradient(135deg, #957dc5, #655f9f); border-radius: 12px; }
 .variant-modal__title h2, .variant-modal__title p { margin: 0; }
 .variant-modal__title h2 { color: #172033; font-size: 20px; }
 .variant-modal__title p { margin-top: 3px; color: #64748b; font-size: 12px; }
 .variant-modal__header > button { display: grid; place-items: center; width: 34px; height: 34px; color: #64748b; background: #f8fafc; border: 0; border-radius: 10px; cursor: pointer; }
 .variant-modal__body { padding: 18px; overflow-y: auto; }
 .variant-modal__loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; gap: 10px; color: #64748b; }
-.variant-modal__loading svg, .variant-card__spinner { color: #7c3aed; animation: variant-spin 800ms linear infinite; }
+.variant-modal__loading svg, .variant-card__spinner { color: #8067ad; animation: variant-spin 800ms linear infinite; }
 .variant-modal__loading svg { width: 32px; height: 32px; }
 @keyframes variant-spin { to { transform: rotate(360deg); } }
 .variant-modal__cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
 .variant-card { padding: 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 15px; box-shadow: 0 2px 8px rgb(15 23 42 / 4%); transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
 .variant-card:hover { transform: translateY(-2px); border-color: #c4b5fd; box-shadow: 0 10px 24px rgb(76 29 149 / 9%); }
-.variant-card.is-primary { border-color: #8b5cf6; box-shadow: 0 0 0 2px #ede9fe; }
+.variant-card.is-primary { border-color: #957dc5; box-shadow: 0 0 0 2px #ede9fe; }
 .variant-card > header { display: flex; align-items: center; gap: 10px; }
-.variant-card__label { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; color: #fff; font-size: 15px; font-weight: 800; background: #7c3aed; border-radius: 10px; }
+.variant-card__label { display: grid; flex: 0 0 34px; place-items: center; width: 34px; height: 34px; color: #fff; font-size: 15px; font-weight: 800; background: #8067ad; border-radius: 10px; }
 .variant-card header h3, .variant-card header p { margin: 0; }
 .variant-card header h3 { color: #1e293b; font-size: 14px; }
-.variant-card header p { margin-top: 2px; color: #7c3aed; font-size: 11px; }
-.variant-card__primary { margin-left: auto; color: #6d28d9; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.variant-card header p { margin-top: 2px; color: #8067ad; font-size: 11px; }
+.variant-card__primary { margin-left: auto; color: #6b5599; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .variant-card > h4 { margin: 16px 0 8px; color: #1e293b; font-size: 15px; line-height: 1.4; }
 .variant-card__content { min-height: 150px; max-height: 260px; margin: 14px 0 0; overflow-y: auto; color: #475569; font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; }
 .variant-card__cta { margin: 12px 0 0; padding: 9px 10px; color: #4c1d95; font-size: 12px; background: #faf5ff; border-radius: 9px; }
@@ -30,21 +30,21 @@
 .variant-card__score strong { color: #15803d; font-size: 16px; }
 .variant-card__score span { color: #64748b; font-size: 10px; }
 .variant-card__compare { display: flex; align-items: center; gap: 7px; margin-top: 13px; color: #475569; font-size: 11px; cursor: pointer; }
-.variant-card__compare input { accent-color: #7c3aed; }
+.variant-card__compare input { accent-color: #8067ad; }
 .variant-card__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
-.variant-card__actions button, .variant-comparison button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 32px; padding: 6px 8px; color: #5b21b6; font: inherit; font-size: 10.5px; font-weight: 650; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; cursor: pointer; }
-.variant-card__actions button:hover:not(:disabled), .variant-comparison button:hover:not(:disabled) { color: #fff; background: #7c3aed; border-color: #7c3aed; }
+.variant-card__actions button, .variant-comparison button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 32px; padding: 6px 8px; color: #5b21b6; font: inherit; font-size: 10.5px; font-weight: 650; background: #f5f2fb; border: 1px solid #ddd6fe; border-radius: 8px; cursor: pointer; }
+.variant-card__actions button:hover:not(:disabled), .variant-comparison button:hover:not(:disabled) { color: #fff; background: #8067ad; border-color: #8067ad; }
 .variant-card__actions button:disabled, .variant-comparison button:disabled { cursor: not-allowed; opacity: .55; }
 .variant-comparison { margin-top: 18px; padding: 16px; background: #fff; border: 1px solid #ddd6fe; border-radius: 15px; }
 .variant-comparison__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .variant-comparison__heading h3, .variant-comparison__heading p { margin: 0; }
-.variant-comparison__heading h3 { color: #312e81; font-size: 16px; }
+.variant-comparison__heading h3 { color: #3c3962; font-size: 16px; }
 .variant-comparison__heading p { margin-top: 4px; color: #64748b; font-size: 11px; }
 .variant-comparison__table-wrap { margin-top: 14px; overflow-x: auto; }
 .variant-comparison table { width: 100%; border-collapse: collapse; color: #475569; font-size: 12px; }
 .variant-comparison th, .variant-comparison td { padding: 9px 10px; text-align: center; border: 1px solid #e2e8f0; }
 .variant-comparison th:first-child { text-align: left; }
-.variant-comparison thead th { color: #4c1d95; background: #f5f3ff; }
+.variant-comparison thead th { color: #4c1d95; background: #f5f2fb; }
 .variant-comparison__recommendation { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 12px; padding: 11px 12px; background: #f0fdf4; border-radius: 10px; }
 .variant-comparison__recommendation p { margin: 0; color: #166534; font-size: 12px; }
 @media (max-width: 960px) { .variant-modal__cards { grid-template-columns: 1fr; } .variant-card__content { min-height: 0; } }

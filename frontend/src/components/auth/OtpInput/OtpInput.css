@@ -21,8 +21,8 @@
 }
 
 .otp-input input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  border-color: #7776b8;
+  box-shadow: 0 0 0 3px rgba(119, 118, 184, 0.12);
 }
 
 .otp-input--error input {

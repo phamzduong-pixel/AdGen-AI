@@ -75,7 +75,7 @@
   font-size: 13px;
   font-weight: 750;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-radius: 11px;
 }
 
@@ -187,7 +187,7 @@
 .profile-modal { position: fixed; z-index: 1200; inset: 0; display: grid; place-items: center; }
 .profile-modal__backdrop { position: absolute; inset: 0; background: rgb(15 23 42 / 45%); border: 0; }
 .profile-modal__panel { position: relative; width: min(360px, calc(100% - 32px)); padding: 28px; text-align: center; background: #fff; border-radius: 16px; box-shadow: 0 24px 60px rgb(15 23 42 / 24%); }
-.profile-modal__avatar { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 12px; color: #fff; font-weight: 700; background: linear-gradient(135deg,#4f46e5,#7c3aed); border-radius: 18px; }
+.profile-modal__avatar { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 12px; color: #fff; font-weight: 700; background: linear-gradient(135deg,#655f9f,#8067ad); border-radius: 18px; }
 .profile-modal h2 { margin: 0 0 4px; color: #0f172a; }
 .profile-modal p { margin: 0; color: #64748b; }
 .profile-modal__close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; cursor: pointer; }

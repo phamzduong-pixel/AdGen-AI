@@ -49,3 +49,14 @@ Các kết quả trên là implementation/unit/mock và SQLite disposable. Khôn
 5. Nền hội thoại, vùng footer và composer Chat dark đã được đưa về cùng canvas; composer chỉ giữ độ nổi nhẹ bằng màu surface.
 
 Kiểm thử thực tế sau cập nhật: `npm run lint` PASS, `npm test` PASS (38/38), `npm run build` PASS và `git diff --check` PASS. Đây là bằng chứng implementation/unit/build; visual QA đa trình duyệt vẫn cần thực hiện khi có môi trường trình duyệt mục tiêu.
+## Cap nhat giao dien va dark mode — 05/10/2026
+
+Da hoan tat tinh chinh giao dien React/Vite:
+
+- Nhom nut tao hoi thoai moi (`New Chat` va `Cuoc tro chuyen moi`) dung gradient pastel xanh-indigo/tim nhat hon, chu va trang thai hover van dam bao do tuong phan.
+- Bo duong ke ngang ro mau xanh duoi header Chat; header dung nen pha tron nhe va khong con border hien ro.
+- Dong bo mau dark mode cho nen chinh, sidebar, header, card, modal, input, text phu, border va hover theo cung he token indigo.
+- Giu rieng xu ly light/dark de khong lam thay doi hanh vi chuc nang hoac API.
+- Cac file style chinh: `frontend/src/styles/globals.css`, `frontend/src/components/chat/Header/Header.css`, `frontend/src/components/chat/Header/HeaderActions/HeaderActions.css`, `frontend/src/components/chat/Sidebar/SidebarHeader/SidebarHeader.css` va `frontend/src/layouts/ChatLayout/ChatLayout.css`.
+
+Kiem tra sau cap nhat: `npm run lint` PASS, `npm test` PASS (38/38), `npm run build` PASS va `git diff --check` PASS. Visual QA tren trinh duyet muc tieu van la buoc bo sung neu can kiem tra nhieu man hinh/thiet bi.

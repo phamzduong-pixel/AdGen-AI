@@ -15,7 +15,18 @@ from app.prompts.tiktok import TIKTOK_PROMPT
 from app.prompts.youtube import YOUTUBE_PROMPT
 from app.services.knowledge_base.service import knowledge_service
 from app.services.platform_intelligence.service import platform_intelligence_service
-from app.services.trend_intelligence.service import trend_intelligence_service
+from app.services.external_retrieval.evidence_context import EXTERNAL_EVIDENCE_SYSTEM_RULES, build_evidence_prompt_context
+from app.services.external_retrieval.provider import SearchProviderResult
+
+
+EXTERNAL_RETRIEVAL_UNAVAILABLE_CONTEXT = (
+    "### TRẠNG THÁI TRA CỨU BÊN NGOÀI\n"
+    "Yêu cầu hiện tại cần thông tin hoặc nguồn bên ngoài, nhưng External Retrieval "
+    "chưa được kết nối trong phiên bản này.\n"
+    "Không được nói hoặc ngụ ý rằng hệ thống đã tìm kiếm, xác minh, cập nhật xu hướng "
+    "hay tạo citation. Chỉ sử dụng thông tin người dùng đã cung cấp và nêu rõ giới hạn "
+    "nếu câu trả lời cần dữ liệu hiện tại."
+)
 
 PROMPT_MAP = {
     "facebook": FACEBOOK_PROMPT,
@@ -64,6 +75,8 @@ def build_reference_context(
     product_context: str = "",
     trend_query: str | None = None,
     enable_intelligence: bool = True,
+    external_retrieval_requested: bool = False,
+    external_retrieval_result: SearchProviderResult | None = None,
 ) -> str:
     """Build user/configuration data separately from invariant system rules."""
     normalized = normalize_prompt_type(prompt_type)
@@ -86,12 +99,11 @@ def build_reference_context(
         )
         if knowledge_context:
             sections.append(knowledge_context)
-        trend_context = trend_intelligence_service.format_trend_context(
-            query=trend_query or normalized,
-            platform=normalized,
-        )
-        if trend_context:
-            sections.append(trend_context)
+    if external_retrieval_requested:
+        if external_retrieval_result is None:
+            sections.append(EXTERNAL_RETRIEVAL_UNAVAILABLE_CONTEXT)
+        else:
+            sections.append(build_evidence_prompt_context(external_retrieval_result).text)
     return "\n\n".join(sections)
 
 
@@ -102,6 +114,8 @@ def build_system_prompt(
     product_context: str = "",
     trend_query: str | None = None,
     enable_intelligence: bool = True,
+    external_retrieval_requested: bool = False,
+    external_retrieval_result: SearchProviderResult | None = None,
     include_reference_data: bool = True,
 ) -> str:
     """Build invariant instructions and optional legacy reference content.
@@ -113,6 +127,9 @@ def build_system_prompt(
     normalized = normalize_prompt_type(prompt_type)
     specialized = get_specialized_prompt(normalized)
     sections = [SYSTEM_PROMPT.strip()]
+
+    if external_retrieval_requested:
+        sections.append(EXTERNAL_EVIDENCE_SYSTEM_RULES)
 
     if normalized == "other":
         sections.append(
@@ -137,6 +154,8 @@ def build_system_prompt(
             product_context=product_context,
             trend_query=trend_query,
             enable_intelligence=enable_intelligence,
+            external_retrieval_requested=external_retrieval_requested,
+            external_retrieval_result=external_retrieval_result,
         )
         if reference:
             sections.append(reference)

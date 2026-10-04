@@ -1,14 +1,14 @@
 .campaign-content-card { padding: 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; }
-.campaign-content-card.is-primary { border-color: #8b5cf6; box-shadow: 0 0 0 2px #ede9fe; }
+.campaign-content-card.is-primary { border-color: #957dc5; box-shadow: 0 0 0 2px #ede9fe; }
 .campaign-content-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.campaign-content-card header span { color: #7c3aed; font-size: 9px; font-weight: 750; text-transform: uppercase; }
+.campaign-content-card header span { color: #8067ad; font-size: 9px; font-weight: 750; text-transform: uppercase; }
 .campaign-content-card header h3 { margin: 4px 0 0; color: #1e293b; font-size: 15px; }
-.campaign-content-card header > strong { display: inline-flex; align-items: center; gap: 5px; color: #6d28d9; font-size: 9px; white-space: nowrap; background: #f3e8ff; padding: 5px 8px; border-radius: 99px; }
+.campaign-content-card header > strong { display: inline-flex; align-items: center; gap: 5px; color: #6b5599; font-size: 9px; white-space: nowrap; background: #f1eafb; padding: 5px 8px; border-radius: 99px; }
 .campaign-content-card__excerpt { display: -webkit-box; margin: 13px 0; overflow: hidden; color: #64748b; font-size: 11px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; white-space: pre-wrap; }
 .campaign-content-card__stats { display: flex; flex-wrap: wrap; gap: 6px; padding: 9px; background: #f8fafc; border-radius: 9px; }
 .campaign-content-card__stats span { color: #94a3b8; font-size: 9px; }
 .campaign-content-card__stats strong { color: #475569; }
 .campaign-content-card footer { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
-.campaign-content-card footer button { display: inline-flex; align-items: center; gap: 4px; min-height: 29px; padding: 0 7px; color: #5b21b6; font: inherit; font-size: 9px; font-weight: 650; background: #f5f3ff; border: 0; border-radius: 7px; cursor: pointer; }
+.campaign-content-card footer button { display: inline-flex; align-items: center; gap: 4px; min-height: 29px; padding: 0 7px; color: #5b21b6; font: inherit; font-size: 9px; font-weight: 650; background: #f5f2fb; border: 0; border-radius: 7px; cursor: pointer; }
 .campaign-content-card footer button.is-danger { color: #dc2626; background: #fef2f2; }
 .campaign-content-card footer button:disabled { opacity: .5; cursor: not-allowed; }

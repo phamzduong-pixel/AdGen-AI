@@ -71,9 +71,9 @@
 
   color: #ffffff;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-radius: 17px;
-  box-shadow: 0 14px 30px rgb(79 70 229 / 22%);
+  box-shadow: 0 14px 30px rgb(101 95 159 / 22%);
 }
 
 .empty-state__logo svg {
@@ -84,7 +84,7 @@
 .empty-state__eyebrow {
   margin-bottom: 8px;
 
-  color: #6366f1;
+  color: #7776b8;
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.09em;
@@ -142,7 +142,7 @@
 
 .empty-state__suggestion:hover {
   border-color: #c7d2fe;
-  box-shadow: 0 12px 28px rgb(79 70 229 / 8%);
+  box-shadow: 0 12px 28px rgb(101 95 159 / 8%);
   transform: translateY(-2px);
 }
 
@@ -155,9 +155,9 @@
   width: 38px;
   height: 38px;
 
-  color: #4f46e5;
+  color: #655f9f;
 
-  background: #eef2ff;
+  background: #f0eefb;
   border-radius: 11px;
 }
 
@@ -249,14 +249,14 @@ html.dark .empty-state__suggestion {
 :root[data-theme="dark"] .empty-state__suggestion:hover,
 html.dark .empty-state__suggestion:hover {
   background: #273449;
-  border-color: #6366f1;
+  border-color: #7776b8;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 :root[data-theme="dark"] .empty-state__suggestion-icon,
 html.dark .empty-state__suggestion-icon {
   color: #a5b4fc;
-  background: #1e1b4b;
+  background: #27243e;
 }
 
 :root[data-theme="dark"] .empty-state__suggestion-content strong,
@@ -292,13 +292,13 @@ html.dark .empty-state__suggestion-arrow {
 
   :root[data-theme="system"] .empty-state__suggestion:hover {
     background: #273449;
-    border-color: #6366f1;
+    border-color: #7776b8;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
   }
 
   :root[data-theme="system"] .empty-state__suggestion-icon {
     color: #a5b4fc;
-    background: #1e1b4b;
+    background: #27243e;
   }
 
   :root[data-theme="system"] .empty-state__suggestion-content strong {

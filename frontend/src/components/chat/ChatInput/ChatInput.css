@@ -65,8 +65,8 @@
 .attachment-preview__document {
   display: grid;
   place-items: center;
-  color: #6366f1;
-  background: #eef2ff;
+  color: #7776b8;
+  background: #f0eefb;
 }
 
 .attachment-preview__details {
@@ -121,7 +121,7 @@
 
 .chat-composer:focus-within {
   box-shadow:
-    0 0 0 3px rgb(99 102 241 / 9%),
+    0 0 0 3px rgb(119 118 184 / 9%),
     0 16px 42px rgb(15 23 42 / 12%);
 }
 
@@ -204,7 +204,7 @@
 
 .chat-composer__brief-button.is-active {
   color: #5b21b6;
-  background: #f3e8ff;
+  background: #f1eafb;
 }
 
 .chat-composer__brief-button.is-active:hover:not(:disabled) {
@@ -220,7 +220,7 @@
   width: 7px;
   height: 7px;
 
-  background: #7c3aed;
+  background: #8067ad;
   border: 2px solid #ffffff;
   border-radius: 999px;
 }
@@ -228,9 +228,9 @@
 .chat-composer__send-button {
   color: #ffffff;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
 
-  box-shadow: 0 8px 18px rgb(79 70 229 / 22%);
+  box-shadow: 0 8px 18px rgb(101 95 159 / 22%);
 }
 
 .chat-composer__send-button:hover:not(:disabled) {

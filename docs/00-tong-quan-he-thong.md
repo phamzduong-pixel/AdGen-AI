@@ -1,4 +1,4 @@
-# AdGen AI — Báo cáo tổng hợp hệ thống
+﻿# AdGen AI — Báo cáo tổng hợp hệ thống
 
 > Cập nhật: 02/10/2026  
 > Phạm vi: source code và kết quả kiểm thử hiện có trong repository  
@@ -392,3 +392,75 @@ Bằng chứng kiểm tra section này:
 - `git diff --check`: PASS.
 
 Các kết quả trên xác nhận implementation và frontend unit/build checks; chưa thay thế cho visual QA thủ công trên mọi trình duyệt/kích thước màn hình.
+
+## 14. Kiến trúc logic hiện tại
+
+```text
+React 19 + Vite frontend
+  Pages / components / hooks / API clients / Chat UI
+             │ HTTP JSON, multipart upload, text stream
+             ▼
+FastAPI backend
+  Routers → schemas → services → SQLAlchemy models
+  Auth/JWT, ownership, validation, local file storage
+             ├───────────────┬────────────────┐
+             ▼               ▼                ▼
+       SQLite/PostgreSQL  Gemini AI       Media/TTS providers
+       Alembic            prompt/context  image/video/voiceover
+```
+
+Frontend quản lý giao diện, trạng thái hội thoại, form, preview, upload và gọi API. Backend đảm nhiệm xác thực, phân quyền, nghiệp vụ, gọi AI, lưu dữ liệu và streaming. AI pipeline kết hợp system prompt, prompt theo nền tảng, brief, thương hiệu, lịch sử hội thoại và file phù hợp trước khi gửi đến provider.
+
+### 14.1. Media runtime
+
+- `MediaAsset` lưu image/video, metadata, trạng thái, ownership, conversation và lineage (`parent_asset_id`, `root_asset_id`, `version_number`).
+- Image flow hỗ trợ provider adapter, ảnh tham chiếu, preview/download và tạo asset mới khi chỉnh sửa.
+- Video flow hỗ trợ upload/register, trim, aspect/crop, text/CTA overlay, subtitle, volume/mute và merge qua controlled processor.
+- Media Studio hỗ trợ chọn source, cấu hình operation, preview/download và giữ bản gốc.
+- Conversational Video Editing dùng structured plan, preflight, allowlist operation, partial recovery và idempotency.
+- AI video generation dùng `MediaJob`, submit/poll/download và output validation; provider thật vẫn phụ thuộc quota/access.
+
+Các test media dùng mock/fake processor hoặc SQLite không thay thế cho xác minh FFmpeg/FFprobe, provider thật và PostgreSQL concurrency.
+
+## 15. Luồng AI và upload hiện tại
+
+### Luồng tạo nội dung
+
+```text
+Request /messages hoặc /messages/stream
+  → xác thực user/conversation và ownership
+  → đọc brief, brand, platform, lịch sử và attachment
+  → ghép system prompt + platform prompt + context
+  → gọi Gemini non-stream hoặc stream
+  → validation/sanitize theo luồng
+  → lưu assistant message và trả kết quả
+```
+
+Luồng stream ưu tiên phản hồi nhanh; theo source hiện tại, validation và learning-dataset logging chưa hoàn toàn đồng nhất với non-stream.
+
+### Nền tảng nội dung
+
+Nền tảng tạo mới gồm Facebook, TikTok, Instagram, Shopee, Google Ads và Khác. Khi chọn Khác, người dùng nhập tên kênh từ 2 đến 80 ký tự. Giá trị này là dữ liệu đầu vào, không được ghi đè system prompt hoặc làm AI tự suy đoán quy định của kênh.
+
+Các giá trị legacy như Landing Page, Email, SEO, Slogan, Viết lại và Tóm tắt vẫn có thể xuất hiện trong dữ liệu cũ để tương thích, nhưng không còn là lựa chọn nền tảng mới.
+
+### Upload và multimodal
+
+Upload hỗ trợ tài liệu DOCX/PDF/TXT, ảnh JPEG/JPG/PNG/WEBP và video MP4/MOV/WEBM. File được kiểm tra loại, kích thước và quyền sở hữu; video upload là source để tạo version chỉnh sửa mới, không ghi đè file gốc.
+
+`backend/app/services/multimodal/` cung cấp các contract cho text, image, video, audio và task type tương ứng. Đây là scaffold/contract chung; chức năng thực tế phải được đối chiếu với media API/provider/service tương ứng.
+
+## 16. Cấu trúc source chính
+
+- `frontend/src/pages/`, `frontend/src/components/`, `frontend/src/hooks/`, `frontend/src/services/api/`: giao diện, trạng thái và client API.
+- `backend/app/api/`: router HTTP theo domain.
+- `backend/app/schemas/`, `backend/app/models/`: hợp đồng request/response và dữ liệu SQLAlchemy.
+- `backend/app/services/`: AI, auth, storage, conversation, content, brand, campaign, media và voiceover.
+- `backend/app/database/`, `backend/alembic/`: database engine, schema guard và migration.
+- `backend/tests/`, `frontend/tests/`: kiểm thử backend/frontend.
+
+## 17. Trạng thái implementation và giới hạn
+
+Các phase Image, Technical Video Editing, AI Video Generation foundation và Conversational Video Editing đã có contract, backend/frontend implementation và targeted tests. Việc gọi chúng là hoàn tất production vẫn cần bằng chứng runtime thật cho FFmpeg/FFprobe, Gemini provider, storage persistent và PostgreSQL concurrency.
+
+Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local/demo một instance; upload production cần persistent disk hoặc object storage; stream chưa đồng nhất hoàn toàn với non-stream; quota/rate limit Gemini và media cần được cấu hình khi triển khai rộng.

@@ -36,9 +36,9 @@
   font-weight: 800;
   letter-spacing: -0.04em;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-radius: 11px;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
+  box-shadow: 0 8px 18px rgba(101, 95, 159, 0.22);
 }
 
 .sidebar-brand__content {
@@ -103,10 +103,10 @@
   font-size: 13px;
   font-weight: 650;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border: 0;
   border-radius: 11px;
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+  box-shadow: 0 8px 18px rgba(101, 95, 159, 0.18);
 
   cursor: pointer;
 
@@ -116,7 +116,7 @@
 }
 
 .sidebar-new-chat:hover {
-  box-shadow: 0 12px 22px rgba(79, 70, 229, 0.24);
+  box-shadow: 0 12px 22px rgba(101, 95, 159, 0.24);
   transform: translateY(-1px);
 }
 
@@ -244,7 +244,7 @@ html.dark .sidebar-header__collapse:hover {
   letter-spacing: 0.04em;
   text-shadow: 0 1px 2px rgb(16 36 95 / 28%);
   -webkit-text-stroke: 0.55px rgb(255 255 255 / 72%);
-  background: linear-gradient(145deg, #0038ff 0%, #4f46e5 54%, #7c3aed 100%);
+  background: linear-gradient(145deg, #6f79b5 0%, #655f9f 54%, #8067ad 100%);
   border: 1px solid rgb(255 255 255 / 28%);
   border-radius: 13px;
   box-shadow:
@@ -273,20 +273,20 @@ html.dark .sidebar-brand__logo {
 
 /* Match DG badge colors with the former lightning mark. */
 .sidebar-brand__logo {
-  color: #4f46e5;
+  color: #655f9f;
   text-shadow: none;
-  -webkit-text-stroke: 0.45px rgb(79 70 229 / 35%);
-  background: #eef2ff;
-  border-color: #dfe7ff;
-  box-shadow: 0 8px 18px rgb(79 70 229 / 12%);
+  -webkit-text-stroke: 0.45px rgb(101 95 159 / 35%);
+  background: #f0eefb;
+  border-color: #e5e1f1;
+  box-shadow: 0 8px 18px rgb(101 95 159 / 12%);
 }
 
 :root[data-theme="dark"] .sidebar-brand__logo,
 html.dark .sidebar-brand__logo {
   color: #a5b4fc;
   -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
-  background: #1e1b4b;
-  border-color: #312e81;
+  background: #27243e;
+  border-color: #3c3962;
   box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
 }
 
@@ -294,8 +294,8 @@ html.dark .sidebar-brand__logo {
   :root[data-theme="system"] .sidebar-brand__logo {
     color: #a5b4fc;
     -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
-    background: #1e1b4b;
-    border-color: #312e81;
+    background: #27243e;
+    border-color: #3c3962;
     box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
   }
 }
@@ -307,4 +307,48 @@ html.dark .sidebar-brand__logo {
   background: var(--brand-mark-bg);
   border-color: var(--brand-mark-border);
   box-shadow: 0 8px 18px var(--brand-mark-shadow);
+}.sidebar-header {
+  position: relative;
+  border-bottom: 0;
+}
+
+.sidebar-header::after {
+  position: absolute;
+  right: 12px;
+  bottom: -5px;
+  left: 12px;
+  height: 10px;
+  background: linear-gradient(
+    to bottom,
+    rgb(177 190 236 / 20%),
+    rgb(217 224 250 / 8%) 42%,
+    transparent
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.sidebar-new-chat {
+  color: #35427d;
+  background: linear-gradient(135deg, #c9d5ff 0%, #d9caff 100%);
+  border: 1px solid rgb(143 157 224 / 20%);
+  box-shadow: 0 7px 16px rgb(106 119 193 / 12%);
+}
+
+.sidebar-new-chat:hover {
+  color: #2f3a70;
+  background: linear-gradient(135deg, #bdccff 0%, #d0bdff 100%);
+  box-shadow: 0 10px 20px rgb(106 119 193 / 17%);
+}
+
+:root[data-theme="dark"] .sidebar-header::after,
+html.dark .sidebar-header::after {
+  background: linear-gradient(to bottom, rgb(142 162 255 / 14%), transparent);
+}
+
+:root[data-theme="dark"] .sidebar-new-chat,
+html.dark .sidebar-new-chat {
+  color: #f0eefb;
+  background: linear-gradient(135deg, #5368b5 0%, #7664ac 100%);
+  border-color: rgb(190 198 255 / 18%);
 }

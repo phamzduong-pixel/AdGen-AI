@@ -7,7 +7,7 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 12% 12%, rgba(124, 58, 237, 0.16), transparent 30%),
-    radial-gradient(circle at 88% 86%, rgba(79, 70, 229, 0.14), transparent 30%),
+    radial-gradient(circle at 88% 86%, rgba(101, 95, 159, 0.14), transparent 30%),
     #f8f7ff;
 }
 
@@ -33,9 +33,9 @@
   font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.22);
+  box-shadow: 0 10px 25px rgba(101, 95, 159, 0.22);
 }
 
 .recovery-card {
@@ -55,7 +55,7 @@
   place-items: center;
   color: #fff;
   font-size: 21px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-radius: 14px;
 }
 
@@ -105,8 +105,8 @@
 }
 
 .recovery-field__control:focus-within {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.11);
+  border-color: #7776b8;
+  box-shadow: 0 0 0 4px rgba(119, 118, 184, 0.11);
 }
 
 .recovery-field__control--error {
@@ -168,10 +168,10 @@
   font: inherit;
   font-size: 15px;
   font-weight: 700;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border: 0;
   border-radius: 13px;
-  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 12px 25px rgba(101, 95, 159, 0.2);
   cursor: pointer;
 }
 
@@ -186,20 +186,20 @@
   justify-content: center;
   gap: 7px;
   margin-top: 21px;
-  color: #6366f1;
+  color: #7776b8;
   font-size: 14px;
   font-weight: 650;
   text-decoration: none;
 }
 
 .recovery-back-link:hover {
-  color: #4338ca;
+  color: #56528e;
 }
 
 .recovery-primary-button:focus-visible,
 .recovery-back-link:focus-visible,
 .recovery-brand:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.35);
+  outline: 3px solid rgba(119, 118, 184, 0.35);
   outline-offset: 3px;
 }
 

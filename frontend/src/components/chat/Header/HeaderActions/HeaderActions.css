@@ -53,15 +53,15 @@
 .header-actions__button--primary {
   color: #ffffff;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-color: transparent;
-  box-shadow: 0 7px 16px rgb(79 70 229 / 18%);
+  box-shadow: 0 7px 16px rgb(101 95 159 / 18%);
 }
 
 .header-actions__button--primary:hover {
   color: #ffffff;
 
-  background: linear-gradient(135deg, #4338ca, #6d28d9);
+  background: linear-gradient(135deg, #56528e, #6b5599);
   border-color: transparent;
 
   transform: translateY(-1px);
@@ -116,10 +116,10 @@
 .header-dialog__panel { position: relative; width: min(420px, 100%); padding: 22px; background: #fff; border-radius: 16px; box-shadow: 0 22px 60px rgb(15 23 42 / 24%); }
 .header-dialog h2 { margin: 0 0 9px; font-size: 18px; color: #0f172a; }
 .header-dialog p { margin: 0; color: #64748b; font-size: 14px; line-height: 1.55; }
-.header-dialog input { width: 100%; padding: 10px 11px; font: inherit; border: 1px solid #818cf8; border-radius: 9px; outline: 0; }
+.header-dialog input { width: 100%; padding: 10px 11px; font: inherit; border: 1px solid #a1a3d4; border-radius: 9px; outline: 0; }
 .header-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 .header-dialog__actions button { padding: 9px 14px; font: inherit; font-weight: 600; border: 0; border-radius: 9px; cursor: pointer; }
-.header-dialog__actions button:last-child { color: #fff; background: #4f46e5; }
+.header-dialog__actions button:last-child { color: #fff; background: #655f9f; }
 .header-dialog__actions button.is-danger { background: #dc2626; }
 
 @media (max-width: 760px) {
@@ -151,7 +151,7 @@ html.dark :is(.header-actions__button:hover, .header-actions__icon-button:hover)
 :root[data-theme="dark"] .header-actions__button--primary,
 html.dark .header-actions__button--primary {
   color: #ffffff;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
   border-color: transparent;
 }
 
@@ -193,7 +193,7 @@ html.dark .header-dialog p {
 :root[data-theme="dark"] .header-dialog input,
 html.dark .header-dialog input {
   background: #0f172a;
-  border-color: #6366f1;
+  border-color: #7776b8;
   color: #f8fafc;
 }
 
@@ -219,7 +219,7 @@ html.dark .header-dialog__actions button:first-child {
 
   :root[data-theme="system"] .header-actions__button--primary {
     color: #ffffff;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: linear-gradient(135deg, #655f9f, #8067ad);
     border-color: transparent;
   }
 
@@ -254,7 +254,7 @@ html.dark .header-dialog__actions button:first-child {
 
   :root[data-theme="system"] .header-dialog input {
     background: #0f172a;
-    border-color: #6366f1;
+    border-color: #7776b8;
     color: #f8fafc;
   }
 
@@ -304,4 +304,30 @@ html.dark .header-dialog__actions button:first-child {
     width: 15px;
     height: 15px;
   }
+}
+.header-actions__button--primary {
+  color: #35427d;
+  background: linear-gradient(135deg, #c9d5ff 0%, #d9caff 100%);
+  border-color: rgb(143 157 224 / 20%);
+  box-shadow: 0 7px 16px rgb(106 119 193 / 12%);
+}
+
+.header-actions__button--primary:hover {
+  color: #2f3a70;
+  background: linear-gradient(135deg, #bdccff 0%, #d0bdff 100%);
+  border-color: rgb(143 157 224 / 24%);
+  box-shadow: 0 10px 20px rgb(106 119 193 / 17%);
+}
+
+:root[data-theme="dark"] .header-actions__button--primary,
+html.dark .header-actions__button--primary {
+  color: #f0eefb;
+  background: linear-gradient(135deg, #5368b5 0%, #7664ac 100%);
+  border-color: rgb(190 198 255 / 18%);
+}
+
+:root[data-theme="dark"] .header-actions__button--primary:hover,
+html.dark .header-actions__button--primary:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #6076c6 0%, #846fbd 100%);
 }

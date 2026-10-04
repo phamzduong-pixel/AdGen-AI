@@ -117,8 +117,8 @@ html.dark .sidebar-footer__settings:hover {
 :root[data-theme="dark"] .conversation-item--selected,
 html.dark .conversation-item--selected {
   color: #c7d2fe;
-  background: #1e1b4b;
-  border-color: #4338ca;
+  background: #27243e;
+  border-color: #56528e;
 }
 
 :root[data-theme="dark"] .sidebar-user,
@@ -182,8 +182,8 @@ html.dark .conversation-search input {
 
   :root[data-theme="system"] .conversation-item--selected {
     color: #c7d2fe;
-    background: #1e1b4b;
-    border-color: #4338ca;
+    background: #27243e;
+    border-color: #56528e;
   }
 
   :root[data-theme="system"] .sidebar-user,
@@ -272,4 +272,37 @@ html.dark .conversation-search input { color: var(--color-text-primary); }
 html.dark .chat-layout__footer { background: var(--color-main-bg); }
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] .chat-layout__footer { background: var(--color-main-bg); }
+}.chat-layout__header {
+  position: relative;
+  border-bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-header-bg) 0%,
+    color-mix(in srgb, var(--color-header-bg) 94%, var(--color-main-bg)) 76%,
+    var(--color-main-bg) 100%
+  );
+}
+
+.chat-layout__header::after {
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 12px;
+  background: linear-gradient(
+    to bottom,
+    rgb(177 190 236 / 18%),
+    rgb(217 224 250 / 7%) 42%,
+    transparent
+  );
+  content: "";
+  pointer-events: none;
+}
+
+:root[data-theme="dark"] .chat-layout__header::after,
+html.dark .chat-layout__header::after {
+  background: linear-gradient(to bottom, rgb(142 162 255 / 13%), transparent);
+}
+.chat-layout__header::after {
+  display: none;
 }

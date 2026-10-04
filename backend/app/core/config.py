@@ -97,6 +97,17 @@ class Settings:
     )
 
     VIDEO_GENERATION_PROVIDER = os.getenv("VIDEO_GENERATION_PROVIDER", "gemini").strip().lower()
+    # Optional. CP-2 external retrieval remains unavailable without this key.
+    BRAVE_SEARCH_API_KEY = os.getenv("BRAVE_SEARCH_API_KEY", "").strip()
+    EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS = float(
+        os.getenv("EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS", "8")
+    )
+    EXTERNAL_RETRIEVAL_MAX_RESULTS = int(os.getenv("EXTERNAL_RETRIEVAL_MAX_RESULTS", "5"))
+    EXTERNAL_RETRIEVAL_MAX_EXCERPT_CHARS = int(
+        os.getenv("EXTERNAL_RETRIEVAL_MAX_EXCERPT_CHARS", "1000")
+    )
+    EXTERNAL_RETRIEVAL_MAX_RETRIES = int(os.getenv("EXTERNAL_RETRIEVAL_MAX_RETRIES", "1"))
+
     GEMINI_VIDEO_MODEL = os.getenv("GEMINI_VIDEO_MODEL", "veo-3.1-generate-preview").strip()
 
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
@@ -202,6 +213,20 @@ class Settings:
             raise RuntimeError("MAX_UPLOAD_SIZE phải lớn hơn 0")
         if self.IMAGE_GENERATION_TIMEOUT_SECONDS <= 0:
             raise RuntimeError("IMAGE_GENERATION_TIMEOUT_SECONDS phải lớn hơn 0")
+        retrieval_values = {
+            "EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS": self.EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS,
+            "EXTERNAL_RETRIEVAL_MAX_RESULTS": self.EXTERNAL_RETRIEVAL_MAX_RESULTS,
+            "EXTERNAL_RETRIEVAL_MAX_EXCERPT_CHARS": self.EXTERNAL_RETRIEVAL_MAX_EXCERPT_CHARS,
+        }
+        invalid_retrieval_values = [
+            name for name, value in retrieval_values.items() if value <= 0
+        ]
+        if self.EXTERNAL_RETRIEVAL_MAX_RETRIES < 0:
+            invalid_retrieval_values.append("EXTERNAL_RETRIEVAL_MAX_RETRIES")
+        if invalid_retrieval_values:
+            raise RuntimeError(
+                "External retrieval configuration is invalid: " + ", ".join(invalid_retrieval_values)
+            )
         if not self.ALLOWED_ORIGINS:
             raise RuntimeError("ALLOWED_ORIGINS phải có ít nhất một origin")
         if self.ENVIRONMENT not in {"development", "test", "production"}:

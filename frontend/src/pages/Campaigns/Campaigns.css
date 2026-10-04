@@ -1,10 +1,10 @@
 @import "../../components/campaign/CampaignCard/CampaignCard.css";
 @import "../../components/campaign/CampaignFilters/CampaignFilters.css";
-.campaign-page__create { display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px; color: #fff; font: inherit; font-size: 11px; font-weight: 700; background: linear-gradient(135deg, #7c3aed, #4f46e5); border: 0; border-radius: 9px; cursor: pointer; }
+.campaign-page__create { display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px; color: #fff; font: inherit; font-size: 11px; font-weight: 700; background: linear-gradient(135deg, #8067ad, #655f9f); border: 0; border-radius: 9px; cursor: pointer; }
 .campaign-page__grid, .campaign-page__skeleton { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
 .campaign-page__skeleton span { min-height: 260px; background: #e2e8f0; border-radius: 15px; opacity: .55; }
 .campaign-page__empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 340px; color: #94a3b8; text-align: center; background: #fff; border: 1px dashed #cbd5e1; border-radius: 15px; }
-.campaign-page__empty svg { width: 34px; height: 34px; color: #8b5cf6; }
+.campaign-page__empty svg { width: 34px; height: 34px; color: #957dc5; }
 .campaign-page__empty h2 { margin: 12px 0 4px; color: #334155; font-size: 16px; }
 .campaign-page__empty p, .campaign-confirm__text { color: #64748b; font-size: 12px; line-height: 1.6; }
 .campaign-confirm__cancel, .campaign-confirm__delete { padding: 8px 12px; font: inherit; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; }

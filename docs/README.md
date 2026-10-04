@@ -10,7 +10,6 @@ Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thốn
 | Tài liệu | Nội dung |
 | --- | --- |
 | [00-tong-quan-he-thong.md](./00-tong-quan-he-thong.md) | Báo cáo tổng hợp hệ thống, kiến trúc, Gen AI, dữ liệu, vận hành, kiểm thử và giới hạn hiện tại |
-| [01-AdGen_AI_system.md](./01-AdGen_AI_system.md) | Mục tiêu, kiến trúc, thành phần, môi trường và giới hạn |
 | [02-chuc-nang-he-thong.md](./02-chuc-nang-he-thong.md) | Các chức năng người dùng, frontend và backend |
 | [03-luong-xu-ly-ai.md](./03-luong-xu-ly-ai.md) | Luồng AI từ brief/tin nhắn đến kết quả |
 | [04-co-so-du-lieu.md](./04-co-so-du-lieu.md) | Mô hình dữ liệu, quan hệ, ràng buộc và migration |
@@ -20,7 +19,8 @@ Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thốn
 | [15-runtime-hardening-and-handoff.md](./15-runtime-hardening-and-handoff.md) | Báo cáo bàn giao runtime, bảo mật endpoint, database bootstrap, kiểm thử và nhận diện giao diện |
 
 | [09-ke-hoach-tao-anh-video.md](./09-ke-hoach-tao-anh-video.md) | Kế hoạch tạo ảnh, tạo video và chỉnh sửa video |
-| [PROJECT_TREE.md](./PROJECT_TREE.md) | Cây thư mục source hiện tại và phạm vi các thư mục runtime bị loại khỏi tài liệu |
+| [16-huong-dan-su-dung-he-thong.md](./16-huong-dan-su-dung-he-thong.md) | Hướng dẫn sử dụng toàn bộ chức năng từ tài khoản, Chat, media, editor, thương hiệu, chiến dịch đến cài đặt |
+| [17-plan-adgen-trend-radar.md](./17-plan-adgen-trend-radar.md) | Kế hoạch phát triển Trend Radar: tìm kiếm dữ liệu bên ngoài, kiểm chứng nguồn, phân tích sản phẩm và tạo chiến dịch |
 
 ## Nguồn sự thật
 
@@ -51,3 +51,9 @@ README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập 
 - Tài khoản demo local có username `AdGenAI`, email `adgenai@example.com`; không ghi mật khẩu vào tài liệu hoặc repository.
 - Bubble tin nhắn người dùng đã được chỉnh về căn trái để nội dung dài xuống dòng đúng.
 
+
+## Cap nhat giao dien gan nhat
+
+Ngay 05/10/2026, frontend da hoan tat tinh chinh mau nut tao hoi thoai, bo duong ke header Chat va dong bo bang mau dark mode cho cac surface chinh. Kiem tra frontend: lint PASS, 38 test PASS, build PASS.
+
+Chi tiet implementation duoc ghi trong `15-runtime-hardening-and-handoff.md` va `16-huong-dan-su-dung-he-thong.md`.

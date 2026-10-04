@@ -4,7 +4,7 @@ Ngày: 2026-10-01
 
 ## Phạm vi
 
-Đã đọc `docs/12-plan-09-final-audit.md` và trace model, Image/Video service, conversational API, Media Studio và test hiện tại. Không gọi Gemini thật, không cài Docker/FFmpeg, không thêm dependency, migration, worker hoặc queue.
+Đã đối chiếu `docs/09-ke-hoach-tao-anh-video.md` và trace model, Image/Video service, conversational API, Media Studio và test hiện tại. Không gọi Gemini thật, không cài Docker/FFmpeg, không thêm dependency, migration, worker hoặc queue.
 
 ## A. Versioning
 

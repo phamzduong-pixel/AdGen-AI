@@ -15,9 +15,9 @@
   width: 38px;
   height: 38px;
 
-  color: #4f46e5;
+  color: #655f9f;
 
-  background: #eef2ff;
+  background: #f0eefb;
   border-radius: 11px;
 }
 
@@ -81,8 +81,8 @@
 :root[data-theme="dark"] .header-title__icon,
 html.dark .header-title__icon {
   color: #a5b4fc;
-  background: #1e1b4b;
-  border: 1px solid #312e81;
+  background: #27243e;
+  border: 1px solid #3c3962;
 }
 
 :root[data-theme="dark"] .header-title__content h2,
@@ -93,8 +93,8 @@ html.dark .header-title__content h2 {
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] .header-title__icon {
     color: #a5b4fc;
-    background: #1e1b4b;
-    border: 1px solid #312e81;
+    background: #27243e;
+    border: 1px solid #3c3962;
   }
 
   :root[data-theme="system"] .header-title__content h2 {

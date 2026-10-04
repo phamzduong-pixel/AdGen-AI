@@ -90,8 +90,8 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  color: #6366f1;
-  background: #eef2ff;
+  color: #7776b8;
+  background: #f0eefb;
   border-radius: 8px;
 }
 
@@ -202,18 +202,18 @@
   color: #475569;
 
   background: #f8fafc;
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid #7776b8;
   border-radius: 0 9px 9px 0;
 }
 
 .message__markdown code {
   padding: 2px 6px;
 
-  color: #4338ca;
+  color: #56528e;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.9em;
 
-  background: #eef2ff;
+  background: #f0eefb;
   border-radius: 6px;
 }
 
@@ -353,7 +353,7 @@
   border: 1px solid #c7d2fe;
   border-radius: 16px;
   box-shadow:
-    0 0 0 4px rgb(99 102 241 / 8%),
+    0 0 0 4px rgb(119 118 184 / 8%),
     0 12px 28px rgb(15 23 42 / 8%);
 }
 
@@ -425,7 +425,7 @@
 .message-edit__button--save {
   color: #ffffff;
 
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #655f9f, #8067ad);
 }
 
 .message-edit__button--save:hover:not(:disabled) {
@@ -495,14 +495,14 @@ html.dark .message__markdown strong {
 html.dark .message__markdown blockquote {
   color: #cbd5e1;
   background: #1e293b;
-  border-left-color: #818cf8;
+  border-left-color: #a1a3d4;
 }
 
 :root[data-theme="dark"] .message__markdown code,
 html.dark .message__markdown code {
   color: #c4b5fd;
-  background: #1e1b4b;
-  border: 1px solid #312e81;
+  background: #27243e;
+  border: 1px solid #3c3962;
 }
 
 :root[data-theme="dark"] .message__markdown pre,
@@ -527,7 +527,7 @@ html.dark .message-attachment strong {
 :root[data-theme="dark"] .message-attachment__icon,
 html.dark .message-attachment__icon {
   color: #a5b4fc;
-  background: #1e1b4b;
+  background: #27243e;
 }
 
 :root[data-theme="dark"] .message__action-button,
@@ -544,9 +544,9 @@ html.dark .message__action-button:hover {
 :root[data-theme="dark"] .message-edit,
 html.dark .message-edit {
   background: #1e293b;
-  border-color: #4338ca;
+  border-color: #56528e;
   box-shadow:
-    0 0 0 4px rgba(99, 102, 241, 0.15),
+    0 0 0 4px rgba(119, 118, 184, 0.15),
     0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
@@ -590,13 +590,13 @@ html.dark .message-edit__button:hover:not(:disabled) {
   :root[data-theme="system"] .message__markdown blockquote {
     color: #cbd5e1;
     background: #1e293b;
-    border-left-color: #818cf8;
+    border-left-color: #a1a3d4;
   }
 
   :root[data-theme="system"] .message__markdown code {
     color: #c4b5fd;
-    background: #1e1b4b;
-    border: 1px solid #312e81;
+    background: #27243e;
+    border: 1px solid #3c3962;
   }
 
   :root[data-theme="system"] .message__markdown pre {
@@ -617,7 +617,7 @@ html.dark .message-edit__button:hover:not(:disabled) {
 
   :root[data-theme="system"] .message-attachment__icon {
     color: #a5b4fc;
-    background: #1e1b4b;
+    background: #27243e;
   }
 
   :root[data-theme="system"] .message__action-button {
@@ -631,9 +631,9 @@ html.dark .message-edit__button:hover:not(:disabled) {
 
   :root[data-theme="system"] .message-edit {
     background: #1e293b;
-    border-color: #4338ca;
+    border-color: #56528e;
     box-shadow:
-      0 0 0 4px rgba(99, 102, 241, 0.15),
+      0 0 0 4px rgba(119, 118, 184, 0.15),
       0 12px 28px rgba(0, 0, 0, 0.4);
   }
 

@@ -6,6 +6,8 @@ from app.services.product_aware.models import (
     ProductAwareContext,
     ProductProfile,
 )
+from app.services.external_retrieval.evidence import Evidence
+from app.services.product_trust.service import format_product_trust_context
 from app.services.trend_intelligence.service import trend_intelligence_service
 
 
@@ -73,6 +75,7 @@ class ProductAwareEngine:
         cls,
         context: ProductAwareContext,
         include_trends: bool = True,
+        product_evidence: tuple[Evidence, ...] | None = None,
     ) -> str:
         """
         Tổng hợp toàn bộ 7 yếu tố thành cấu trúc hướng dẫn hoàn chỉnh cho Prompt Engine.
@@ -80,8 +83,15 @@ class ProductAwareEngine:
         parts = []
 
         # 1. Product Section
-        parts.append("### 1. DỮ LIỆU SẢN PHẨM XÁC THỰC (PRODUCT DATA)")
+        parts.append("### 1. THÔNG TIN SẢN PHẨM DO NGƯỜI DÙNG CUNG CẤP (PRODUCT REFERENCE)")
         parts.append(cls.format_product_section(context.product))
+
+        trust_context = format_product_trust_context(
+            context.product,
+            product_evidence,
+        )
+        if trust_context:
+            parts.append(trust_context)
 
         # 2. Audience Section
         parts.append("### 2. KHÁCH HÀNG MỤC TIÊU (TARGET AUDIENCE)")

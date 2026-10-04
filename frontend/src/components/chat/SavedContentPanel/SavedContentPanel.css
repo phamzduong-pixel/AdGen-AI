@@ -42,7 +42,7 @@
   width: 38px;
   height: 38px;
   color: #5b21b6;
-  background: #f3e8ff;
+  background: #f1eafb;
   border-radius: 11px;
 }
 
@@ -98,8 +98,8 @@
 }
 
 .saved-content-panel__search:focus-within {
-  color: #6d28d9;
-  border-color: #a78bfa;
+  color: #6b5599;
+  border-color: #b4a2df;
   box-shadow: 0 0 0 3px rgb(124 58 237 / 9%);
 }
 
@@ -150,8 +150,8 @@
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
-  color: #6d28d9;
-  background: #f5f3ff;
+  color: #6b5599;
+  background: #f5f2fb;
   border-radius: 8px;
 }
 
@@ -210,7 +210,7 @@
 
 .saved-content-card__actions button:hover:not(:disabled) {
   color: #5b21b6;
-  background: #f3e8ff;
+  background: #f1eafb;
 }
 
 .saved-content-card__actions button.is-danger:hover:not(:disabled) {
@@ -239,7 +239,7 @@
 .saved-content-panel__empty > svg {
   width: 30px;
   height: 30px;
-  color: #a78bfa;
+  color: #b4a2df;
 }
 
 .saved-content-panel__empty strong {
@@ -287,7 +287,7 @@
 }
 
 .saved-content-detail header span {
-  color: #7c3aed;
+  color: #8067ad;
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
@@ -320,7 +320,7 @@
 
 .saved-content-detail footer button {
   color: #fff;
-  background: #6d28d9;
+  background: #6b5599;
 }
 
 @keyframes saved-content-panel-enter {

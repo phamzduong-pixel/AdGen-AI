@@ -11,7 +11,7 @@
   justify-content: center;
   gap: 7px;
   min-height: 42px;
-  color: #6366f1;
+  color: #7776b8;
   font: inherit;
   font-size: 13px;
   font-weight: 650;
@@ -22,7 +22,7 @@
 }
 
 .verify-email-resend:hover:not(:disabled) {
-  background: #f5f3ff;
+  background: #f5f2fb;
 }
 
 .verify-email-resend:disabled {
@@ -31,6 +31,6 @@
 }
 
 .verify-email-resend:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.35);
+  outline: 3px solid rgba(119, 118, 184, 0.35);
   outline-offset: 2px;
 }
