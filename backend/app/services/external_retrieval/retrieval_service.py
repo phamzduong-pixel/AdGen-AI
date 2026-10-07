@@ -58,6 +58,6 @@ class ExternalRetrievalService:
         except Exception:
             provider_result = SearchProviderResult(
                 status=SearchProviderStatus.NETWORK_ERROR,
-                message="External search is temporarily unavailable.",
+                message="Nguồn tìm kiếm dữ liệu xu hướng đang tạm thời không khả dụng.",
             )
         return ExternalRetrievalResult(intent=intent, provider_result=provider_result)

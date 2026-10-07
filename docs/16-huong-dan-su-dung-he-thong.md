@@ -178,6 +178,17 @@ Từ một phản hồi AI, chọn **Voiceover** để mở Voice Studio:
 
 Nếu mở Voice Studio từ nội dung có tệp/kịch bản, hệ thống có thể hỗ trợ làm sạch hoặc trích xuất kịch bản trước khi tạo audio. Hãy kiểm tra lại văn bản sau khi làm sạch vì tên riêng, số liệu và ký hiệu có thể cần sửa thủ công.
 
+### 6.1. Văn bản gốc và văn bản đã lọc
+
+Voice Studio ưu tiên nhận diện các marker lời thoại như **VO**, **Lời thoại**, **Narration**, **Voiceover**, **MC** hoặc **Host**. Nếu kịch bản không có marker nhưng có cấu trúc thoại tự nhiên, hệ thống dùng heuristic có kiểm soát để chọn các đoạn có khả năng được đọc.
+
+- **Văn bản đã lọc**: phần ứng viên lời thoại được chọn để đọc; không tự rewrite hoặc thêm câu.
+- **Văn bản gốc**: toàn bộ nội dung message ban đầu để đối chiếu khi cần.
+- Dùng **Xem văn bản gốc** và **Quay lại văn bản đã lọc** để chuyển qua lại. Hai phiên bản được giữ riêng; chỉnh sửa phiên bản đang xem không làm mất phiên bản còn lại.
+- Nếu nhận diện không chắc chắn, hãy đọc lại và chỉnh sửa trực tiếp trước khi chọn **Tạo Voiceover**.
+
+Các tiêu đề, metadata, hướng dẫn và chỉ dẫn sản xuất như Visual, Camera, Nhạc, SFX hoặc Caption không được xem là lời thoại trừ khi người dùng giữ/chỉnh sửa chúng trong văn bản đang chọn.
+
 ## 7. Media Studio: ảnh và video
 
 Mở **Media Studio** từ tiêu đề Chat. Asset được gắn với conversation hiện tại; mỗi lần chỉnh sửa tạo version mới và không ghi đè bản gốc.

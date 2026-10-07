@@ -59,7 +59,7 @@ class BraveSearchProvider:
         if not self.api_key:
             return SearchProviderResult(
                 status=SearchProviderStatus.NOT_CONFIGURED,
-                message="External search is not configured.",
+                message="Chưa cấu hình nguồn tìm kiếm dữ liệu xu hướng bên ngoài.",
             )
 
         result_limit = self._result_limit(limit)
@@ -142,7 +142,7 @@ class BraveSearchProvider:
                     continue
                 return SearchProviderResult(
                     status=SearchProviderStatus.NETWORK_ERROR,
-                    message="External search is temporarily unavailable.",
+                    message="Nguồn tìm kiếm dữ liệu xu hướng đang tạm thời không khả dụng.",
                 )
 
             if response.status_code == 429:
@@ -169,7 +169,7 @@ class BraveSearchProvider:
 
         return SearchProviderResult(
             status=SearchProviderStatus.NETWORK_ERROR,
-            message="External search is temporarily unavailable.",
+            message="Nguồn tìm kiếm dữ liệu xu hướng đang tạm thời không khả dụng.",
         )
 
     def _result_limit(self, requested_limit: int | None) -> int:

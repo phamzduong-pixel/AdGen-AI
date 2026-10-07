@@ -15,6 +15,7 @@ from app.services.output_validator.models import ValidationResult
 from app.services.output_validator.service import output_validation_service
 from app.services.prompt_service import build_reference_context, build_system_prompt
 from app.services.external_retrieval.evidence_context import build_evidence_prompt_context
+from app.services.external_retrieval.evidence_context import build_retrieval_fallback_response
 from app.services.external_retrieval.provider import SearchProviderResult
 from app.services.product_trust.enforcement import enforce_product_trust
 from app.services.product_trust.models import ClaimAssessment, ProductClaim
@@ -234,6 +235,13 @@ def ask_ai(
     external_retrieval_result: SearchProviderResult | None = None,
     product_claim_assessments: tuple[tuple[ProductClaim, ClaimAssessment], ...] | None = None,
 ) -> str:
+    fallback_response = (
+        build_retrieval_fallback_response(external_retrieval_result)
+        if external_retrieval_requested
+        else None
+    )
+    if fallback_response is not None:
+        return fallback_response
     contents = format_history(history)
     if not contents:
         raise ValueError("Khong co noi dung hop le de gui toi Gemini")
@@ -318,6 +326,14 @@ def stream_ai(
     external_retrieval_result: SearchProviderResult | None = None,
     product_claim_assessments: tuple[tuple[ProductClaim, ClaimAssessment], ...] | None = None,
 ) -> Generator[str, None, None]:
+    fallback_response = (
+        build_retrieval_fallback_response(external_retrieval_result)
+        if external_retrieval_requested
+        else None
+    )
+    if fallback_response is not None:
+        yield fallback_response
+        return
     contents = format_history(history)
     if not contents:
         raise ValueError("Khong co noi dung hop le de gui toi Gemini")

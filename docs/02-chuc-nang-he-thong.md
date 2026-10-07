@@ -16,7 +16,7 @@
 | Chất lượng nội dung | Điểm theo 9 tiêu chí, tạo 3 biến thể A/B/C, activity | `content.py`, evaluation/variant services | ContentScorePanel, VariantGeneratorModal |
 | Upload | Đính kèm image/video/PDF/text, kiểm tra MIME/kích thước/quyền | `upload.py`, `upload_service.py` | ChatInput, AttachmentPreview |
 | Dashboard | Summary, activity theo ngày, platform usage | `dashboard.py`, `dashboard_service.py` | Dashboard, ActivityChart, PlatformChart |
-| Voice Studio | Liệt kê voice, clean script, tạo/tải audio | `voiceover.py`, `voiceover_service.py` | VoiceoverModal |
+| Voice Studio | Liệt kê voice, trích xuất/làm sạch script, chỉnh sửa văn bản gốc/đã lọc, tạo/tải audio | `voiceover.py`, `voiceover_service.py`, `voiceover/extractor.py` | VoiceoverModal, AudioPlayer |
 | User settings | Profile, đổi password, AI defaults, theme, export defaults | `user.py`, `user_service.py` | Profile, Settings, ThemeContext |
 
 ## 2.2. Chat và tạo nội dung
@@ -64,3 +64,16 @@ Bộ chọn tạo nội dung mới chỉ cung cấp Facebook, TikTok, Instagram,
 Khi chọn Khác, người dùng nhập tên kênh/nơi đăng từ 2 đến 80 ký tự. Backend chuẩn hóa khoảng trắng, lưu riêng ở `platform_name` và đưa vào prompt như dữ liệu tham khảo không đáng tin cậy; dữ liệu này không thể ghi đè system prompt và không làm AI tự suy đoán quy định riêng của kênh.
 
 Các giá trị cũ như Email, Landing Page, SEO, Slogan, Viết lại và Tóm tắt không còn là lựa chọn nền tảng mới. Chúng vẫn được đọc/hiển thị dưới nhãn nền tảng cũ khi có trong lịch sử; Viết lại và Tóm tắt vẫn thuộc nhóm thao tác chỉnh sửa nếu luồng chỉnh sửa sử dụng.
+
+## 2.7. Voice Studio
+
+Từ một assistant message, người dùng chọn **Voiceover** để mở Voice Studio. Hệ thống xử lý theo các bước:
+
+1. Gửi `message.content` tới bước làm sạch script.
+2. Ưu tiên nhận diện marker lời thoại như **VO**, **Lời thoại**, **Narration**, **Voiceover**, **MC** hoặc **Host**.
+3. Nếu không có marker nhưng nội dung có cấu trúc kịch bản thoại tự nhiên, dùng fallback heuristic có kiểm soát để chọn các đoạn có khả năng được đọc.
+4. Giữ nguyên nội dung, thứ tự và placeholder; không rewrite hoặc tự thêm lời thoại. Heading, metadata, markdown không cần đọc và chỉ dẫn sản xuất như Visual, Camera, Nhạc, SFX, Caption được loại khỏi ứng viên khi nhận diện được.
+5. Hiển thị văn bản đã lọc trong textarea, đồng thời giữ văn bản gốc để người dùng chuyển qua lại bằng **Xem văn bản gốc** và **Quay lại văn bản đã lọc**.
+6. Khi người dùng chọn **Tạo Voiceover**, nội dung đang hiển thị sau chỉnh sửa được gửi tới TTS provider. Kết quả có thể nghe trong AudioPlayer hoặc tải xuống.
+
+Việc nhận diện và làm sạch là deterministic; nếu fallback chưa chắc chắn, UI hiển thị cảnh báo nhẹ để người dùng kiểm tra trước khi tạo audio. Voice Studio hiện vẫn là Text → TTS với system voice; Audio → Target Voice và User Voice Reference chỉ là phạm vi thiết kế trong Plan Voice Studio, chưa phải chức năng đang có.

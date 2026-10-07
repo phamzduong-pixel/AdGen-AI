@@ -30,6 +30,7 @@ Danh sách chi tiết nên kiểm tra trực tiếp trong `backend/app/api/`; b�
 - Upload dùng `multipart/form-data`; file được gắn vào message bằng ID sau khi upload.
 - Stream dùng Fetch API để đọc body từng chunk và hỗ trợ AbortController.
 - Response lỗi được chuẩn hóa qua `frontend/src/utils/apiError.js`.
+- Voiceover dùng cùng contract trích xuất `VoiceoverScriptExtractor` cho bước làm sạch script và generation; frontend giữ riêng văn bản gốc/văn bản đã lọc khi người dùng chuyển phiên bản trong Voice Studio.
 
 ## 5.3. Route giao diện
 

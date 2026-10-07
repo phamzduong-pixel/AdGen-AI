@@ -5,7 +5,9 @@ import unittest
 from unittest.mock import patch
 
 from app.services import ai_service
-from app.services.external_retrieval.provider import SearchProviderStatus
+from app.services.external_retrieval.evidence_context import build_retrieval_fallback_response
+from app.services.external_retrieval.evidence import Evidence, EvidenceSourceType, EvidenceVerificationStatus
+from app.services.external_retrieval.provider import SearchProviderResult, SearchProviderStatus
 from app.services.external_retrieval.retrieval_service import ExternalRetrievalService
 from app.services.output_validator.models import ValidationResult
 
@@ -55,8 +57,53 @@ class ExternalRetrievalResilienceTests(unittest.TestCase):
                 )
             )
 
-        self.assertEqual(output, "Generation still streams.")
+        self.assertIn("status: network_error", output)
+        self.assertIn("source-backed conclusions", output)
 
+    def test_all_unusable_statuses_have_deterministic_no_evidence_fallback(self):
+        statuses = (
+            SearchProviderStatus.SUCCESS,
+            SearchProviderStatus.EMPTY,
+            SearchProviderStatus.NOT_CONFIGURED,
+            SearchProviderStatus.QUOTA_EXCEEDED,
+            SearchProviderStatus.TIMEOUT,
+            SearchProviderStatus.NETWORK_ERROR,
+            SearchProviderStatus.HTTP_ERROR,
+            SearchProviderStatus.INVALID_RESPONSE,
+        )
+        for provider_status in statuses:
+            with self.subTest(status=provider_status):
+                fallback = build_retrieval_fallback_response(
+                    SearchProviderResult(status=provider_status)
+                )
+                self.assertIsNotNone(fallback)
+                self.assertNotIn("[S", fallback)
+                self.assertIn("source-backed", fallback)
+
+    def test_stale_or_conflicting_only_evidence_uses_current_data_fallback(self):
+        for evidence_status in (
+            EvidenceVerificationStatus.STALE,
+            EvidenceVerificationStatus.CONFLICTING,
+        ):
+            with self.subTest(status=evidence_status):
+                result = SearchProviderResult(
+                    status=SearchProviderStatus.SUCCESS,
+                    evidences=(
+                        Evidence(
+                            evidence_id=f"{evidence_status.value}-evidence",
+                            title="Historical source",
+                            source_url="https://example.com/historical",
+                            publisher="Example",
+                            retrieved_at="2026-10-05T12:00:00Z",
+                            excerpt="Historical evidence.",
+                            source_type=EvidenceSourceType.SEARCH_RESULT,
+                            verification_status=evidence_status,
+                        ),
+                    ),
+                )
+                fallback = build_retrieval_fallback_response(result)
+                self.assertIsNotNone(fallback)
+                self.assertIn("cannot be presented as current data", fallback)
 
 if __name__ == "__main__":
     unittest.main()

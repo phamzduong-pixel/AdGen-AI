@@ -7,6 +7,7 @@ from pydantic import model_validator
 
 class SavedContentCreate(BaseModel):
     message_id: int | None = Field(default=None, gt=0)
+    trend_report_id: int | None = Field(default=None, gt=0)
     conversation_id: int | None = Field(default=None, gt=0)
     title: str | None = Field(default=None, max_length=160)
     content: str | None = Field(default=None, max_length=20_000)
@@ -16,6 +17,15 @@ class SavedContentCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_source(self):
+        if self.trend_report_id is not None:
+            if (
+                self.message_id is not None
+                or self.content is not None
+                or self.conversation_id is not None
+            ):
+                raise ValueError("Không gửi nguồn khác khi lưu theo trend_report_id")
+            return self
+
         if self.message_id is not None:
             if self.content is not None or self.conversation_id is not None:
                 raise ValueError(
@@ -36,6 +46,7 @@ class SavedContentResponse(BaseModel):
     user_id: int
     conversation_id: int
     message_id: int | None
+    trend_report_id: int | None
     title: str
     content: str
     platform: str | None

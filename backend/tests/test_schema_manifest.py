@@ -16,12 +16,13 @@ class SchemaManifestTests(unittest.TestCase):
         Base.metadata.create_all(engine)
         return engine
 
-    def test_current_sqlite_schema_has_23_tables_and_content_activities(self):
+    def test_current_sqlite_schema_has_34_tables_and_content_activities(self):
         engine = self.make_current_schema()
         tables = set(inspect(engine).get_table_names())
 
-        self.assertEqual(len(tables), 23)
+        self.assertEqual(len(tables), 34)
         self.assertIn("content_activities", tables)
+        self.assertTrue({"trend_monitors", "trend_snapshots", "trend_alerts", "advertising_angles", "advertising_briefs", "campaign_metric_snapshots"}.issubset(tables))
 
     def test_current_sqlite_schema_passes_manifest_and_model_validation(self):
         report = validate_schema(self.make_current_schema())

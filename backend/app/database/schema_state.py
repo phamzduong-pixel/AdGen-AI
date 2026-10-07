@@ -72,6 +72,40 @@ REVISION_OBJECTS: dict[str, tuple[str, ...]] = {
         "index:media_edit_requests.*",
     ),
     "20261003_0017": ("table:voiceover_audios", "index:voiceover_audios.*"),
+    "20261005_0019": ("column:trend_reports.source_statuses_json",),
+    "20261006_0020": (
+        "column:trend_reports.product_trust_json",
+        "table:evidence_source_policies",
+        "index:evidence_source_policies.*",
+    ),
+    "20261006_0021": ("table:trend_monitors", "table:trend_snapshots", "index:trend_monitors.*", "index:trend_snapshots.*"),
+    "20261006_0022": ("table:trend_alerts", "index:trend_alerts.*", "unique:trend_alerts.uq_trend_alerts_active_key"),
+    "20261006_0023": (
+        "table:advertising_angles",
+        "index:advertising_angles.*",
+        "unique:advertising_angles.uq_advertising_angles_owner_source",
+    ),
+    "20261006_0024": (
+        "table:advertising_briefs",
+        "table:campaign_metric_snapshots",
+        "column:campaigns.advertising_brief_id",
+        "foreign_key:campaigns.fk_campaigns_advertising_brief_id",
+        "unique:campaigns.uq_campaigns_user_advertising_brief",
+        "index:advertising_briefs.*",
+        "index:campaign_metric_snapshots.*",
+    ),
+    "20261006_0025": (
+        "column:trend_reports.deleted_at",
+        "index:trend_reports.ix_trend_reports_deleted_at",
+    ),
+    "20261005_0018": (
+        "table:trend_reports",
+        "table:trend_report_evidence",
+        "table:trend_report_claims",
+        "table:trend_report_claim_evidence",
+        "column:*.trend_report_id",
+        "index:*.trend_report_id",
+    ),
 }
 
 
@@ -258,4 +292,3 @@ def _future_revision_objects(
                 break
             node = nodes.get(down_revision)
     return dict(sorted(result.items()))
-

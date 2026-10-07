@@ -13,10 +13,16 @@ from sqlalchemy.orm import relationship
 
 from app.core.datetime_utils import utc_now
 from app.database.database import Base
+from app.models.trend_report import TrendReport
 
 
 class Campaign(Base):
     __tablename__ = "campaigns"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "advertising_brief_id", name="uq_campaigns_user_advertising_brief"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(
@@ -28,6 +34,12 @@ class Campaign(Base):
         ForeignKey("brand_profiles.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
+    )
+    trend_report_id: Mapped[int | None] = mapped_column(
+        ForeignKey("trend_reports.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    advertising_brief_id: Mapped[int | None] = mapped_column(
+        ForeignKey("advertising_briefs.id", ondelete="SET NULL"), nullable=True, index=True
     )
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)

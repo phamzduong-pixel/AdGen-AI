@@ -9,6 +9,7 @@ import {
   FiSliders,
   FiEdit3,
   FiLoader,
+  FiMic,
 } from "react-icons/fi";
 import {
   getAvailableVoices,
@@ -31,6 +32,8 @@ export default function VoiceoverModal({
   const [speed, setSpeed] = useState(1.0);
   const [textToRead, setTextToRead] = useState("");
   const [originalScript, setOriginalScript] = useState("");
+  const [cleanedScript, setCleanedScript] = useState("");
+  const [activeTextVersion, setActiveTextVersion] = useState("cleaned");
   const [isCleaning, setIsCleaning] = useState(false);
 
   const [extractionMeta, setExtractionMeta] = useState(null);
@@ -47,6 +50,9 @@ export default function VoiceoverModal({
       setAudioResult(null);
       setExtractionMeta(null);
       setOriginalScript(safeInitial);
+      setCleanedScript("");
+      setTextToRead("");
+      setActiveTextVersion("cleaned");
     }, 0);
 
     // Fetch voices
@@ -68,13 +74,17 @@ export default function VoiceoverModal({
           if (res) {
             if (res.status === "no_dialogue") {
               window.setTimeout(() => setTextToRead(""), 0);
+              setCleanedScript("");
               setExtractionMeta({
                 status: "no_dialogue",
                 warning: res.warning_message || "Không tìm thấy cấu trúc lời thoại rõ ràng (VO / Lời thoại). Vui lòng nhập lời thoại cần đọc vào ô bên dưới.",
                 count: 0,
               });
             } else {
-              setTextToRead(res.cleaned_script || "");
+              const cleaned = res.cleaned_script || "";
+              setCleanedScript(cleaned);
+              setTextToRead(cleaned);
+              setActiveTextVersion("cleaned");
               setExtractionMeta({
                 status: res.status || "success",
                 warning: res.warning_message,
@@ -86,6 +96,7 @@ export default function VoiceoverModal({
         })
         .catch((err) => {
           console.warn("Auto script extraction failed, keeping raw:", err);
+          setCleanedScript(safeInitial);
           setTextToRead(safeInitial);
         })
         .finally(() => {
@@ -93,6 +104,7 @@ export default function VoiceoverModal({
         });
     } else {
       window.setTimeout(() => setTextToRead(""), 0);
+      window.setTimeout(() => setCleanedScript(""), 0);
     }
     return () => window.clearTimeout(resetId);
   }, [isOpen, initialText]);
@@ -133,8 +145,24 @@ export default function VoiceoverModal({
     }
   };
 
-  const handleRestoreOriginal = () => {
-    setTextToRead(originalScript);
+  const handleTextChange = (event) => {
+    const nextText = event.target.value;
+    setTextToRead(nextText);
+    if (activeTextVersion === "original") {
+      setOriginalScript(nextText);
+    } else {
+      setCleanedScript(nextText);
+    }
+  };
+
+  const handleTextVersionToggle = () => {
+    if (activeTextVersion === "cleaned") {
+      setActiveTextVersion("original");
+      setTextToRead(originalScript);
+      return;
+    }
+    setActiveTextVersion("cleaned");
+    setTextToRead(cleanedScript);
   };
 
   const modalContent = (
@@ -148,7 +176,7 @@ export default function VoiceoverModal({
         {/* Header */}
         <div className="adgen-modal-header">
           <div className="adgen-modal-title">
-            <div className="adgen-modal-icon">🎙️</div>
+            <div className="adgen-modal-icon" aria-hidden="true"><FiMic /></div>
             <div>
               <h3>AdGen Voice Studio</h3>
               <p>Chuyển kịch bản quảng cáo thành giọng đọc chuyên nghiệp</p>
@@ -182,41 +210,43 @@ export default function VoiceoverModal({
               <button
                 type="button"
                 className="adgen-btn-link"
-                onClick={handleRestoreOriginal}
+                onClick={handleTextVersionToggle}
                 title="Khôi phục toàn bộ văn bản gốc"
               >
-                Xem văn bản gốc
+                {activeTextVersion === "cleaned" ? "Xem văn bản gốc" : "Quay lại văn bản đã lọc"}
               </button>
             </div>
           )}
 
           {extractionMeta?.status === "no_dialogue" && (
-            <div className="adgen-alert adgen-alert--warning" style={{ background: "rgba(245, 158, 11, 0.15)", border: "1px solid rgba(245, 158, 11, 0.3)", color: "#fbbf24" }}>
+            <div className="adgen-alert adgen-alert--warning">
               <FiAlertCircle />
               <div style={{ flex: 1 }}>
                 <span>{extractionMeta.warning}</span>
                 <button
                   type="button"
                   className="adgen-btn-link"
-                  style={{ display: "block", marginTop: "4px", color: "#60a5fa" }}
-                  onClick={handleRestoreOriginal}
+                  className="adgen-btn-link adgen-btn-link--block"
+                  onClick={handleTextVersionToggle}
                 >
-                  Dán toàn bộ văn bản gốc vào ô
+                  {activeTextVersion === "cleaned" ? "Xem văn bản gốc" : "Quay lại văn bản đã lọc"}
                 </button>
               </div>
             </div>
           )}
 
           {extractionMeta?.status === "uncertain" && (
-            <div className="adgen-cleaner-notice" style={{ background: "rgba(59, 130, 246, 0.12)", borderColor: "rgba(59, 130, 246, 0.3)", color: "#93c5fd" }}>
-              <span className="adgen-cleaner-badge">
-                <FiAlertCircle /> {extractionMeta.warning}
-              </span>
+            <div className="adgen-alert adgen-alert--warning">
+              <FiAlertCircle />
+              <span>{extractionMeta.warning || "Hệ thống đã chọn các đoạn có khả năng là lời thoại. Vui lòng kiểm tra trước khi tạo audio."}</span>
             </div>
           )}
 
           {/* Text dialogue editor */}
           <div className="adgen-form-group">
+            <span className="adgen-text-version">
+              {activeTextVersion === "cleaned" ? "Đang xem văn bản đã lọc" : "Đang xem văn bản gốc"}
+            </span>
             <label className="adgen-label">
               <FiEdit3 /> Lời thoại sẽ được đọc (Bạn có thể chỉnh sửa tự do):
             </label>
@@ -225,7 +255,7 @@ export default function VoiceoverModal({
                 className="adgen-textarea"
                 rows={5}
                 value={textToRead}
-                onChange={(e) => setTextToRead(e.target.value)}
+                onChange={handleTextChange}
                 placeholder="Nhập hoặc dán lời thoại quảng cáo cần đọc vào đây..."
                 disabled={isCleaning || isGenerating}
               />

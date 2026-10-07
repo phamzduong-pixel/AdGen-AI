@@ -1,6 +1,6 @@
 ﻿# AdGen AI — Báo cáo tổng hợp hệ thống
 
-> Cập nhật: 02/10/2026  
+> Cập nhật: 06/10/2026
 > Phạm vi: source code và kết quả kiểm thử hiện có trong repository  
 > Trạng thái tổng thể: **Code local ổn định trong phạm vi đã kiểm tra; runtime provider và PostgreSQL vẫn cần xác minh riêng**.
 
@@ -97,10 +97,16 @@ Các nhóm source quan trọng:
 ### Voice Studio
 
 - Trích xuất và làm sạch script thoại.
+- Ưu tiên parser theo marker `VO`, `Lời thoại`, `Narration`, `Voiceover`, `MC`, `Host` và các biến thể tương đương.
+- Có fallback heuristic có kiểm soát cho kịch bản thoại tự nhiên không có marker; giữ nguyên thứ tự/nội dung ứng viên, không rewrite hoặc tự thêm câu.
+- Loại phần giới thiệu, heading, metadata, markdown và chỉ dẫn sản xuất rõ ràng trước khi đưa vào vùng văn bản đọc.
+- `/voiceover/clean-script` và `/voiceover/generate` dùng chung contract `VoiceoverScriptExtractor` cho việc làm sạch/trích xuất.
+- Voice Studio giữ đồng thời văn bản gốc và văn bản đã lọc; người dùng có thể chuyển qua lại nhiều lần mà không làm mất bản đã lọc hoặc thay đổi ngoài ý muốn.
 - Chọn voice/language.
 - Tổng hợp audio qua Edge TTS.
 - Kiểm tra output non-empty và cleanup file tạm khi provider lỗi hoặc output không hợp lệ.
 - Có mock provider để kiểm thử offline.
+- Modal và Audio Player dùng icon mic dạng nét đơn giản, đồng bộ light/dark theme hiện tại.
 
 ## 4. Generative AI và provider
 
@@ -464,3 +470,24 @@ Upload hỗ trợ tài liệu DOCX/PDF/TXT, ảnh JPEG/JPG/PNG/WEBP và video MP
 Các phase Image, Technical Video Editing, AI Video Generation foundation và Conversational Video Editing đã có contract, backend/frontend implementation và targeted tests. Việc gọi chúng là hoàn tất production vẫn cần bằng chứng runtime thật cho FFmpeg/FFprobe, Gemini provider, storage persistent và PostgreSQL concurrency.
 
 Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local/demo một instance; upload production cần persistent disk hoặc object storage; stream chưa đồng nhất hoàn toàn với non-stream; quota/rate limit Gemini và media cần được cấu hình khi triển khai rộng.
+
+## 18. Cập nhật Voice Studio và phạm vi kế hoạch mở rộng (06/10/2026)
+
+Các cải thiện đã hoàn thành trong Voice Studio hiện hữu:
+
+- Trích xuất lời thoại deterministic với marker path và fallback có kiểm soát cho script tự nhiên không có marker.
+- Giữ nguyên placeholder, thứ tự và nội dung được chọn; không dùng LLM để rewrite hoặc bịa thêm lời thoại.
+- Có trạng thái/warning phù hợp khi fallback chưa chắc chắn hoặc không tìm thấy cấu trúc thoại.
+- Toggle hai chiều giữa **Văn bản đã lọc** và **Văn bản gốc**; mỗi phiên bản có state riêng, việc chỉnh sửa phiên bản này không ghi đè phiên bản kia.
+- Giao diện Voice Studio tương thích light/dark theme của ứng dụng; modal và Audio Player dùng icon mic nét đơn giản, không thay đổi TTS provider.
+
+Kế hoạch Audio Transform được ghi tại [`docs/19-voice-studio-audio-transform-plan.md`](./19-voice-studio-audio-transform-plan.md). Kế hoạch này vẫn ở trạng thái thiết kế: Audio → Target Voice, STT, voice conversion, voice cloning và Filtered Text → User Voice chưa được triển khai hoặc mặc định là capability của provider.
+
+Bằng chứng kiểm tra frontend gần nhất cho nhóm thay đổi Voice Studio:
+
+- `npm run lint`: PASS.
+- `npm test`: PASS, 49 tests.
+- `npm run build`: PASS.
+- `git diff --check`: PASS.
+
+Các kết quả trên xác nhận kiểm tra lint/unit/build của frontend; không thay thế cho feasibility audit của provider hoặc kiểm thử runtime audio transform.

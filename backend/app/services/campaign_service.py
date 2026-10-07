@@ -10,6 +10,7 @@ from app.models.campaign import CampaignContent
 from app.models.saved_content import SavedContent
 from app.models.user import User
 from app.models.brand import BrandProfile
+from app.models.trend_report import TrendReport
 from app.schemas.campaign import CampaignCreate
 from app.schemas.campaign import CampaignDetailResponse
 from app.schemas.campaign import CampaignListResponse
@@ -55,6 +56,8 @@ def _campaign_base(campaign: Campaign, contents_count: int) -> dict:
         "platform_name": campaign.platform_name,
         "status": campaign.status,
         "brand_id": campaign.brand_id,
+        "trend_report_id": campaign.trend_report_id,
+        "advertising_brief_id": campaign.advertising_brief_id,
         "brand_name": campaign.brand.name if campaign.brand else None,
         "contents_count": contents_count,
         "created_at": campaign.created_at,
@@ -74,6 +77,12 @@ def create_campaign_service(
         BrandProfile.user_id == current_user.id,
     ).first():
         raise HTTPException(status_code=404, detail="Thương hiệu không tồn tại.")
+    trend_report_id = values.get("trend_report_id")
+    if trend_report_id is not None and not db.query(TrendReport).filter(
+        TrendReport.id == trend_report_id,
+        TrendReport.user_id == current_user.id,
+    ).first():
+        raise HTTPException(status_code=404, detail="Trend Report không tồn tại.")
     campaign = Campaign(user_id=current_user.id, **values)
     db.add(campaign)
     db.commit()

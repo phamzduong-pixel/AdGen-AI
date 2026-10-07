@@ -5,6 +5,7 @@ import {
   FiImage,
   FiEdit3,
   FiMoreHorizontal,
+  FiRadio,
 } from "react-icons/fi";
 
 import ExportMenu from "../ExportMenu";
@@ -16,6 +17,7 @@ function HeaderActions({
   exportDisabled,
   onOpenConversationMenu,
   onOpenSavedContents,
+  onOpenTrendReports,
   onOpenMedia,
 }) {
   const [exportOpen, setExportOpen] = useState(false);
@@ -32,6 +34,16 @@ function HeaderActions({
       >
         <FiBookmark />
         <span>Thư viện</span>
+      </button>
+
+      <button
+        type="button"
+        className="header-actions__button"
+        onClick={onOpenTrendReports}
+        title="Trend Reports và nguồn evidence"
+      >
+        <FiRadio />
+        <span>Trends</span>
       </button>
 
       <button

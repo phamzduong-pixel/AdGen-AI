@@ -15,6 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.datetime_utils import utc_now
 from app.database.database import Base
+from app.models.trend_report import TrendReport
 
 
 class ContentDocument(Base):
@@ -29,6 +30,12 @@ class ContentDocument(Base):
             "user_id",
             "source_saved_content_id",
             name="uq_content_documents_user_saved_content",
+        ),
+        Index(
+            "uq_content_documents_user_trend_report",
+            "user_id",
+            "trend_report_id",
+            unique=True,
         ),
         Index(
             "uq_content_documents_campaign_primary",
@@ -52,6 +59,9 @@ class ContentDocument(Base):
         ForeignKey("saved_contents.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
+    )
+    trend_report_id: Mapped[int | None] = mapped_column(
+        ForeignKey("trend_reports.id", ondelete="SET NULL"), nullable=True, index=True
     )
     source_conversation_id: Mapped[int | None] = mapped_column(
         ForeignKey("conversations.id", ondelete="SET NULL"),

@@ -18,8 +18,26 @@ from app.models.media_asset import MediaAsset
 from app.models.media_job import MediaJob
 from app.models.media_request import MediaEditRequest
 from app.models.voiceover_audio import VoiceoverAudio
+from app.models.evidence_source_policy import EvidenceSourcePolicy
+from app.models.trend_monitor import TrendMonitor, TrendSnapshot
+from app.models.trend_alert import TrendAlert
+from app.models.advertising_angle import AdvertisingAngle
+from app.models.advertising_brief import AdvertisingBrief, CampaignMetricSnapshot
+from app.models.trend_report import (
+    TrendReport,
+    TrendReportClaim,
+    TrendReportClaimEvidence,
+    TrendReportEvidence,
+)
 
 __all__ = [
+    'EvidenceSourcePolicy',
+    'TrendMonitor',
+    'TrendSnapshot',
+    'TrendAlert',
+    'AdvertisingAngle',
+    'AdvertisingBrief',
+    'CampaignMetricSnapshot',
     "Campaign",
     "BrandProfile",
     "BrandAsset",
@@ -43,4 +61,8 @@ __all__ = [
     "MediaJob",
     "MediaEditRequest",
     "VoiceoverAudio",
+    "TrendReport",
+    "TrendReportClaim",
+    "TrendReportClaimEvidence",
+    "TrendReportEvidence",
 ]

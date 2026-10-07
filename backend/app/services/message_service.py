@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from dataclasses import dataclass
 import json
 
 from fastapi import HTTPException
@@ -31,9 +32,123 @@ from app.services.external_retrieval.evidence import Evidence
 from app.services.external_retrieval.retrieval_service import ExternalRetrievalService
 from app.services.product_aware.service import product_aware_engine
 from app.services.product_trust.service import assess_product_profile
+from app.services.product_trust.enforcement import ACTION_PRIORITY, ASK_USER_RESPONSE
+from app.services.product_trust.models import ClaimAssessment, ProductClaim, RecommendedAction
+from app.services.product_trust.report_service import evaluate_report_trust_details
+from app.services.trend_report_service import get_owned_trend_report, persist_retrieval_report
 
 external_retrieval_service = ExternalRetrievalService(BraveSearchProvider())
 
+
+@dataclass(frozen=True)
+class _TrendTrustGate:
+    action: RecommendedAction
+    assessments: tuple[tuple[ProductClaim, ClaimAssessment], ...]
+    context: str
+
+
+def _trend_trust_gate(
+    message: MessageCreate | MessageUpdate,
+    db: Session,
+    current_user: User,
+) -> _TrendTrustGate | None:
+    report_key = getattr(message, "trend_report_key", None)
+    if not report_key:
+        return None
+
+    report = get_owned_trend_report(report_key, db, current_user)
+    evaluation = evaluate_report_trust_details(
+        report,
+        db,
+        current_user,
+        mode=message.trend_trust_mode,
+    )
+    pairs = evaluation.assessments
+    action = max(
+        (RecommendedAction(assessment.recommended_action) for _, assessment in pairs),
+        key=lambda value: ACTION_PRIORITY[value.value],
+        default=RecommendedAction.SOFTEN,
+    )
+    allowed_claims = [
+        claim.claim_text
+        for claim, assessment in pairs
+        if RecommendedAction(assessment.recommended_action) is RecommendedAction.ALLOW
+    ]
+    context = (
+        "Trend Report Product Trust context (evidence-scoped, not model confidence). "
+        "Only the following claims are approved for factual use: "
+        + ("; ".join(allowed_claims) if allowed_claims else "none")
+        + ". Do not present omitted claims as verified facts; use cautious wording when needed."
+    )
+    return _TrendTrustGate(action=action, assessments=pairs, context=context)
+
+
+def _ensure_trend_generation_allowed(gate: _TrendTrustGate | None) -> None:
+    if gate and gate.action is RecommendedAction.BLOCK:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Trend Report Product Trust blocked generation because a high-risk claim is contradicted.",
+        )
+
+
+def _append_trend_trust_context(product_context: str, gate: _TrendTrustGate | None) -> str:
+    if gate is None:
+        return product_context
+    return f"{product_context}\n\n{gate.context}" if product_context else gate.context
+
+
+def _combine_product_trust_assessments(
+    assessments: tuple[tuple[ProductClaim, ClaimAssessment], ...],
+    gate: _TrendTrustGate | None,
+) -> tuple[tuple[ProductClaim, ClaimAssessment], ...]:
+    return assessments + (gate.assessments if gate else ())
+
+
+def _persist_trust_clarification(
+    *,
+    db: Session,
+    conversation_id: int,
+    prompt_type: str | None,
+    platform_name: str | None,
+    brand_id: int | None,
+) -> Message:
+    assistant_message = Message(
+        conversation_id=conversation_id,
+        role="assistant",
+        content=ASK_USER_RESPONSE,
+        prompt_type=prompt_type,
+        platform_name=platform_name,
+        brand_id=brand_id,
+    )
+    db.add(assistant_message)
+    db.commit()
+    db.refresh(assistant_message)
+    return assistant_message
+
+
+def _clarification_stream() -> Generator[str, None, None]:
+    yield ASK_USER_RESPONSE
+
+
+def _persist_requested_retrieval_report(
+    *,
+    retrieval_outcome,
+    query: str,
+    db: Session,
+    current_user: User,
+    conversation_id: int,
+    source_message_id: int,
+):
+    if not retrieval_outcome.was_requested or retrieval_outcome.provider_result is None:
+        return None
+    return persist_retrieval_report(
+        query=query,
+        provider_result=retrieval_outcome.provider_result,
+        db=db,
+        current_user=current_user,
+        conversation_id=conversation_id,
+        source_message_id=source_message_id,
+    )
 
 def validate_prompt_type(
     prompt_type: str | None,
@@ -413,6 +528,8 @@ def create_message_service(
     )
     custom_platform_name = _resolve_custom_platform_name(message, prompt_type)
     brand = resolve_message_brand(message, conversation, db, current_user)
+    trend_gate = _trend_trust_gate(message, db, current_user)
+    _ensure_trend_generation_allowed(trend_gate)
 
     user_message = Message(
         conversation_id=conversation.id,
@@ -436,6 +553,28 @@ def create_message_service(
     )
     db.commit()
     db.refresh(user_message)
+    _persist_requested_retrieval_report(
+        retrieval_outcome=retrieval_outcome,
+        query=content,
+        db=db,
+        current_user=current_user,
+        conversation_id=conversation.id,
+        source_message_id=user_message.id,
+    )
+
+    if trend_gate and trend_gate.action is RecommendedAction.ASK_USER:
+        assistant_message = _persist_trust_clarification(
+            db=db,
+            conversation_id=conversation.id,
+            prompt_type=prompt_type,
+            platform_name=custom_platform_name,
+            brand_id=brand.id if brand else None,
+        )
+        return {
+            "user_message": user_message,
+            "assistant_message": assistant_message,
+            "prompt_type": prompt_type,
+        }
 
     history = build_history(
         db=db,
@@ -448,6 +587,11 @@ def create_message_service(
     ai_history, product_context = build_ai_context(
         history, content, prompt_type, brand,
         product_evidence=(retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None),
+    )
+    product_context = _append_trend_trust_context(product_context, trend_gate)
+    product_claim_assessments = _combine_product_trust_assessments(
+        product_claim_assessments,
+        trend_gate,
     )
     should_generate_title = should_generate_conversation_title(
         db=db,
@@ -672,6 +816,8 @@ def stream_message_service(
     )
     custom_platform_name = _resolve_custom_platform_name(message, prompt_type)
     brand = resolve_message_brand(message, conversation, db, current_user)
+    trend_gate = _trend_trust_gate(message, db, current_user)
+    _ensure_trend_generation_allowed(trend_gate)
 
     user_message = Message(
         conversation_id=conversation.id,
@@ -695,6 +841,24 @@ def stream_message_service(
     )
     db.commit()
     db.refresh(user_message)
+    _persist_requested_retrieval_report(
+        retrieval_outcome=retrieval_outcome,
+        query=content,
+        db=db,
+        current_user=current_user,
+        conversation_id=conversation.id,
+        source_message_id=user_message.id,
+    )
+
+    if trend_gate and trend_gate.action is RecommendedAction.ASK_USER:
+        _persist_trust_clarification(
+            db=db,
+            conversation_id=conversation.id,
+            prompt_type=prompt_type,
+            platform_name=custom_platform_name,
+            brand_id=brand.id if brand else None,
+        )
+        return _clarification_stream()
 
     history = build_history(
         db=db,
@@ -707,6 +871,11 @@ def stream_message_service(
     ai_history, product_context = build_ai_context(
         history, content, prompt_type, brand,
         product_evidence=(retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None),
+    )
+    product_context = _append_trend_trust_context(product_context, trend_gate)
+    product_claim_assessments = _combine_product_trust_assessments(
+        product_claim_assessments,
+        trend_gate,
     )
     should_generate_title = should_generate_conversation_title(
         db=db,
@@ -825,6 +994,8 @@ def edit_message_stream_service(
         if conversation.brand_id
         else None
     )
+    trend_gate = _trend_trust_gate(message_data, db, current_user)
+    _ensure_trend_generation_allowed(trend_gate)
 
     existing_message.content = content
     existing_message.prompt_type = prompt_type
@@ -844,6 +1015,24 @@ def edit_message_stream_service(
 
     db.commit()
     db.refresh(existing_message)
+    _persist_requested_retrieval_report(
+        retrieval_outcome=retrieval_outcome,
+        query=content,
+        db=db,
+        current_user=current_user,
+        conversation_id=conversation.id,
+        source_message_id=existing_message.id,
+    )
+
+    if trend_gate and trend_gate.action is RecommendedAction.ASK_USER:
+        _persist_trust_clarification(
+            db=db,
+            conversation_id=conversation.id,
+            prompt_type=prompt_type,
+            platform_name=custom_platform_name,
+            brand_id=brand.id if brand else None,
+        )
+        return _clarification_stream()
 
     history = build_history(
         db=db,
@@ -856,6 +1045,11 @@ def edit_message_stream_service(
     product_claim_assessments = build_product_trust_assessments(
         history, content, prompt_type,
         retrieval_outcome.provider_result.evidences if retrieval_outcome.provider_result else None,
+    )
+    product_context = _append_trend_trust_context(product_context, trend_gate)
+    product_claim_assessments = _combine_product_trust_assessments(
+        product_claim_assessments,
+        trend_gate,
     )
 
     def generate() -> Generator[str, None, None]:

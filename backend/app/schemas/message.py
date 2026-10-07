@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -54,6 +55,8 @@ class MessageCreate(BaseModel):
 
     attachment_ids: list[int] = Field(default_factory=list, max_length=5)
     ad_brief: AdBrief | None = None
+    trend_report_key: str | None = Field(default=None, min_length=1, max_length=64)
+    trend_trust_mode: Literal["all_evidence", "verified_only"] = "all_evidence"
 
 
 class MessageUpdate(BaseModel):
@@ -68,6 +71,8 @@ class MessageUpdate(BaseModel):
         max_length=50,
     )
     platform_name: str | None = Field(default=None, min_length=2, max_length=80)
+    trend_report_key: str | None = Field(default=None, min_length=1, max_length=64)
+    trend_trust_mode: Literal["all_evidence", "verified_only"] = "all_evidence"
 
 
 class MessageResponse(BaseModel):

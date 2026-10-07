@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 
 from app.core.datetime_utils import utc_now
 from app.database.database import Base
+from app.models.trend_report import TrendReport
 
 
 class SavedContent(Base):
@@ -42,6 +43,11 @@ class SavedContent(Base):
     )
     message_id: Mapped[int | None] = mapped_column(
         ForeignKey("messages.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    trend_report_id: Mapped[int | None] = mapped_column(
+        ForeignKey("trend_reports.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )

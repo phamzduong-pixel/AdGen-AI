@@ -24,6 +24,7 @@ class CampaignBase(BaseModel):
     platform_name: str | None = Field(default=None, min_length=2, max_length=80)
     status: CampaignStatus = "draft"
     brand_id: int | None = Field(default=None, gt=0)
+    trend_report_id: int | None = Field(default=None, gt=0)
 
     @field_validator("name")
     @classmethod
@@ -75,6 +76,7 @@ class CampaignUpdate(BaseModel):
     platform_name: str | None = Field(default=None, min_length=2, max_length=80)
     status: CampaignStatus | None = None
     brand_id: int | None = Field(default=None, gt=0)
+    trend_report_id: int | None = Field(default=None, gt=0)
 
     @field_validator("name")
     @classmethod
@@ -138,6 +140,7 @@ class CampaignListResponse(CampaignBase):
     created_at: datetime
     updated_at: datetime
     brand_name: str | None = None
+    advertising_brief_id: int | None = None
 
 
 class CampaignDetailResponse(CampaignListResponse):

@@ -1,6 +1,6 @@
 # Tài liệu hệ thống AdGen AI
 
-> Phiên bản tài liệu: 04/10/2026
+> Phiên bản tài liệu: 06/10/2026
 > Phạm vi: mã nguồn hiện tại trong repository `AdGenAI`
 
 Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thống đang có. Mỗi tài liệu trỏ về module hoặc file nguồn liên quan để dễ kiểm tra khi mã nguồn thay đổi.
@@ -17,10 +17,13 @@ Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thốn
 | [06-trien-khai-va-van-hanh.md](./06-trien-khai-va-van-hanh.md) | Chạy local, Docker, Render, biến môi trường và kiểm tra |
 | [07-quy-uoc-dong-bo-tai-lieu.md](./07-quy-uoc-dong-bo-tai-lieu.md) | Cách cập nhật tài liệu khi hệ thống thay đổi |
 | [15-runtime-hardening-and-handoff.md](./15-runtime-hardening-and-handoff.md) | Báo cáo bàn giao runtime, bảo mật endpoint, database bootstrap, kiểm thử và nhận diện giao diện |
+| [PROJECT_TREE.md](./PROJECT_TREE.md) | Cây thư mục hệ thống và các vị trí chính của Plan 17 |
 
 | [09-ke-hoach-tao-anh-video.md](./09-ke-hoach-tao-anh-video.md) | Kế hoạch tạo ảnh, tạo video và chỉnh sửa video |
 | [16-huong-dan-su-dung-he-thong.md](./16-huong-dan-su-dung-he-thong.md) | Hướng dẫn sử dụng toàn bộ chức năng từ tài khoản, Chat, media, editor, thương hiệu, chiến dịch đến cài đặt |
-| [17-plan-adgen-trend-radar.md](./17-plan-adgen-trend-radar.md) | Kế hoạch phát triển Trend Radar: tìm kiếm dữ liệu bên ngoài, kiểm chứng nguồn, phân tích sản phẩm và tạo chiến dịch |
+| [18-vai-tro-cac-chuc-nang.md](./18-vai-tro-cac-chuc-nang.md) | Vai trò, giá trị và thời điểm sử dụng các chức năng chính dành cho người dùng |
+| [17-plan-adgen-trend-radar.md](./17-plan-adgen-trend-radar.md) | Plan 17 Trend Radar: Stage 1–4 đã hoàn thành; Alembic head `20261006_0024` |
+| [19-voice-studio-audio-transform-plan.md](./19-voice-studio-audio-transform-plan.md) | Kế hoạch mở rộng Voice Studio: Content Source, Voice Source và Audio Transform; hiện ở trạng thái thiết kế |
 
 ## Nguồn sự thật
 
@@ -41,6 +44,8 @@ README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập 
 - SQLite hỗ trợ local/test; PostgreSQL là lựa chọn production.
 - Upload hiện lưu filesystem và cần persistent disk hoặc object storage khi triển khai lâu dài.
 - Access token hiện chưa có refresh token; khi hết hạn người dùng đăng nhập lại.
+- Voice Studio hiện hỗ trợ làm sạch/trích xuất lời thoại deterministic, fallback có kiểm soát, chỉnh sửa và tạo voiceover từ Text → TTS; xem chi tiết trong `00-tong-quan-he-thong.md` và `16-huong-dan-su-dung-he-thong.md`.
+- Kế hoạch Audio → Target Voice và Filtered Text → User Voice trong `19-voice-studio-audio-transform-plan.md` chưa triển khai.
 
 ## Cập nhật vận hành gần nhất
 

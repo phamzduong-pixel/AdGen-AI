@@ -6,6 +6,7 @@ import {
   FiVolume2,
   FiVolumeX,
   FiRotateCcw,
+  FiMic,
 } from "react-icons/fi";
 import { fetchVoiceoverAudio } from "../../../services/api/voiceoverApi";
 import "./VoiceoverModal.css";
@@ -184,7 +185,7 @@ export default function AudioPlayer({
 
         <div className="adgen-audio-player__content">
           <div className="adgen-audio-player__header">
-            <span className="adgen-audio-player__badge">🎙️ Voiceover</span>
+            <span className="adgen-audio-player__badge"><FiMic aria-hidden="true" /> Voiceover</span>
             <span className="adgen-audio-player__voice" title={displayVoice}>{displayVoice}</span>
           </div>
           {loadError && <small>Không thể tải audio. Vui lòng tạo lại voiceover.</small>}

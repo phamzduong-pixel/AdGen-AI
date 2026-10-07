@@ -26,7 +26,11 @@ from app.services.external_retrieval.provider import (
     SearchProviderStatus,
 )
 from app.services.external_retrieval.retrieval_service import ExternalRetrievalService
-from app.services.message_service import edit_message_stream_service, stream_message_service
+from app.services.message_service import (
+    create_message_service,
+    edit_message_stream_service,
+    stream_message_service,
+)
 
 
 NOW = datetime(2026, 10, 5, 12, 0, tzinfo=timezone.utc)
@@ -228,25 +232,21 @@ class MessageServiceMockE2ETests(unittest.TestCase):
 
     def test_provider_error_is_distinct_and_does_not_look_verified(self):
         output, provider, models, _ = self.run_stream(
-            "Tìm xu hướng mới nhất của sản phẩm",
+            "Research the latest product trend with sources",
             provider_result=evidence_result(provider_status=SearchProviderStatus.TIMEOUT),
-            chunks=("Dữ liệu xu hướng hiện chưa đủ để kết luận.",),
+            chunks=("fabricated current trend",),
             ad_brief=AdBrief(
                 product_name="Demo device",
-                description="Pin dùng 60 ngày",
+                description="Pin dÃ¹ng 60 ngÃ y",
                 platform="facebook",
             ),
         )
 
         self.assertEqual(len(provider.calls), 1)
-        self.assertEqual(output, "Dữ liệu xu hướng hiện chưa đủ để kết luận.")
-        reference = "".join(
-            getattr(part, "text", "")
-            for part in models.requests[0]["contents"][-1].parts
-        )
-        self.assertIn("Status: timeout", reference)
-        self.assertNotIn("Status: success", reference)
-
+        self.assertIn("status: timeout", output)
+        self.assertIn("source-backed conclusions", output)
+        self.assertNotIn("fabricated current trend", output)
+        self.assertEqual(models.requests, [])
     def test_edit_regenerate_repeats_retrieval_product_trust_and_enforcement(self):
         provider = FakeProvider(
             evidence_result(metadata={"supports_claim_ids": ["product:description"]})
@@ -289,6 +289,74 @@ class MessageServiceMockE2ETests(unittest.TestCase):
         self.assertEqual(len(provider.calls), 2)
         self.assertEqual(len(models.requests), 2)
 
+
+    def test_create_uses_deterministic_fallback_without_model_call(self):
+        provider = FakeProvider(
+            evidence_result(provider_status=SearchProviderStatus.QUOTA_EXCEEDED)
+        )
+        models = FakeGeminiModels(("fabricated trend statistic",))
+        with patch(
+            "app.services.message_service.external_retrieval_service",
+            ExternalRetrievalService(provider),
+        ), patch.object(
+            ai_service, "client", types.SimpleNamespace(models=models)
+        ), patch.object(ai_service.learning_dataset_service, "log_generation"):
+            result = create_message_service(
+                MessageCreate(
+                    conversation_id=self.conversation_id(),
+                    content="Research the latest market trend with sources",
+                    prompt_type="facebook",
+                ),
+                self.db,
+                self.user,
+            )
+
+        self.assertEqual(len(provider.calls), 1)
+        self.assertIn("status: quota_exceeded", result["assistant_message"].content)
+        self.assertNotIn("fabricated trend statistic", result["assistant_message"].content)
+        self.assertEqual(models.requests, [])
+
+    def test_edit_regenerate_uses_deterministic_fallback_without_model_call(self):
+        conversation_id = self.conversation_id()
+        user_message = Message(
+            conversation_id=conversation_id,
+            role="user",
+            content="Initial ad request",
+            prompt_type="facebook",
+        )
+        self.db.add(user_message)
+        self.db.commit()
+        self.db.refresh(user_message)
+
+        provider = FakeProvider(
+            evidence_result(provider_status=SearchProviderStatus.TIMEOUT)
+        )
+        models = FakeGeminiModels(("fabricated current trend",))
+        with patch(
+            "app.services.message_service.external_retrieval_service",
+            ExternalRetrievalService(provider),
+        ), patch.object(
+            ai_service, "client", types.SimpleNamespace(models=models)
+        ), patch.object(ai_service.learning_dataset_service, "log_generation"):
+            output = "".join(
+                edit_message_stream_service(
+                    user_message.id,
+                    MessageUpdate(content="Research current market trend with sources"),
+                    self.db,
+                    self.user,
+                )
+            )
+
+        self.assertEqual(len(provider.calls), 1)
+        self.assertIn("status: timeout", output)
+        self.assertNotIn("fabricated current trend", output)
+        self.assertEqual(models.requests, [])
+        self.assertEqual(
+            self.db.query(Message)
+            .filter(Message.conversation_id == conversation_id, Message.role == "assistant")
+            .count(),
+            1,
+        )
 
 if __name__ == "__main__":
     unittest.main()

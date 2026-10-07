@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.saved_content import SavedContent
+from app.models.trend_report import TrendReport
 from app.models.user import User
 from app.models.brand import BrandProfile
 from app.schemas.saved_content import SavedContentCreate
@@ -104,12 +105,58 @@ def _find_platform_name(
             pass
     return None
 
+def _get_owned_trend_report(
+    db: Session,
+    report_id: int,
+    current_user: User,
+) -> TrendReport:
+    report = db.query(TrendReport).filter(
+        TrendReport.id == report_id,
+        TrendReport.user_id == current_user.id,
+    ).first()
+    if report is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trend Report không tồn tại.",
+        )
+    if not report.summary or not report.summary.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Trend Report chưa có summary để lưu thành nội dung.",
+        )
+    if report.conversation_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Trend Report chưa gắn với conversation để lưu nội dung.",
+        )
+    return report
+
 def save_content_service(
     data: SavedContentCreate,
     db: Session,
     current_user: User,
 ) -> SavedContent:
-    if data.message_id is not None:
+    if data.trend_report_id is not None:
+        report = _get_owned_trend_report(
+            db=db,
+            report_id=data.trend_report_id,
+            current_user=current_user,
+        )
+        conversation = get_user_conversation(
+            db=db,
+            conversation_id=report.conversation_id,
+            current_user=current_user,
+        )
+        content = report.summary.strip()
+        message_id = None
+        platform = data.platform
+        platform_name = data.platform_name
+        brand_id = (
+            data.brand_id
+            if "brand_id" in data.model_fields_set
+            else conversation.brand_id
+        )
+    elif data.message_id is not None:
         message, conversation = _get_owned_assistant_message(
             db=db,
             message_id=data.message_id,
@@ -165,6 +212,7 @@ def save_content_service(
         user_id=current_user.id,
         conversation_id=conversation.id,
         message_id=message_id,
+        trend_report_id=data.trend_report_id,
         title=_build_title(data.title, conversation, content),
         content=content,
         platform=platform,

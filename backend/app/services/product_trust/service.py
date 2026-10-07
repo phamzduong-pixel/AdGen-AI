@@ -11,15 +11,17 @@ This prevents accidental support based on shared keywords. Evidence text is
 never executed as an instruction and is not used to infer a relation.
 """
 
+from __future__ import annotations
+
 from collections.abc import Iterable, Mapping
 from datetime import datetime, timezone
 import re
+from typing import TYPE_CHECKING
 
 from app.services.external_retrieval.evidence import (
     Evidence,
     EvidenceVerificationStatus,
 )
-from app.services.product_aware.models import ProductProfile
 from app.services.product_trust.models import (
     ClaimAssessment,
     ClaimAssessmentStatus,
@@ -29,6 +31,9 @@ from app.services.product_trust.models import (
     ProductClaimType,
     RecommendedAction,
 )
+
+if TYPE_CHECKING:
+    from app.services.product_aware.models import ProductProfile
 
 
 _HIGH_RISK_PATTERN = re.compile(
@@ -159,6 +164,20 @@ def _is_usable_for_contradiction(evidence: Evidence) -> bool:
     }
 
 
+def _is_usable_for_support(evidence: Evidence) -> bool:
+    status = _evidence_status(evidence)
+    if status in {
+        None,
+        EvidenceVerificationStatus.STALE,
+        EvidenceVerificationStatus.CONFLICTING,
+    }:
+        return False
+    if status is EvidenceVerificationStatus.VERIFIED:
+        metadata = evidence.metadata if isinstance(evidence.metadata, Mapping) else {}
+        return bool(str(metadata.get("verification_basis", "")).strip())
+    return True
+
+
 def _risk_level(claim: ProductClaim) -> ClaimRiskLevel:
     if _HIGH_RISK_PATTERN.search(claim.claim_text):
         return ClaimRiskLevel.HIGH
@@ -213,7 +232,7 @@ def assess_product_claims(
             if _is_stale(record):
                 stale_related.append(record)
                 continue
-            if supports:
+            if supports and _is_usable_for_support(record):
                 supporting.append(record)
             if contradicts and _is_usable_for_contradiction(record):
                 contradicting.append(record)

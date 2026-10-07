@@ -169,6 +169,30 @@ class ProductTrustContractTests(unittest.TestCase):
         self.assertEqual(assessment.status, ClaimAssessmentStatus.UNVERIFIED)
         self.assertEqual(assessment.evidence_ids, ())
 
+    def test_conflicting_evidence_cannot_support_a_claim(self):
+        claim = self.make_claim()
+        evidence = make_evidence(
+            "conflicting-support",
+            {"supports_claim_ids": [claim.claim_id]},
+            status=EvidenceVerificationStatus.CONFLICTING,
+        )
+
+        assessment = self.assess(claim, [evidence])
+
+        self.assertEqual(assessment.status, ClaimAssessmentStatus.UNVERIFIED)
+
+    def test_verified_evidence_without_basis_cannot_support_a_claim(self):
+        claim = self.make_claim()
+        evidence = make_evidence(
+            "unsupported-verified",
+            {"supports_claim_ids": [claim.claim_id]},
+            status=EvidenceVerificationStatus.VERIFIED,
+        )
+
+        assessment = self.assess(claim, [evidence])
+
+        self.assertEqual(assessment.status, ClaimAssessmentStatus.UNVERIFIED)
+
     def test_product_aware_uses_assessment_without_calling_network(self):
         product = ProductProfile(
             name="Demo",

@@ -15,6 +15,7 @@ import EmptyState from "../../components/chat/EmptyState";
 import MobileSidebar from "../../components/chat/MobileSidebar";
 import ConversationHeaderMenu from "../../components/chat/Header/ConversationHeaderMenu";
 import SavedContentPanel from "../../components/chat/SavedContentPanel";
+import TrendReportPanel from "../../components/chat/TrendReportPanel/TrendReportPanel";
 import ContentScorePanel from "../../components/chat/ContentScorePanel";
 import VariantGeneratorModal from "../../components/chat/VariantGeneratorModal";
 import BrandConsistencyPanel from "../../components/brand/BrandConsistencyPanel/BrandConsistencyPanel";
@@ -50,6 +51,7 @@ function Chat() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
   const [isSavedContentOpen, setIsSavedContentOpen] = useState(false);
+  const [isTrendReportsOpen, setIsTrendReportsOpen] = useState(false);
   const [isMediaStudioOpen, setIsMediaStudioOpen] = useState(false);
   const [templateRequest, setTemplateRequest] = useState(null);
   const [newConversationBrandId, setNewConversationBrandId] = useState(undefined);
@@ -256,6 +258,7 @@ function Chat() {
             selectedConversation && setIsHeaderMenuOpen(true)
           }
           onOpenSavedContents={() => setIsSavedContentOpen(true)}
+          onOpenTrendReports={() => setIsTrendReportsOpen(true)}
           onOpenMedia={() => setIsMediaStudioOpen(true)}
         />
       }
@@ -450,6 +453,11 @@ function Chat() {
           );
         }
       }}
+    />
+    <TrendReportPanel
+      open={isTrendReportsOpen}
+      conversationId={selectedConversation}
+      onClose={() => setIsTrendReportsOpen(false)}
     />
     <ContentScorePanel
       open={contentTools.mode === "evaluation"}

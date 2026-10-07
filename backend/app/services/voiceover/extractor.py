@@ -56,7 +56,13 @@ class VoiceoverScriptExtractor:
     )
 
     # Bracket cues e.g. [Hook], [Cảnh 1], [Visual], [Camera zoom], [ting]
-    BRACKET_PATTERN = re.compile(r'\[[^\]]*\]')
+    # Preserve spoken placeholders such as [Tên Sản Phẩm], while removing
+    # bracketed production directions.
+    BRACKET_CUE_PATTERN = re.compile(
+        r'\[\s*(?:cảnh|scene|visual|camera|sfx|sound|nhạc|music|pause|'
+        r'zoom|cut|b[\s-]*roll|ting|hiệu ứng|chuyển cảnh)\b[^\]]*\]',
+        re.IGNORECASE,
+    )
 
     # Parenthetical acting/sound cues e.g. (cười tươi), (thở dài), (pause 2s), (giọng hào hứng, phấn khích)
     PARENTHESIS_PATTERN = re.compile(r'\([^)]*\)')
@@ -75,6 +81,13 @@ class VoiceoverScriptExtractor:
     MD_BLOCKQUOTE_PATTERN = re.compile(r'^>\s?', re.MULTILINE)
     MD_FORMATTING_PATTERN = re.compile(r'[*_~`]{1,3}')
     MD_BULLET_PREFIX_PATTERN = re.compile(r'^[\s\-*•+]+\s*')
+    QUOTED_SPAN_PATTERN = re.compile(r'["“”«»]\s*([^"“”«»]+?)\s*["“”«»]')
+    PURE_PARENTHETICAL_PATTERN = re.compile(r'^\([^)]*\)$')
+    SCRIPT_HEADER_PATTERN = re.compile(
+        r'^(?:#+\s*)?(?:kịch\s*bản|script|lời\s*thoại|voice\s*over|voiceover|'
+        r'narration|phân\s*cảnh|storyboard|cảnh|scene|hook|intro|outro)\b',
+        re.IGNORECASE,
+    )
 
     @classmethod
     def _clean_spoken_text(cls, text: str) -> str:
@@ -86,7 +99,7 @@ class VoiceoverScriptExtractor:
             return ""
 
         # Remove bracket cues [Cảnh 1], [Visual], etc.
-        cleaned = cls.BRACKET_PATTERN.sub('', text)
+        cleaned = cls.BRACKET_CUE_PATTERN.sub('', text)
 
         # Remove parenthetical acting notes e.g. (Giọng điệu lôi cuốn), (cười tươi)
         cleaned = cls.PARENTHESIS_PATTERN.sub('', cleaned)
@@ -112,6 +125,56 @@ class VoiceoverScriptExtractor:
         cleaned = re.sub(r'([!?])\s*\.\s*$', r'\1', cleaned)
 
         return cleaned.strip()
+
+    @classmethod
+    def _fallback_dialogue_blocks(cls, lines: List[str]) -> tuple[List[str], str]:
+        """Select likely spoken copy without inventing or rewriting text."""
+        quoted_blocks: List[str] = []
+        plain_blocks: List[str] = []
+        has_script_context = False
+
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            quoted = cls.QUOTED_SPAN_PATTERN.findall(stripped)
+            if quoted:
+                for item in quoted:
+                    cleaned = cls._clean_spoken_text(item)
+                    if cleaned:
+                        quoted_blocks.append(cleaned)
+                continue
+
+            if cls.PURE_PARENTHETICAL_PATTERN.match(stripped):
+                continue
+
+            if cls.SCRIPT_HEADER_PATTERN.match(stripped) or cls.SCENE_OR_TIMESTAMP_PATTERN.match(stripped):
+                has_script_context = True
+                continue
+
+            if cls.PRODUCTION_INSTRUCTION_HEADER_PATTERN.match(stripped):
+                has_script_context = True
+                continue
+
+            if cls.MD_HEADER_PATTERN.match(stripped):
+                has_script_context = True
+                continue
+
+            # A labelled line without quotes is metadata unless it has already
+            # matched the explicit dialogue path above.
+            if re.match(r'^[\s*\-•\d.]*[A-Za-zÀ-ỹ\s0-9/_\-]+\s*:', stripped):
+                continue
+
+            cleaned = cls._clean_spoken_text(cls.MD_BULLET_PREFIX_PATTERN.sub('', stripped))
+            if cleaned:
+                plain_blocks.append(cleaned)
+
+        if quoted_blocks:
+            return quoted_blocks, "success"
+        if has_script_context and len(plain_blocks) >= 2:
+            return plain_blocks, "uncertain"
+        return [], "no_dialogue"
 
     @classmethod
     def extract(cls, raw_text: str) -> ExtractionResult:
@@ -208,7 +271,26 @@ class VoiceoverScriptExtractor:
                 extracted_blocks=final_blocks
             )
 
-        # Case B: No explicit dialogue markers found.
+        # Case B: No explicit dialogue markers found. Use a conservative
+        # deterministic fallback for naturally written multi-part scripts.
+        fallback_blocks, fallback_status = cls._fallback_dialogue_blocks(lines)
+        if fallback_blocks:
+            final_text = "\n\n".join(fallback_blocks)
+            return ExtractionResult(
+                cleaned_script=final_text,
+                original_length=original_len,
+                cleaned_length=len(final_text),
+                dialogue_blocks_count=len(fallback_blocks),
+                status=fallback_status,
+                warning_message=(
+                    "Hệ thống đã nhận diện các đoạn có khả năng là lời thoại. "
+                    "Vui lòng kiểm tra trước khi tạo audio."
+                    if fallback_status == "uncertain"
+                    else None
+                ),
+                extracted_blocks=fallback_blocks,
+            )
+
         # Guardrail: Check if the text is a structured response (marketing analysis, storyboard, production cues)
         has_structure = (
             bool(cls.PRODUCTION_INSTRUCTION_HEADER_PATTERN.search(raw_text)) or

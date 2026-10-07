@@ -31,6 +31,7 @@
 | `campaign_contents` | Nối campaign với saved content, có primary | campaign/saved content |
 | `content_documents` | Tài liệu editor, status, version, campaign link | user, message, saved content, campaign |
 | `content_versions` | Snapshot version của document | n-1 content document/user |
+| `voiceover_audios` | Metadata ownership và file information của audio voiceover đã tạo | n-1 user, tùy chọn n-1 message |
 
 ## 4.3. Quan hệ nghiệp vụ
 
@@ -52,6 +53,7 @@ User
 - Mỗi user tối đa một brand mặc định nhờ partial unique index `uq_brand_profiles_one_default`.
 - Một saved content không lặp cùng `user_id + message_id`.
 - Một document không có hai version cùng `content_id + version_number`.
+- `voiceover_audios.user_id` bảo vệ quyền truy cập audio theo owner; `message_id` chỉ là liên kết tùy chọn tới message nguồn.
 
 ## 4.4. Trường dữ liệu đáng chú ý
 
@@ -71,6 +73,10 @@ User
 
 Document giữ bản hiện hành; version giữ snapshot title/content/CTA/hashtags/notes, `change_summary`, `created_by` và `created_by_user_id`. `current_version` ở document trỏ số version hiện tại.
 
+### `voiceover_audios`
+
+Bảng lưu `audio_id`, `filename`, `user_id`, `message_id` tùy chọn, kích thước, thời lượng, `voice_id` và `created_at`. `audio_id` và `filename` là duy nhất. `user_id` có foreign key `ON DELETE CASCADE`; `message_id` dùng `ON DELETE SET NULL` để xóa message không làm mất metadata ownership của audio. Protected audio endpoint chỉ phục vụ file khi xác định được owner an toàn.
+
 ## 4.5. Migration chain
 
 | Revision | Nội dung |
@@ -83,6 +89,7 @@ Document giữ bản hiện hành; version giữ snapshot title/content/CTA/hash
 | `20260727_0006` | Brand profiles/assets/checks |
 | `20260727_0007` | Content editor và versions |
 | `20260727_0008` | Partial unique index cho campaign primary |
+| `20261003_0017` | Ownership metadata cho generated voiceover audio |
 
 Migration nằm ở `backend/alembic/versions/`. Trước production migration cần backup database; không dùng `Base.metadata.drop_all()` hoặc xóa SQLite để cập nhật schema.
 

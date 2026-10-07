@@ -21,6 +21,7 @@ RewriteAction = Literal[
 
 class ContentDocumentCreate(BaseModel):
     source_message_id: int | None = Field(default=None, gt=0)
+    source_trend_report_id: int | None = Field(default=None, gt=0)
     source_saved_content_id: int | None = Field(default=None, gt=0)
     title: str | None = Field(default=None, max_length=160)
     content: str | None = Field(default=None, max_length=50_000)
@@ -38,6 +39,7 @@ class ContentDocumentCreate(BaseModel):
         sources = [
             self.source_message_id is not None,
             self.source_saved_content_id is not None,
+            self.source_trend_report_id is not None,
             bool(self.content and self.content.strip()),
         ]
         if sum(sources) != 1:
@@ -86,6 +88,7 @@ class ContentDocumentResponse(BaseModel):
     id: int
     user_id: int
     source_message_id: int | None
+    source_trend_report_id: int | None
     source_saved_content_id: int | None
     source_conversation_id: int | None
     title: str

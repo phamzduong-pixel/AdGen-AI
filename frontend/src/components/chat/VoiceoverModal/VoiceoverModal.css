@@ -52,11 +52,20 @@
 }
 
 .adgen-modal-icon {
-  font-size: 24px;
-  background: rgba(59, 130, 246, 0.15);
-  padding: 8px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: #111827;
+  background: #f1f5f9;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  line-height: 1;
+}
+
+.adgen-modal-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
 }
 
 .adgen-modal-title h3 {
@@ -377,12 +386,22 @@
 }
 
 .adgen-audio-player__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.72rem;
   font-weight: 600;
   background: rgba(59, 130, 246, 0.18);
   color: #60a5fa;
   padding: 2px 7px;
   border-radius: 4px;
+}
+
+.adgen-audio-player__badge svg {
+  width: 12px;
+  height: 12px;
+  color: #111827;
+  stroke-width: 2;
 }
 
 .adgen-audio-player__voice {
@@ -433,3 +452,18 @@
   align-items: center;
   gap: 4px;
 }
+
+/* Keep these overrides after the legacy dark fallbacks above. */
+:root .adgen-modal-card { background: var(--color-card); border-color: var(--color-card-border); box-shadow: var(--shadow-lg); color: var(--color-text-primary); }
+:root .adgen-modal-header, :root .adgen-modal-footer { border-color: var(--color-border); }
+:root .adgen-modal-title p, :root .adgen-char-count, :root .adgen-slider-label, :root .adgen-audio-player__voice, :root .adgen-audio-player__time { color: var(--color-text-secondary); }
+:root .adgen-modal-close, :root .adgen-label { color: var(--color-text-primary); }
+:root .adgen-modal-close:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+:root .adgen-textarea, :root .adgen-select { background: var(--color-main-bg); border-color: var(--color-border); color: var(--color-text-primary); }
+:root .adgen-btn--secondary, :root .adgen-audio-player, :root .adgen-audio-btn { background: var(--color-surface); border-color: var(--color-border); color: var(--color-text-primary); }
+:root .adgen-btn--secondary:hover, :root .adgen-audio-btn:hover { background: var(--color-surface-hover); }
+:root .adgen-alert--warning { background: color-mix(in srgb, var(--color-warning) 14%, transparent); border: 1px solid color-mix(in srgb, var(--color-warning) 38%, transparent); color: color-mix(in srgb, var(--color-warning) 70%, var(--color-text-primary)); }
+:root .adgen-alert--error { color: color-mix(in srgb, var(--color-danger) 70%, var(--color-text-primary)); }
+:root .adgen-btn-link { color: var(--color-primary-hover); }
+:root .adgen-btn-link--block { display: block; margin-top: 4px; }
+:root .adgen-text-version { width: fit-content; padding: 3px 8px; color: var(--color-text-secondary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.75rem; }

@@ -1,7 +1,7 @@
 # Kế hoạch phát triển AdGen Trend Radar
 
-> Trạng thái: đề xuất trước triển khai  
-> Phiên bản kế hoạch: 04/10/2026  
+> Trạng thái: Stage 1–4 đã hoàn thành; Trend Radar đã đóng theo Plan 17
+> Phiên bản tài liệu: 06/10/2026
 > Phạm vi: mở rộng AdGen AI thành hệ thống tìm kiếm, kiểm chứng xu hướng và chuyển hóa xu hướng thành chiến dịch quảng cáo.
 
 ## 1. Tầm nhìn
@@ -320,10 +320,54 @@ Trend Radar không có mục tiêu trở thành công cụ search tổng quát, 
 
 ## 14. Phạm vi chưa triển khai trong kế hoạch này
 
-- Chưa kết nối API thật.
-- Chưa thay đổi database, backend hoặc frontend.
+- Chưa kết nối các provider/API bên ngoài thật; Stage 1–2 hiện dùng collector fake/injected để kiểm thử và không gọi Internet.
 - Chưa tự động đăng quảng cáo lên các nền tảng.
 - Chưa coi số lượt xem hoặc lượt thích là bằng chứng chắc chắn về hiệu quả bán hàng.
 - Chưa thay thế kiểm duyệt pháp lý, chuyên gia ngành hàng hoặc trách nhiệm của người dùng đối với nội dung quảng cáo.
+- Chưa kết nối provider/API bên ngoài thật; các collector hiện tại vẫn là fake/injected để kiểm thử và không gọi Internet.
 
-Kết luận: hướng **AdGen Trend Radar** khả thi và phù hợp với kiến trúc hiện tại khi được triển khai như một retrieval layer theo ngữ cảnh. Nên bắt đầu bằng MVP tích hợp trong Chat/brief gồm nhận diện nhu cầu tra cứu, tìm kiếm web, nhập URL, lưu bằng chứng và đưa insight trở lại luồng tạo quảng cáo; không xây dựng một công cụ search độc lập.
+## 15. Trạng thái triển khai thực tế
+
+Phần này là bản cập nhật đồng bộ với implementation hiện tại, không thay thế các nguyên tắc và acceptance criteria ở các phần trước.
+
+### Stage 1 — MVP có kiểm soát: HOÀN THÀNH
+
+- Evidence store và Trend Report giữ được provenance, citation/evidence reference và thời điểm truy cập.
+- Report phân biệt dữ liệu có evidence với AI inference; thiếu evidence không được biến thành factual claim.
+- Product Trust enforcement và claim-to-evidence behavior hiện có được giữ nguyên trong các flow create, streaming và edit/regenerate.
+- Luồng tạo quảng cáo thông thường không tự động gọi retrieval khi không được yêu cầu.
+
+### Stage 2 — Đa nền tảng và cập nhật: HOÀN THÀNH
+
+- Multi-platform orchestration hỗ trợ fake/injected collectors, chuẩn hóa và deduplicate evidence.
+- Có structured per-source/platform status được lưu trong `TrendReport.source_statuses_json` qua migration `20261005_0019`.
+- Stale evidence và explicit conflict metadata được giữ lại, không bị xóa hoặc trình bày như dữ liệu mới.
+- Provider failure được biểu diễn minh bạch; một nguồn lỗi không làm mất kết quả hợp lệ của nguồn khác.
+- API xác thực `POST /trend-reports/retrieve` dùng FastAPI dependency injection và trả Trend Report identity, source status cùng evidence provenance.
+- Trend Report UI hiển thị so sánh source/platform từ response API, gồm status, message, evidence count và trạng thái stale/conflict/empty khi có.
+- Migration graph đã xác minh có một Alembic head: `20261005_0019`.
+
+### Stage 3 — Product Trust và Trend Report UI: HOÀN THÀNH
+
+- Product Trust đánh giá claim → evidence → trust status → risk/action, gồm source policy theo user và chế độ `verified_only` được backend enforce cho create, stream, edit và regenerate.
+- Trend Report UI hiển thị claim, evidence, source, warning/risk và trạng thái generation theo contract backend.
+- Migration Product Trust là `20261006_0020_product_trust_policies`.
+
+### Stage 4 — Monitor đến Campaign: HOÀN THÀNH
+
+- Monitor, snapshot, alert lifecycle, advertising angle, brief, campaign và metric snapshot đã được triển khai theo các checkpoint S4-1 đến S4-7.
+- S4-4 tiếp tục dùng Product Trust gate trước khi tạo angle/brief/campaign; không tự coi AI confidence là evidence.
+- Alembic head hiện tại: `20261006_0024_insight_campaign_metrics`.
+
+### Kiểm thử và giới hạn xác minh
+
+- Frontend regression và production build đã PASS; các targeted/regression tests của Trend Report, Evidence, Product Trust, Citation và Message Service đã được chạy theo các checkpoint.
+- `git diff --check` và backend compile/compileall đã PASS trong các checkpoint liên quan.
+- Full backend regression đã PASS: 402 tests và 46 subtests; frontend suite và production build cũng đã PASS trong S4-7.
+- Không gọi Brave, Gemini, Internet, external API hoặc dịch vụ trả phí trong quá trình triển khai và kiểm thử.
+
+### Ước lượng tiến độ
+
+Plan không định nghĩa trọng số phần trăm chính thức. Nếu tính bốn giai đoạn triển khai 1–4 ngang nhau, cả bốn Stage đã hoàn thành, tương đương **100% phạm vi Plan 17**. Đây là tỷ lệ theo phạm vi stage, không phải tỷ lệ coverage test.
+
+Kết luận: **AdGen Trend Radar** đã hoàn thành Stage 1–4 theo phạm vi Plan 17. Provider thật vẫn là hạng mục ngoài phạm vi hiện tại và cần checkpoint riêng nếu được phê duyệt.

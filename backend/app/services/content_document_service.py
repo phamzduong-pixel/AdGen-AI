@@ -12,6 +12,7 @@ from app.models.content_document import ContentDocument, ContentVersion
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.saved_content import SavedContent
+from app.models.trend_report import TrendReport
 from app.models.user import User
 from app.schemas.content_document import (
     ContentDocumentCreate,
@@ -44,6 +45,7 @@ def serialize_document(document: ContentDocument) -> dict:
         "user_id": document.user_id,
         "source_message_id": document.source_message_id,
         "source_saved_content_id": document.source_saved_content_id,
+        "source_trend_report_id": document.trend_report_id,
         "source_conversation_id": document.source_conversation_id,
         "title": document.title,
         "content": document.content,
@@ -116,6 +118,20 @@ def _owned_campaign(campaign_id: int | None, db: Session, user: User) -> Campaig
         raise HTTPException(status_code=404, detail="Chiến dịch không tồn tại.")
     return campaign
 
+
+def _owned_trend_report(report_id: int, db: Session, user: User) -> TrendReport:
+    report = db.query(TrendReport).filter(
+        TrendReport.id == report_id,
+        TrendReport.user_id == user.id,
+    ).first()
+    if report is None:
+        raise HTTPException(status_code=404, detail="Trend Report không tồn tại.")
+    if not report.summary or not report.summary.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="Trend Report chưa có summary để chuyển thành nội dung.",
+        )
+    return report
 
 def _title(value: str | None, content: str) -> str:
     normalized = " ".join((value or "").split())
@@ -200,6 +216,7 @@ def create_document(
 ) -> dict:
     source_message_id = data.source_message_id
     source_saved_content_id = data.source_saved_content_id
+    source_trend_report_id = data.source_trend_report_id
     source_conversation_id = None
     source_summary = "Tạo nội dung thủ công"
 
@@ -243,6 +260,27 @@ def create_document(
             if saved.title.lower().startswith("phiên bản")
             else "Tạo từ nội dung đã lưu"
         )
+    elif source_trend_report_id is not None:
+        existing = db.query(ContentDocument).filter(
+            ContentDocument.user_id == current_user.id,
+            ContentDocument.trend_report_id == source_trend_report_id,
+        ).first()
+        if existing:
+            return serialize_document(get_owned_document(existing.id, db, current_user))
+        report = _owned_trend_report(source_trend_report_id, db, current_user)
+        content = report.summary.strip()
+        source_conversation_id = report.conversation_id
+        title = _title(data.title or report.query, content)
+        platform = data.platform
+        platform_name = data.platform_name
+        if "brand_id" in data.model_fields_set:
+            brand_id = data.brand_id
+        elif report.conversation_id:
+            conversation = db.get(Conversation, report.conversation_id)
+            brand_id = conversation.brand_id if conversation else None
+        else:
+            brand_id = None
+        source_summary = "Tạo từ Trend Report"
     else:
         content = (data.content or "").strip()
         title = _title(data.title, content)
@@ -263,6 +301,7 @@ def create_document(
         user_id=current_user.id,
         source_message_id=source_message_id,
         source_saved_content_id=source_saved_content_id,
+        trend_report_id=source_trend_report_id,
         source_conversation_id=source_conversation_id,
         title=title,
         content=content,
@@ -305,6 +344,11 @@ def create_document(
             duplicate = db.query(ContentDocument).filter(
                 ContentDocument.user_id == current_user.id,
                 ContentDocument.source_saved_content_id == source_saved_content_id,
+            ).first()
+        elif source_trend_report_id is not None:
+            duplicate = db.query(ContentDocument).filter(
+                ContentDocument.user_id == current_user.id,
+                ContentDocument.trend_report_id == source_trend_report_id,
             ).first()
         if duplicate:
             return serialize_document(get_owned_document(duplicate.id, db, current_user))
