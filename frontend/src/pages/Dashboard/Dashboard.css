@@ -7,7 +7,7 @@
 .dashboard-skeleton span { min-height: 120px; background: linear-gradient(90deg, #f1f5f9, #fafafa, #f1f5f9); background-size: 200% 100%; border-radius: 15px; animation: dashboard-shimmer 1.3s infinite; }
 @keyframes dashboard-shimmer { to { background-position: -200% 0; } }
 .dashboard-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 310px; margin-top: 18px; color: #94a3b8; text-align: center; background: #fff; border: 1px dashed #cbd5e1; border-radius: 16px; }
-.dashboard-empty svg { width: 34px; height: 34px; color: #957dc5; }
+.dashboard-empty svg { width: 34px; height: 34px; color: #65aed4; }
 .dashboard-empty h2 { margin: 12px 0 4px; color: #334155; font-size: 16px; }
 .dashboard-empty p { font-size: 12px; }
 @media (max-width: 1000px) { .dashboard-stats, .dashboard-skeleton { grid-template-columns: repeat(2, 1fr); } .dashboard-charts { grid-template-columns: 1fr; } }

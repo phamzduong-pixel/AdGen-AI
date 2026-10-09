@@ -80,12 +80,22 @@ function GoogleLoginButton({ onCredential, disabled = false }) {
       .then(() => {
         if (!active || !containerRef.current) return;
         if (initializedClientId !== clientId) {
-          window.google.accounts.id.initialize({
-            client_id: clientId,
-            callback: (response) => credentialHandler?.(response.credential),
-            auto_select: false,
-          });
-          initializedClientId = clientId;
+          try {
+            window.google.accounts.id.initialize({
+              client_id: clientId,
+              callback: (response) => credentialHandler?.(response.credential),
+              error_callback: (err) => {
+                console.warn("Google GSI Origin/Client Error:", err);
+                if (active) setScriptError("Domain hiện tại chưa được ủy quyền cho Google Client ID này.");
+              },
+              auto_select: false,
+            });
+            initializedClientId = clientId;
+          } catch (initErr) {
+            console.warn("Failed to initialize Google GSI:", initErr);
+            if (active) setScriptError("Không thể khởi tạo Google Identity Services.");
+            return;
+          }
         }
         containerRef.current.replaceChildren();
         window.google.accounts.id.renderButton(containerRef.current, {
@@ -108,16 +118,23 @@ function GoogleLoginButton({ onCredential, disabled = false }) {
   if (configLoading) {
     return <div className="google-login-unavailable google-login-loading-state" role="status">Đang tải đăng nhập Google...</div>;
   }
-  if (!hasValidClientId) {
+
+  if (!hasValidClientId || scriptError) {
     return (
-      <button type="button" className="google-login-unavailable" disabled title={configError || "Google OAuth chưa được cấu hình"}>
+      <button
+        type="button"
+        className="google-login-unavailable"
+        disabled
+        title={scriptError || configError || "Google OAuth chưa được cấu hình cho domain hiện tại"}
+      >
         <span className="google-login__mark" aria-hidden="true">G</span>
         <span>Đăng nhập bằng Google</span>
-        <small className="google-login__config-note">Chưa cấu hình</small>
+        <small className="google-login__config-note">
+          {scriptError ? "Chưa ủy quyền domain" : "Chưa cấu hình"}
+        </small>
       </button>
     );
   }
-  if (scriptError) return <p className="google-login-error" role="alert">{scriptError}</p>;
 
   return (
     <div className={`google-login${disabled ? " google-login--disabled" : ""}`} aria-busy={disabled}>

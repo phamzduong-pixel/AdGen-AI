@@ -43,7 +43,7 @@ const QUOTA_ERROR_MARKER = "[ADGEN_QUOTA_ERROR]";
 const throwIfStreamFailed = (content) => {
   if (content.includes(QUOTA_ERROR_MARKER)) {
     const error = new Error(
-      "Dịch vụ Gemini đã hết hạn mức hoặc đang quá tải. Vui lòng thử lại sau.",
+      "Dịch vụ AdGen AI đang quá tải hoặc đã hết hạn mức. Vui lòng thử lại sau.",
     );
     error.code = "AI_STREAM_ERROR";
     throw error;

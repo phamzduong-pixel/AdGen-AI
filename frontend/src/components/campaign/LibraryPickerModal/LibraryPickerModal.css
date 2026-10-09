@@ -2,9 +2,9 @@
 .library-picker__search input { flex: 1; min-height: 38px; color: #334155; font: inherit; font-size: 11px; border: 0; outline: none; }
 .library-picker__list { display: flex; flex-direction: column; gap: 8px; max-height: 430px; margin-top: 13px; overflow-y: auto; }
 .library-picker__list article { display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid #e2e8f0; border-radius: 10px; }
-.library-picker__list article > span { color: #8067ad; }
+.library-picker__list article > span { color: #3b9fd3; }
 .library-picker__list article > div { flex: 1; min-width: 0; }
 .library-picker__list strong { display: block; color: #334155; font-size: 11px; }
 .library-picker__list p { margin: 3px 0 0; overflow: hidden; color: #94a3b8; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-.library-picker__list button { display: inline-flex; align-items: center; gap: 4px; padding: 7px 9px; color: #fff; font: inherit; font-size: 9px; background: #8067ad; border: 0; border-radius: 7px; cursor: pointer; }
+.library-picker__list button { display: inline-flex; align-items: center; gap: 4px; padding: 7px 9px; color: #fff; font: inherit; font-size: 9px; background: #3b9fd3; border: 0; border-radius: 7px; cursor: pointer; }
 .library-picker__empty { padding: 30px; color: #94a3b8; font-size: 11px; text-align: center; }

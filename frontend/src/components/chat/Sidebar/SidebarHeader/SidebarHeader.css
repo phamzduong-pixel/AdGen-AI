@@ -36,7 +36,7 @@
   font-weight: 800;
   letter-spacing: -0.04em;
 
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border-radius: 11px;
   box-shadow: 0 8px 18px rgba(101, 95, 159, 0.22);
 }
@@ -103,7 +103,7 @@
   font-size: 13px;
   font-weight: 650;
 
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border: 0;
   border-radius: 11px;
   box-shadow: 0 8px 18px rgba(101, 95, 159, 0.18);
@@ -244,7 +244,7 @@ html.dark .sidebar-header__collapse:hover {
   letter-spacing: 0.04em;
   text-shadow: 0 1px 2px rgb(16 36 95 / 28%);
   -webkit-text-stroke: 0.55px rgb(255 255 255 / 72%);
-  background: linear-gradient(145deg, #6f79b5 0%, #655f9f 54%, #8067ad 100%);
+  background: linear-gradient(145deg, #459fce 0%, #277da9 54%, #3b9fd3 100%);
   border: 1px solid rgb(255 255 255 / 28%);
   border-radius: 13px;
   box-shadow:
@@ -273,11 +273,11 @@ html.dark .sidebar-brand__logo {
 
 /* Match DG badge colors with the former lightning mark. */
 .sidebar-brand__logo {
-  color: #655f9f;
+  color: #277da9;
   text-shadow: none;
   -webkit-text-stroke: 0.45px rgb(101 95 159 / 35%);
-  background: #f0eefb;
-  border-color: #e5e1f1;
+  background: #e7f4fb;
+  border-color: #d5e9f4;
   box-shadow: 0 8px 18px rgb(101 95 159 / 12%);
 }
 
@@ -285,8 +285,8 @@ html.dark .sidebar-brand__logo {
 html.dark .sidebar-brand__logo {
   color: #a5b4fc;
   -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
-  background: #27243e;
-  border-color: #3c3962;
+  background: #1c3a53;
+  border-color: #243b53;
   box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
 }
 
@@ -294,8 +294,8 @@ html.dark .sidebar-brand__logo {
   :root[data-theme="system"] .sidebar-brand__logo {
     color: #a5b4fc;
     -webkit-text-stroke: 0.45px rgb(165 180 252 / 32%);
-    background: #27243e;
-    border-color: #3c3962;
+    background: #1c3a53;
+    border-color: #243b53;
     box-shadow: 0 8px 18px rgb(0 0 0 / 28%);
   }
 }
@@ -330,14 +330,14 @@ html.dark .sidebar-brand__logo {
 
 .sidebar-new-chat {
   color: #35427d;
-  background: linear-gradient(135deg, #c9d5ff 0%, #d9caff 100%);
+  background: linear-gradient(135deg, #cfe9f6 0%, #d9eff9 100%);
   border: 1px solid rgb(143 157 224 / 20%);
   box-shadow: 0 7px 16px rgb(106 119 193 / 12%);
 }
 
 .sidebar-new-chat:hover {
-  color: #2f3a70;
-  background: linear-gradient(135deg, #bdccff 0%, #d0bdff 100%);
+  color: #294f68;
+  background: linear-gradient(135deg, #c5e5f4 0%, #c8e8f5 100%);
   box-shadow: 0 10px 20px rgb(106 119 193 / 17%);
 }
 
@@ -348,7 +348,7 @@ html.dark .sidebar-header::after {
 
 :root[data-theme="dark"] .sidebar-new-chat,
 html.dark .sidebar-new-chat {
-  color: #f0eefb;
-  background: linear-gradient(135deg, #5368b5 0%, #7664ac 100%);
+  color: #e7f4fb;
+  background: linear-gradient(135deg, #3a90c0 0%, #3f93c1 100%);
   border-color: rgb(190 198 255 / 18%);
 }

@@ -1,7 +1,7 @@
 :root {
   /* ===== Colors ===== */
-  --color-primary: #9b87c9;
-  --color-primary-hover: #6b5599;
+  --color-primary: #3b9fd3;
+  --color-primary-hover: #277da9;
 
   --color-background: #ffffff;
   --color-surface: #f8fafc;
@@ -19,7 +19,7 @@
   --color-warning: #f59e0b;
 
   --color-card: #ffffff;
-  --color-card-border: #e5e1f1;
+  --color-card-border: #d5e9f4;
 
   --color-sidebar-bg: #f8fafc;
   --color-sidebar-border: #e5e7eb;
@@ -114,102 +114,102 @@ html.dark {
 
 /* AdGen AI shared product palette — aligned with Login/Register. */
 :root {
-  --color-primary: #8b82c7;
-  --color-primary-hover: #756caf;
-  --color-secondary: #a69bd7;
-  --color-accent: #9b87c9;
-  --color-primary-rgb: 139 130 199;
-  --color-background: #fbfaff;
-  --color-main-bg: #fbfaff;
-  --color-surface: #f5f3fb;
-  --color-surface-hover: #edeaf7;
+  --color-primary: #3b9fd3;
+  --color-primary-hover: #277da9;
+  --color-secondary: #79b9dc;
+  --color-accent: #3b9fd3;
+  --color-primary-rgb: 59 159 211;
+  --color-background: #f8fcfe;
+  --color-main-bg: #f8fcfe;
+  --color-surface: #f2f8fc;
+  --color-surface-hover: #e6f3fa;
   --color-card: #ffffff;
-  --color-card-border: #e5e1f1;
-  --color-text: #30324a;
-  --color-text-primary: #41436a;
-  --color-text-secondary: #6d708b;
-  --color-text-muted: #9699ae;
-  --color-border: #e5e1f1;
-  --color-border-subtle: #f0eef7;
-  --color-sidebar-bg: #faf9fd;
-  --color-sidebar-border: #ebe8f4;
+  --color-card-border: #d5e9f4;
+  --color-text: #243b53;
+  --color-text-primary: #243b53;
+  --color-text-secondary: #5b7289;
+  --color-text-muted: #8196a8;
+  --color-border: #d5e9f4;
+  --color-border-subtle: #edf6fb;
+  --color-sidebar-bg: #f8fcfe;
+  --color-sidebar-border: #e0eef6;
   --color-header-bg: rgba(255, 255, 255, 0.94);
-  --color-header-border: #e5e1f1;
+  --color-header-border: #d5e9f4;
 }
 
 :root[data-theme="dark"],
 html.dark {
-  --color-primary: #aaa3dc;
-  --color-primary-hover: #b9b2e8;
-  --color-secondary: #b5a9df;
-  --color-accent: #c0afe5;
-  --color-primary-rgb: 170 163 220;
-  --color-background: #121322;
-  --color-main-bg: #121322;
-  --color-surface: #1d1e2d;
-  --color-surface-hover: #28283b;
-  --color-card: #1d1e2d;
-  --color-card-border: #38384d;
-  --color-text: #f5f7ff;
-  --color-text-primary: #f5f7ff;
-  --color-text-secondary: #b9b5d5;
-  --color-text-muted: #8f8ca9;
-  --color-border: #38384d;
-  --color-border-subtle: #29293d;
-  --color-sidebar-bg: #10111f;
-  --color-sidebar-border: #29293d;
-  --color-header-bg: rgba(18, 19, 34, 0.94);
-  --color-header-border: #29293d;
+  --color-primary: #79b9dc;
+  --color-primary-hover: #9ccfe8;
+  --color-secondary: #8ec9e5;
+  --color-accent: #9cd3ea;
+  --color-primary-rgb: 121 185 220;
+  --color-background: #0d1e2b;
+  --color-main-bg: #0d1e2b;
+  --color-surface: #142b3b;
+  --color-surface-hover: #1b3749;
+  --color-card: #142b3b;
+  --color-card-border: #27465a;
+  --color-text: #f4fbff;
+  --color-text-primary: #f4fbff;
+  --color-text-secondary: #b4cede;
+  --color-text-muted: #819db0;
+  --color-border: #27465a;
+  --color-border-subtle: #1b3343;
+  --color-sidebar-bg: #0a1823;
+  --color-sidebar-border: #1b3343;
+  --color-header-bg: rgba(13, 30, 43, 0.94);
+  --color-header-border: #1b3343;
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"],
   html.dark[data-theme="system"] {
-    --color-primary: #aaa3dc;
-    --color-primary-hover: #b9b2e8;
-    --color-secondary: #b5a9df;
-    --color-accent: #c0afe5;
-    --color-primary-rgb: 170 163 220;
-    --color-background: #121322;
-    --color-main-bg: #121322;
-    --color-surface: #1d1e2d;
-    --color-surface-hover: #28283b;
-    --color-card: #1d1e2d;
-    --color-card-border: #38384d;
-    --color-text: #f5f7ff;
-    --color-text-primary: #f5f7ff;
-    --color-text-secondary: #b9b5d5;
-    --color-text-muted: #8f8ca9;
-    --color-border: #38384d;
-    --color-border-subtle: #29293d;
-    --color-sidebar-bg: #10111f;
-    --color-sidebar-border: #29293d;
-    --color-header-bg: rgba(18, 19, 34, 0.94);
-    --color-header-border: #29293d;
+    --color-primary: #79b9dc;
+    --color-primary-hover: #9ccfe8;
+    --color-secondary: #8ec9e5;
+    --color-accent: #9cd3ea;
+    --color-primary-rgb: 121 185 220;
+    --color-background: #0d1e2b;
+    --color-main-bg: #0d1e2b;
+    --color-surface: #142b3b;
+    --color-surface-hover: #1b3749;
+    --color-card: #142b3b;
+    --color-card-border: #27465a;
+    --color-text: #f4fbff;
+    --color-text-primary: #f4fbff;
+    --color-text-secondary: #b4cede;
+    --color-text-muted: #819db0;
+    --color-border: #27465a;
+    --color-border-subtle: #1b3343;
+    --color-sidebar-bg: #0a1823;
+    --color-sidebar-border: #1b3343;
+    --color-header-bg: rgba(13, 30, 43, 0.94);
+    --color-header-border: #1b3343;
   }
 }
 /* Brand mark tokens shared by every AdGen AI logo. */
 :root {
-  --brand-mark-bg: #f0eefb;
-  --brand-mark-fg: #7167ad;
-  --brand-mark-border: #e5e1f1;
-  --brand-mark-shadow: rgb(113 103 173 / 12%);
+  --brand-mark-bg: #e7f4fb;
+  --brand-mark-fg: #2b84b5;
+  --brand-mark-border: #d5e9f4;
+  --brand-mark-shadow: rgb(43 132 181 / 12%);
 }
 
 :root[data-theme="dark"],
 html.dark {
-  --brand-mark-bg: #292643;
-  --brand-mark-fg: #b9b2e8;
-  --brand-mark-border: #49436c;
+  --brand-mark-bg: #173044;
+  --brand-mark-fg: #9ccfe8;
+  --brand-mark-border: #36566b;
   --brand-mark-shadow: rgb(0 0 0 / 28%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"],
   html.dark[data-theme="system"] {
-    --brand-mark-bg: #292643;
-    --brand-mark-fg: #b9b2e8;
-    --brand-mark-border: #49436c;
+    --brand-mark-bg: #173044;
+    --brand-mark-fg: #9ccfe8;
+    --brand-mark-border: #36566b;
     --brand-mark-shadow: rgb(0 0 0 / 28%);
   }
 }

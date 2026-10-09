@@ -1,8 +1,8 @@
 .message-actions { display: flex; align-items: center; gap: 2px; min-height: 30px; opacity: 0; transform: translateY(2px); transition: opacity 160ms ease, transform 160ms ease; }
 .message__container:hover .message-actions, .message-actions:focus-within { opacity: 1; transform: none; }
 .message-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 8px; color: #64748b; font: inherit; font-size: 11px; font-weight: 600; background: transparent; border: 0; border-radius: 8px; cursor: pointer; }
-.message-actions button:hover:not(:disabled) { color: #56528e; background: #f0eefb; }
-.message-actions button.is-saved { color: #6b5599; background: #f1eafb; }
+.message-actions button:hover:not(:disabled) { color: #277da9; background: #e7f4fb; }
+.message-actions button.is-saved { color: #277da9; background: #e6f5fc; }
 .message-actions button:disabled { opacity: .5; cursor: not-allowed; }
 .message-actions svg { width: 14px; height: 14px; }
 .message-actions__more { width: 30px; padding: 0 !important; }
@@ -10,5 +10,5 @@
 .message-actions__spinner { animation: message-action-spin 750ms linear infinite; }
 .message-actions-menu { position: fixed; z-index: 1080; right: 24px; bottom: 80px; width: 200px; padding: 6px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 14px 36px rgb(15 23 42 / 17%); }
 .message-actions-menu button { display: flex; width: 100%; padding: 9px 10px; color: #334155; font: inherit; font-size: 13px; text-align: left; background: transparent; border: 0; border-radius: 8px; cursor: pointer; }
-.message-actions-menu button:hover { color: #56528e; background: #f0eefb; }
+.message-actions-menu button:hover { color: #277da9; background: #e7f4fb; }
 @media (max-width: 640px) { .message-actions { opacity: 1; transform: none; } .message-actions button span { display: none; } }

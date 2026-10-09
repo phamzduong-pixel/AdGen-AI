@@ -12,7 +12,7 @@
 }
 
 .template-card:hover {
-  border-color: #c4b5fd;
+  border-color: #93d0ea;
   box-shadow: 0 16px 34px rgb(91 33 182 / 10%);
   transform: translateY(-2px);
 }
@@ -34,10 +34,10 @@
   align-items: center;
   gap: 7px;
   padding: 6px 9px;
-  color: #5b21b6;
+  color: #176f9f;
   font-size: 11px;
   font-weight: 750;
-  background: #f1eafb;
+  background: #e6f5fc;
   border-radius: 999px;
 }
 
@@ -128,7 +128,7 @@
   padding: 9px 12px;
   color: #fff;
   font-weight: 700;
-  background: linear-gradient(135deg, #8067ad, #655f9f);
+  background: linear-gradient(135deg, #3b9fd3, #277da9);
   border: 0;
   border-radius: 11px;
   cursor: pointer;

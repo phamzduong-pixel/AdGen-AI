@@ -41,8 +41,8 @@
   place-items: center;
   width: 38px;
   height: 38px;
-  color: #5b21b6;
-  background: #f1eafb;
+  color: #176f9f;
+  background: #e6f5fc;
   border-radius: 11px;
 }
 
@@ -98,8 +98,8 @@
 }
 
 .saved-content-panel__search:focus-within {
-  color: #6b5599;
-  border-color: #b4a2df;
+  color: #277da9;
+  border-color: #8fc9e5;
   box-shadow: 0 0 0 3px rgb(124 58 237 / 9%);
 }
 
@@ -134,8 +134,8 @@
 }
 
 .saved-content-card:hover {
-  border-color: #c4b5fd;
-  box-shadow: 0 8px 24px rgb(76 29 149 / 8%);
+  border-color: #93d0ea;
+  box-shadow: 0 8px 24px rgb(23 111 159 / 8%);
 }
 
 .saved-content-card__heading {
@@ -150,8 +150,8 @@
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
-  color: #6b5599;
-  background: #f5f2fb;
+  color: #277da9;
+  background: #eef8fc;
   border-radius: 8px;
 }
 
@@ -209,8 +209,8 @@
 }
 
 .saved-content-card__actions button:hover:not(:disabled) {
-  color: #5b21b6;
-  background: #f1eafb;
+  color: #176f9f;
+  background: #e6f5fc;
 }
 
 .saved-content-card__actions button.is-danger:hover:not(:disabled) {
@@ -239,7 +239,7 @@
 .saved-content-panel__empty > svg {
   width: 30px;
   height: 30px;
-  color: #b4a2df;
+  color: #8fc9e5;
 }
 
 .saved-content-panel__empty strong {
@@ -287,7 +287,7 @@
 }
 
 .saved-content-detail header span {
-  color: #8067ad;
+  color: #3b9fd3;
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
@@ -320,7 +320,7 @@
 
 .saved-content-detail footer button {
   color: #fff;
-  background: #6b5599;
+  background: #277da9;
 }
 
 @keyframes saved-content-panel-enter {
@@ -404,7 +404,7 @@ html.dark .saved-content-card__actions button {
 
 :root[data-theme="dark"] .saved-content-card__actions button:hover:not(:disabled),
 html.dark .saved-content-card__actions button:hover:not(:disabled) {
-  color: #c4b5fd;
+  color: #93d0ea;
   background: rgba(124, 58, 237, 0.2);
 }
 
@@ -478,7 +478,7 @@ html.dark .saved-content-detail footer {
   }
 
   :root[data-theme="system"] .saved-content-card__actions button:hover:not(:disabled) {
-    color: #c4b5fd;
+    color: #93d0ea;
     background: rgba(124, 58, 237, 0.2);
   }
 

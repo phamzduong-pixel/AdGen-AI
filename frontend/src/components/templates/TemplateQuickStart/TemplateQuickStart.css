@@ -54,7 +54,7 @@
 }
 
 .template-quick-start > button:hover {
-  border-color: #c4b5fd;
+  border-color: #93d0ea;
   transform: translateY(-2px);
 }
 
@@ -64,8 +64,8 @@
   flex: 0 0 38px;
   width: 38px;
   height: 38px;
-  color: #6b5599;
-  background: #f1eafb;
+  color: #277da9;
+  background: #e6f5fc;
   border-radius: 11px;
 }
 
@@ -94,7 +94,7 @@
 
 .template-quick-start__arrow {
   flex: 0 0 15px;
-  color: #b4a2df;
+  color: #8fc9e5;
 }
 
 .template-quick-start__loading {

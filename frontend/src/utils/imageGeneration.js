@@ -9,7 +9,7 @@ const CODE_MESSAGES = {
   INVALID_ARGUMENT: "Yêu cầu hoặc tham số tạo ảnh không hợp lệ. Vui lòng kiểm tra prompt, tỷ lệ hoặc ảnh tham chiếu.",
   MODEL_NOT_FOUND: "Model tạo ảnh không khả dụng hoặc không được provider nhận diện. Vui lòng kiểm tra cấu hình model.",
   PERMISSION_DENIED: "Provider không cấp quyền cho yêu cầu tạo ảnh. Vui lòng kiểm tra quyền của API key.",
-  UNAUTHENTICATED: "API key của provider không xác thực được. Vui lòng kiểm tra cấu hình Gemini.",
+  UNAUTHENTICATED: "Thông tin xác thực của dịch vụ không hợp lệ. Vui lòng kiểm tra cấu hình provider.",
   PROVIDER_TIMEOUT: "Dịch vụ tạo ảnh phản hồi quá lâu. Vui lòng thử lại sau.",
   IMAGE_OUTPUT_MISSING: "Provider không trả về ảnh hợp lệ. Vui lòng thử lại sau.",
   PROVIDER_ERROR: "Không thể hoàn tất yêu cầu tạo ảnh từ provider. Vui lòng thử lại sau.",

@@ -44,7 +44,7 @@
 .template-form input:focus,
 .template-form select:focus,
 .template-form textarea:focus {
-  border-color: #957dc5;
+  border-color: #65aed4;
   box-shadow: 0 0 0 3px rgb(139 92 246 / 12%);
 }
 

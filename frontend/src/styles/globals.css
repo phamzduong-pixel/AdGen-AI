@@ -26,143 +26,36 @@ html.dark body,
 :root[data-theme="dark"] .workspace-layout,
 html.dark .workspace-layout {
   color-scheme: dark;
-  color: #e2e8f0;
-  background: #0f172a;
+  color: var(--color-text);
+  background: var(--color-main-bg);
 }
 
-:root[data-theme="dark"] :is(
-  .workspace-layout__sidebar,
-  .workspace-layout__header,
-  .workspace-layout__brand,
-  .dashboard-stat-card,
-  .dashboard-chart-card,
-  .dashboard-empty,
-  .campaign-card,
-  .campaign-content-card,
-  .campaign-page__empty,
-  .library-page__empty,
-  .library-page__search,
-  .profile-card,
-  .profile-stats,
-  .profile-stats article,
-  .profile-modal__panel,
-  .saved-content-card,
-  .ui-modal__panel,
-  .content-score-panel,
-  .variant-modal__panel,
-  .variant-card,
-  .account-menu
-),
-html.dark :is(
-  .workspace-layout__sidebar,
-  .workspace-layout__header,
-  .workspace-layout__brand,
-  .dashboard-stat-card,
-  .dashboard-chart-card,
-  .dashboard-empty,
-  .campaign-card,
-  .campaign-content-card,
-  .campaign-page__empty,
-  .library-page__empty,
-  .library-page__search,
-  .profile-card,
-  .profile-stats,
-  .profile-stats article,
-  .profile-modal__panel,
-  .saved-content-card,
-  .ui-modal__panel,
-  .content-score-panel,
-  .variant-modal__panel,
-  .variant-card,
-  .account-menu
-) {
-  color: #e2e8f0;
-  background: #1e293b;
-  border-color: #334155;
-}
-
-:root[data-theme="dark"] :is(
-  .workspace-layout h1,
-  .workspace-layout h2,
-  .workspace-layout h3,
-  .workspace-layout__brand strong,
-  .dashboard-stat-card strong,
-  .dashboard-chart-card h2,
-  .dashboard-empty h2,
-  .campaign-page__empty h2,
-  .library-page__empty h2,
-  .profile-modal h2,
-  .ui-modal h2,
-  .variant-card h3,
-  .content-score-panel h2
-),
-html.dark :is(
-  .workspace-layout h1,
-  .workspace-layout h2,
-  .workspace-layout h3,
-  .workspace-layout__brand strong,
-  .dashboard-stat-card strong,
-  .dashboard-chart-card h2,
-  .dashboard-empty h2,
-  .campaign-page__empty h2,
-  .library-page__empty h2,
-  .profile-modal h2,
-  .ui-modal h2,
-  .variant-card h3,
-  .content-score-panel h2
-) {
-  color: #f1f5f9;
-}
-
-:root[data-theme="dark"] :is(
-  .workspace-layout__brand small,
-  .dashboard-stat-card p,
-  .dashboard-stat-card small,
-  .dashboard-chart-card p,
-  .profile-modal p
-),
-html.dark :is(
-  .workspace-layout__brand small,
-  .dashboard-stat-card p,
-  .dashboard-stat-card small,
-  .dashboard-chart-card p,
-  .profile-modal p
-) {
-  color: #94a3b8;
-}
-
-:root[data-theme="dark"] .library-page__search input,
-html.dark .library-page__search input {
-  color: #f8fafc;
-}
-
-:root[data-theme="dark"] .campaign-confirm__cancel,
-html.dark .campaign-confirm__cancel {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-:root[data-theme="dark"] .account-menu button,
-html.dark .account-menu button {
-  color: #cbd5e1;
-}
-
-:root[data-theme="dark"] .account-menu button:hover,
-html.dark .account-menu button:hover {
-  background: #273449;
-  color: #f8fafc;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] body,
-  :root[data-theme="system"] .workspace-layout {
-    color-scheme: dark;
-    color: #e2e8f0;
-    background: #0f172a;
-  }
-
-  :root[data-theme="system"] :is(
+:root[data-theme="dark"]
+  :is(
+    .workspace-layout__sidebar,
+    .workspace-layout__header,
+    .workspace-layout__brand,
+    .dashboard-stat-card,
+    .dashboard-chart-card,
+    .dashboard-empty,
+    .campaign-card,
+    .campaign-content-card,
+    .campaign-page__empty,
+    .library-page__empty,
+    .library-page__search,
+    .profile-card,
+    .profile-stats,
+    .profile-stats article,
+    .profile-modal__panel,
+    .saved-content-card,
+    .ui-modal__panel,
+    .content-score-panel,
+    .variant-modal__panel,
+    .variant-card,
+    .account-menu
+  ),
+html.dark
+  :is(
     .workspace-layout__sidebar,
     .workspace-layout__header,
     .workspace-layout__brand,
@@ -185,12 +78,29 @@ html.dark .account-menu button:hover {
     .variant-card,
     .account-menu
   ) {
-    color: #e2e8f0;
-    background: #1e293b;
-    border-color: #334155;
-  }
+  color: var(--color-text);
+  background: var(--color-card);
+  border-color: var(--color-card-border);
+}
 
-  :root[data-theme="system"] :is(
+:root[data-theme="dark"]
+  :is(
+    .workspace-layout h1,
+    .workspace-layout h2,
+    .workspace-layout h3,
+    .workspace-layout__brand strong,
+    .dashboard-stat-card strong,
+    .dashboard-chart-card h2,
+    .dashboard-empty h2,
+    .campaign-page__empty h2,
+    .library-page__empty h2,
+    .profile-modal h2,
+    .ui-modal h2,
+    .variant-card h3,
+    .content-score-panel h2
+  ),
+html.dark
+  :is(
     .workspace-layout h1,
     .workspace-layout h2,
     .workspace-layout h3,
@@ -205,36 +115,135 @@ html.dark .account-menu button:hover {
     .variant-card h3,
     .content-score-panel h2
   ) {
-    color: #f1f5f9;
-  }
+  color: var(--color-text-primary);
+}
 
-  :root[data-theme="system"] :is(
+:root[data-theme="dark"]
+  :is(
+    .workspace-layout__brand small,
+    .dashboard-stat-card p,
+    .dashboard-stat-card small,
+    .dashboard-chart-card p,
+    .profile-modal p
+  ),
+html.dark
+  :is(
     .workspace-layout__brand small,
     .dashboard-stat-card p,
     .dashboard-stat-card small,
     .dashboard-chart-card p,
     .profile-modal p
   ) {
-    color: #94a3b8;
+  color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .library-page__search input,
+html.dark .library-page__search input {
+  color: var(--color-text-primary);
+}
+
+:root[data-theme="dark"] .campaign-confirm__cancel,
+html.dark .campaign-confirm__cancel {
+  background: var(--color-card);
+  border-color: var(--color-card-border);
+  color: var(--color-text-secondary);
+}
+
+:root[data-theme="dark"] .account-menu button,
+html.dark .account-menu button {
+  color: var(--color-text-secondary);
+}
+
+:root[data-theme="dark"] .account-menu button:hover,
+html.dark .account-menu button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] body,
+  :root[data-theme="system"] .workspace-layout {
+    color-scheme: dark;
+    color: var(--color-text);
+    background: var(--color-main-bg);
+  }
+
+  :root[data-theme="system"]
+    :is(
+      .workspace-layout__sidebar,
+      .workspace-layout__header,
+      .workspace-layout__brand,
+      .dashboard-stat-card,
+      .dashboard-chart-card,
+      .dashboard-empty,
+      .campaign-card,
+      .campaign-content-card,
+      .campaign-page__empty,
+      .library-page__empty,
+      .library-page__search,
+      .profile-card,
+      .profile-stats,
+      .profile-stats article,
+      .profile-modal__panel,
+      .saved-content-card,
+      .ui-modal__panel,
+      .content-score-panel,
+      .variant-modal__panel,
+      .variant-card,
+      .account-menu
+    ) {
+    color: var(--color-text);
+    background: var(--color-card);
+    border-color: var(--color-card-border);
+  }
+
+  :root[data-theme="system"]
+    :is(
+      .workspace-layout h1,
+      .workspace-layout h2,
+      .workspace-layout h3,
+      .workspace-layout__brand strong,
+      .dashboard-stat-card strong,
+      .dashboard-chart-card h2,
+      .dashboard-empty h2,
+      .campaign-page__empty h2,
+      .library-page__empty h2,
+      .profile-modal h2,
+      .ui-modal h2,
+      .variant-card h3,
+      .content-score-panel h2
+    ) {
+    color: var(--color-text-primary);
+  }
+
+  :root[data-theme="system"]
+    :is(
+      .workspace-layout__brand small,
+      .dashboard-stat-card p,
+      .dashboard-stat-card small,
+      .dashboard-chart-card p,
+      .profile-modal p
+    ) {
+    color: var(--color-text-muted);
   }
 
   :root[data-theme="system"] .library-page__search input {
-    color: #f8fafc;
+    color: var(--color-text-primary);
   }
 
   :root[data-theme="system"] .campaign-confirm__cancel {
-    background: #1e293b;
-    border-color: #334155;
-    color: #cbd5e1;
+    background: var(--color-card);
+    border-color: var(--color-card-border);
+    color: var(--color-text-secondary);
   }
 
   :root[data-theme="system"] .account-menu button {
-    color: #cbd5e1;
+    color: var(--color-text-secondary);
   }
 
   :root[data-theme="system"] .account-menu button:hover {
-    background: #273449;
-    color: #f8fafc;
+    background: var(--color-surface-hover);
+    color: var(--color-text-primary);
   }
 }
 
@@ -274,14 +283,15 @@ html.dark .chat-layout {
   background: var(--color-main-bg) !important;
 }
 
-html.dark :is(
-  .workspace-layout__sidebar,
-  .workspace-layout__header,
-  .workspace-layout__brand,
-  .sidebar,
-  .chat-layout__header,
-  .chat-header
-) {
+html.dark
+  :is(
+    .workspace-layout__sidebar,
+    .workspace-layout__header,
+    .workspace-layout__brand,
+    .sidebar,
+    .chat-layout__header,
+    .chat-header
+  ) {
   background: var(--color-sidebar-bg) !important;
   border-color: var(--color-sidebar-border) !important;
 }
@@ -292,30 +302,31 @@ html.dark .chat-header {
   background: var(--color-header-bg) !important;
 }
 
-html.dark :is(
-  .dashboard-stat-card,
-  .dashboard-chart-card,
-  .dashboard-empty,
-  .campaign-card,
-  .campaign-content-card,
-  .campaign-page__empty,
-  .library-page__empty,
-  .library-page__search,
-  .profile-card,
-  .profile-stats,
-  .profile-stats article,
-  .profile-modal__panel,
-  .saved-content-card,
-  .ui-modal__panel,
-  .content-score-panel,
-  .variant-modal__panel,
-  .variant-card,
-  .account-menu,
-  .ad-brief-form--popover,
-  .media-studio,
-  .chat-composer,
-  .conversation-search
-) {
+html.dark
+  :is(
+    .dashboard-stat-card,
+    .dashboard-chart-card,
+    .dashboard-empty,
+    .campaign-card,
+    .campaign-content-card,
+    .campaign-page__empty,
+    .library-page__empty,
+    .library-page__search,
+    .profile-card,
+    .profile-stats,
+    .profile-stats article,
+    .profile-modal__panel,
+    .saved-content-card,
+    .ui-modal__panel,
+    .content-score-panel,
+    .variant-modal__panel,
+    .variant-card,
+    .account-menu,
+    .ad-brief-form--popover,
+    .media-studio,
+    .chat-composer,
+    .conversation-search
+  ) {
   color: var(--color-text) !important;
   background: var(--color-card) !important;
   border-color: var(--color-card-border) !important;
@@ -327,43 +338,137 @@ html.dark :is(input, select, textarea) {
   border-color: var(--color-border) !important;
 }
 
-html.dark :is(
-  .workspace-layout h1,
-  .workspace-layout h2,
-  .workspace-layout h3,
-  .dashboard-stat-card strong,
-  .dashboard-chart-card h2,
-  .dashboard-empty h2,
-  .campaign-page__empty h2,
-  .library-page__empty h2,
-  .profile-card h2,
-  .profile-modal h2,
-  .ui-modal h2,
-  .variant-card h3,
-  .content-score-panel h2
-) {
+html.dark
+  :is(
+    .workspace-layout h1,
+    .workspace-layout h2,
+    .workspace-layout h3,
+    .dashboard-stat-card strong,
+    .dashboard-chart-card h2,
+    .dashboard-empty h2,
+    .campaign-page__empty h2,
+    .library-page__empty h2,
+    .profile-card h2,
+    .profile-modal h2,
+    .ui-modal h2,
+    .variant-card h3,
+    .content-score-panel h2
+  ) {
   color: var(--color-text-primary) !important;
 }
 
-html.dark :is(
-  .workspace-layout__brand small,
-  .dashboard-stat-card p,
-  .dashboard-stat-card small,
-  .dashboard-chart-card p,
-  .profile-modal p,
-  .header-title__status,
-  .sidebar-brand__subtitle
-) {
+html.dark
+  :is(
+    .workspace-layout__brand small,
+    .dashboard-stat-card p,
+    .dashboard-stat-card small,
+    .dashboard-chart-card p,
+    .profile-modal p,
+    .header-title__status,
+    .sidebar-brand__subtitle
+  ) {
   color: var(--color-text-muted) !important;
 }
 
-html.dark :is(
-  .conversation-item:hover,
-  .app-navigation__item:hover,
-  .sidebar-collapse-button:hover,
-  .header-actions__button:hover,
-  .header-actions__icon-button:hover,
-  .account-menu button:hover
-) {
+html.dark
+  :is(
+    .conversation-item:hover,
+    .app-navigation__item:hover,
+    .sidebar-collapse-button:hover,
+    .header-actions__button:hover,
+    .header-actions__icon-button:hover,
+    .account-menu button:hover
+  ) {
   color: var(--color-text-primary) !important;
   background: var(--color-surface-hover) !important;
+}
+
+/* Library search: keep dark mode in the shared blue palette. */
+:root[data-theme="dark"] .library-page__search,
+html.dark .library-page__search {
+  background: var(--color-card) !important;
+  border-color: var(--color-card-border) !important;
+}
+
+:root[data-theme="dark"] .library-page__search input,
+html.dark .library-page__search input {
+  color: var(--color-text-primary) !important;
+  background: transparent !important;
+}
+
+:root[data-theme="dark"] .library-page__search input::placeholder,
+html.dark .library-page__search input::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .library-page__search:focus-within,
+html.dark .library-page__search:focus-within {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgb(var(--color-primary-rgb) / 18%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .library-page__search {
+    background: var(--color-card) !important;
+    border-color: var(--color-card-border) !important;
+  }
+
+  :root[data-theme="system"] .library-page__search input {
+    color: var(--color-text-primary) !important;
+    background: transparent !important;
+  }
+
+  :root[data-theme="system"] .library-page__search input::placeholder {
+    color: var(--color-text-muted) !important;
+    opacity: 1;
+  }
+
+  :root[data-theme="system"] .library-page__search:focus-within {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px rgb(var(--color-primary-rgb) / 18%);
+  }
+}
+/* Codex responsive stability baseline */
+html {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  border-inline: 0;
+  text-align: initial;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+/* Global Scrollbar Hiding Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

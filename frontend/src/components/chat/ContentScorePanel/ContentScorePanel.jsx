@@ -23,7 +23,7 @@ function ContentScorePanel({
       <section className="content-score-panel">
         <header className="content-score-panel__header">
           <div>
-            <span>Phân tích bởi Gemini</span>
+            <span>Phân tích bởi AdGen AI</span>
             <h2>Đánh giá nội dung quảng cáo</h2>
           </div>
           <button
@@ -41,7 +41,7 @@ function ContentScorePanel({
           <div className="content-score-panel__loading">
             <FiLoader />
             <strong>Đang phân tích nội dung...</strong>
-            <span>Gemini đang chấm điểm theo 9 tiêu chí.</span>
+            <span>AdGen AI đang phân tích theo 9 tiêu chí.</span>
           </div>
         ) : result ? (
           <div className="content-score-panel__body">

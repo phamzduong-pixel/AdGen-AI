@@ -66,3 +66,61 @@
 .chat-header { background: var(--color-header-bg); color: var(--color-text-primary); border-bottom: 1px solid var(--color-header-border); }.chat-header {
   border-bottom: 0 !important;
 }
+
+/* Keep all header actions available on phones instead of hiding them. */
+@media (max-width: 480px) {
+  .chat-header {
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-block: 6px;
+  }
+
+  .chat-header__left {
+    flex: 1 1 100%;
+    min-height: 36px;
+  }
+
+  .chat-header .header-actions {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 1px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chat-header .header-actions::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Codex mobile header stability */
+@media (max-width: 480px) {
+  .chat-header {
+    min-width: 0;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    padding-block: 8px;
+  }
+
+  .chat-header__left {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .chat-header .header-actions {
+    width: auto;
+    max-width: 52vw;
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chat-header .header-actions::-webkit-scrollbar {
+    display: none;
+  }
+}

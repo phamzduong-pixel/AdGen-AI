@@ -29,14 +29,14 @@
 }
 
 .conversation-item:focus-visible {
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
 .conversation-item--selected {
-  color: #56528e;
-  background: #f0eefb;
-  border-color: #e0e7ff;
+  color: #277da9;
+  background: #e7f4fb;
+  border-color: #e0f2fa;
 }
 
 .conversation-item__icon {
@@ -128,7 +128,7 @@
   font-size: 13px;
 
   background: #fff;
-  border: 1px solid #a1a3d4;
+  border: 1px solid #9ccbe2;
   border-radius: 7px;
   outline: none;
   box-shadow: 0 0 0 2px rgb(119 118 184 / 12%);
@@ -179,9 +179,9 @@ html.dark .conversation-item:hover {
 
 :root[data-theme="dark"] .conversation-item--selected,
 html.dark .conversation-item--selected {
-  color: #c7d2fe;
-  background: #27243e;
-  border-color: #56528e;
+  color: #cfe9f6;
+  background: #1c3a53;
+  border-color: #277da9;
 }
 
 :root[data-theme="dark"] .conversation-item__more-button:hover,
@@ -195,7 +195,7 @@ html.dark .conversation-item__more-button:focus-visible {
 :root[data-theme="dark"] .conversation-item__rename,
 html.dark .conversation-item__rename {
   background: #0f172a;
-  border-color: #7776b8;
+  border-color: #3b9fd3;
   color: #f8fafc;
 }
 
@@ -210,9 +210,9 @@ html.dark .conversation-item__rename {
   }
 
   :root[data-theme="system"] .conversation-item--selected {
-    color: #c7d2fe;
-    background: #27243e;
-    border-color: #56528e;
+    color: #cfe9f6;
+    background: #1c3a53;
+    border-color: #277da9;
   }
 
   :root[data-theme="system"] .conversation-item__more-button:hover,
@@ -223,7 +223,7 @@ html.dark .conversation-item__rename {
 
   :root[data-theme="system"] .conversation-item__rename {
     background: #0f172a;
-    border-color: #7776b8;
+    border-color: #3b9fd3;
     color: #f8fafc;
   }
 }

@@ -3,7 +3,7 @@
 .toast--success { border-left-color: #16a34a; }.toast--success .toast__icon { color: #16a34a; }
 .toast--error { border-left-color: #dc2626; }.toast--error .toast__icon { color: #dc2626; }
 .toast--warning { border-left-color: #d97706; }.toast--warning .toast__icon { color: #d97706; }
-.toast--info { border-left-color: #655f9f; }.toast--info .toast__icon { color: #655f9f; }
+.toast--info { border-left-color: #277da9; }.toast--info .toast__icon { color: #277da9; }
 .toast__icon { width: 18px; height: 18px; }
 .toast button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; color: #94a3b8; background: transparent; border: 0; border-radius: 7px; cursor: pointer; }
 .toast button:hover { color: #334155; background: #f1f5f9; }

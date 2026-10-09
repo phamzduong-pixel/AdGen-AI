@@ -20,7 +20,7 @@
 
 .brand-selector:focus-within {
   background: #ffffff;
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
@@ -111,7 +111,7 @@ html.dark .brand-selector:hover:not(:has(select:disabled)) {
 :root[data-theme="dark"] .brand-selector:focus-within,
 html.dark .brand-selector:focus-within {
   background: #0f172a;
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
 }
 
 :root[data-theme="dark"] .brand-selector select,

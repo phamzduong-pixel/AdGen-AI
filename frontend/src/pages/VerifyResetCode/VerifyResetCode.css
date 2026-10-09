@@ -11,7 +11,7 @@
   justify-content: center;
   gap: 7px;
   min-height: 42px;
-  color: #7776b8;
+  color: #3b9fd3;
   font: inherit;
   font-size: 13px;
   font-weight: 650;
@@ -22,7 +22,7 @@
 }
 
 .verify-resend-button:hover:not(:disabled) {
-  background: #f5f2fb;
+  background: #eef8fc;
 }
 
 .verify-resend-button:disabled {

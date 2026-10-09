@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import ConversationItem from "../ConversationItem";
+import ConversationItem from "../ConversationItem.jsx";
 import ConversationSearch from "../ConversationSearch";
 import "./ConversationList.css";
 

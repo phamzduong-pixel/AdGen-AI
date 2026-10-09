@@ -1,7 +1,10 @@
 .recovery-page {
   position: relative;
   display: grid;
-  min-height: 100vh;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
   place-items: center;
   padding: 88px 22px 40px;
   overflow: hidden;
@@ -9,6 +12,15 @@
     radial-gradient(circle at 12% 12%, rgba(124, 58, 237, 0.16), transparent 30%),
     radial-gradient(circle at 88% 86%, rgba(101, 95, 159, 0.14), transparent 30%),
     #f8f7ff;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.recovery-page::-webkit-scrollbar,
+.recovery-card::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .recovery-brand {
@@ -33,7 +45,7 @@
   font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(101, 95, 159, 0.22);
 }
@@ -55,7 +67,7 @@
   place-items: center;
   color: #fff;
   font-size: 21px;
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border-radius: 14px;
 }
 
@@ -105,7 +117,7 @@
 }
 
 .recovery-field__control:focus-within {
-  border-color: #7776b8;
+  border-color: #3b9fd3;
   box-shadow: 0 0 0 4px rgba(119, 118, 184, 0.11);
 }
 
@@ -168,7 +180,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 700;
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border: 0;
   border-radius: 13px;
   box-shadow: 0 12px 25px rgba(101, 95, 159, 0.2);
@@ -186,14 +198,14 @@
   justify-content: center;
   gap: 7px;
   margin-top: 21px;
-  color: #7776b8;
+  color: #3b9fd3;
   font-size: 14px;
   font-weight: 650;
   text-decoration: none;
 }
 
 .recovery-back-link:hover {
-  color: #56528e;
+  color: #277da9;
 }
 
 .recovery-primary-button:focus-visible,

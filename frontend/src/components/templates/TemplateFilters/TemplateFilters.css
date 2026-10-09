@@ -30,10 +30,10 @@
 }
 
 .template-filters__scopes button.is-active {
-  color: #6b5599;
+  color: #277da9;
   font-weight: 700;
-  background: #f1eafb;
-  border-color: #ddd6fe;
+  background: #e6f5fc;
+  border-color: #d8effa;
 }
 
 .template-filters__search {

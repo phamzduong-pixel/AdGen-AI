@@ -45,13 +45,13 @@
 }
 
 .prompt-selector__select:focus-visible {
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
 .prompt-selector__select.is-open {
   background: #ffffff;
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
@@ -137,12 +137,12 @@
 
 .prompt-selector__option:hover,
 .prompt-selector__option.is-active {
-  color: #3730a3;
-  background: #f0eefb;
+  color: #1f6793;
+  background: #e7f4fb;
 }
 
 .prompt-selector__option.is-selected {
-  color: #655f9f;
+  color: #277da9;
   font-weight: 700;
 }
 
@@ -214,7 +214,7 @@ html.dark .prompt-selector__option {
 html.dark .prompt-selector__option:hover,
 :root[data-theme="dark"] .prompt-selector__option.is-active,
 html.dark .prompt-selector__option.is-active {
-  color: #c4b5fd;
+  color: #93d0ea;
   background: #273449;
 }
 
@@ -237,7 +237,7 @@ html.dark .prompt-selector__option.is-selected {
 
   :root[data-theme="system"] .prompt-selector__option:hover,
   :root[data-theme="system"] .prompt-selector__option.is-active {
-    color: #c4b5fd;
+    color: #93d0ea;
     background: #273449;
   }
 }
@@ -256,6 +256,6 @@ html.dark .prompt-selector__option.is-selected {
 }
 
 .prompt-selector__custom-name:focus {
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }

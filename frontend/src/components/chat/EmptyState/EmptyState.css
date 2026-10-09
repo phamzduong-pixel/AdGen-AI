@@ -71,7 +71,7 @@
 
   color: #ffffff;
 
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border-radius: 17px;
   box-shadow: 0 14px 30px rgb(101 95 159 / 22%);
 }
@@ -84,7 +84,7 @@
 .empty-state__eyebrow {
   margin-bottom: 8px;
 
-  color: #7776b8;
+  color: #3b9fd3;
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.09em;
@@ -141,7 +141,7 @@
 }
 
 .empty-state__suggestion:hover {
-  border-color: #c7d2fe;
+  border-color: #cfe9f6;
   box-shadow: 0 12px 28px rgb(101 95 159 / 8%);
   transform: translateY(-2px);
 }
@@ -155,9 +155,9 @@
   width: 38px;
   height: 38px;
 
-  color: #655f9f;
+  color: #277da9;
 
-  background: #f0eefb;
+  background: #e7f4fb;
   border-radius: 11px;
 }
 
@@ -249,14 +249,14 @@ html.dark .empty-state__suggestion {
 :root[data-theme="dark"] .empty-state__suggestion:hover,
 html.dark .empty-state__suggestion:hover {
   background: #273449;
-  border-color: #7776b8;
+  border-color: #3b9fd3;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 :root[data-theme="dark"] .empty-state__suggestion-icon,
 html.dark .empty-state__suggestion-icon {
   color: #a5b4fc;
-  background: #27243e;
+  background: #1c3a53;
 }
 
 :root[data-theme="dark"] .empty-state__suggestion-content strong,
@@ -292,13 +292,13 @@ html.dark .empty-state__suggestion-arrow {
 
   :root[data-theme="system"] .empty-state__suggestion:hover {
     background: #273449;
-    border-color: #7776b8;
+    border-color: #3b9fd3;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
   }
 
   :root[data-theme="system"] .empty-state__suggestion-icon {
     color: #a5b4fc;
-    background: #27243e;
+    background: #1c3a53;
   }
 
   :root[data-theme="system"] .empty-state__suggestion-content strong {

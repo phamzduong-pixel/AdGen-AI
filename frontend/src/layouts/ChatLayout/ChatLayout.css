@@ -116,9 +116,9 @@ html.dark .sidebar-footer__settings:hover {
 
 :root[data-theme="dark"] .conversation-item--selected,
 html.dark .conversation-item--selected {
-  color: #c7d2fe;
-  background: #27243e;
-  border-color: #56528e;
+  color: #cfe9f6;
+  background: #1c3a53;
+  border-color: #277da9;
 }
 
 :root[data-theme="dark"] .sidebar-user,
@@ -181,9 +181,9 @@ html.dark .conversation-search input {
   }
 
   :root[data-theme="system"] .conversation-item--selected {
-    color: #c7d2fe;
-    background: #27243e;
-    border-color: #56528e;
+    color: #cfe9f6;
+    background: #1c3a53;
+    border-color: #277da9;
   }
 
   :root[data-theme="system"] .sidebar-user,
@@ -305,4 +305,18 @@ html.dark .chat-layout__header::after {
 }
 .chat-layout__header::after {
   display: none;
+}
+
+/* Codex chat layout stability */
+.chat-layout,
+.chat-layout__main,
+.chat-layout__content,
+.chat-layout__footer {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .chat-layout__footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

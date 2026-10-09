@@ -44,8 +44,8 @@
   width: 38px;
   height: 38px;
   place-items: center;
-  color: #6b5599;
-  background: #f5f2fb;
+  color: #277da9;
+  background: #eef8fc;
   border-radius: 10px;
 }
 
@@ -132,8 +132,8 @@
 }
 
 :root[data-theme="dark"] .active-session__icon {
-  color: #c4b5fd;
-  background: #3c3962;
+  color: #93d0ea;
+  background: #243b53;
 }
 
 @media (max-width: 650px) {

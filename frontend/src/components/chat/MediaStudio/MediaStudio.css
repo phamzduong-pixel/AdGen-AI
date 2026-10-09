@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #56528e;
+  color: #277da9;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -41,7 +41,7 @@
 
 .media-studio textarea:focus,
 .media-studio select:focus {
-  border-color: #7776b8;
+  border-color: #3b9fd3;
   box-shadow: 0 0 0 3px rgb(119 118 184 / 12%);
 }
 
@@ -107,7 +107,7 @@
   color: white;
   font: inherit;
   font-weight: 700;
-  background: linear-gradient(135deg, #655f9f, #8067ad);
+  background: linear-gradient(135deg, #277da9, #3b9fd3);
   border: 0;
   border-radius: 9px;
   cursor: pointer;
@@ -296,7 +296,7 @@ html.dark .media-studio__asset {
 .media-studio__tabs button.is-active,
 .media-studio__tabs button:hover,
 .media-studio__secondary:hover {
-  color: #56528e;
+  color: #277da9;
   background: #fff;
   box-shadow: 0 1px 3px rgb(15 23 42 / 12%);
 }
@@ -338,7 +338,7 @@ html.dark .media-studio__asset {
 .media-studio__subtitle-row button { padding: 7px; color: #dc2626; background: transparent; border: 0; cursor: pointer; }
 .media-studio__merge-list { display: grid; gap: 6px; margin-top: 12px; color: #475569; font-size: 12px; }
 .media-studio__merge-list label { display: flex; gap: 6px; align-items: center; font-weight: 500; }
-.media-studio__asset.is-selected { border-color: #7776b8; box-shadow: 0 0 0 2px rgb(119 118 184 / 16%); }
+.media-studio__asset.is-selected { border-color: #3b9fd3; box-shadow: 0 0 0 2px rgb(119 118 184 / 16%); }
 .media-studio__asset video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #0f172a; object-fit: contain; }
 
 :root[data-theme="dark"] .media-studio__tabs,
@@ -398,9 +398,9 @@ html.dark .media-studio__subtitle-row input { color: #f8fafc; background: #0f172
 }
 
 .media-studio__image-status.is-processing {
-  color: #56528e;
-  background: #f0eefb;
-  border-color: #c7d2fe;
+  color: #277da9;
+  background: #e7f4fb;
+  border-color: #cfe9f6;
 }
 
 .media-studio__image-status.is-completed {
@@ -416,7 +416,7 @@ html.dark .media-studio__subtitle-row input { color: #f8fafc; background: #0f172
 }
 
 .media-studio__asset.is-latest {
-  border-color: #a1a3d4;
+  border-color: #9ccbe2;
   box-shadow: 0 0 0 2px rgb(119 118 184 / 14%);
 }
 
@@ -448,9 +448,9 @@ html.dark .media-studio__image-status {
 
 :root[data-theme="dark"] .media-studio__image-status.is-processing,
 html.dark .media-studio__image-status.is-processing {
-  color: #c7d2fe;
-  background: #27243e;
-  border-color: #56528e;
+  color: #cfe9f6;
+  background: #1c3a53;
+  border-color: #277da9;
 }
 
 :root[data-theme="dark"] .media-studio__image-status.is-completed,
