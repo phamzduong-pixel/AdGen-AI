@@ -14,6 +14,9 @@ from app.api.template import router as template_router
 from app.api.brand import router as brand_router
 from app.api.content_document import router as content_document_router
 from app.api.voiceover import router as voiceover_router
+from app.api.stt import router as stt_router
+from app.api.video_stt import router as video_stt_router
+from app.api.voice_conversion import router as voice_conversion_router
 from app.api.media import router as media_router
 from app.api.trend_report import router as trend_report_router
 from app.api.insight_campaign import router as insight_campaign_router
@@ -60,6 +63,9 @@ app.include_router(template_router)
 app.include_router(brand_router)
 app.include_router(content_document_router)
 app.include_router(voiceover_router)
+app.include_router(stt_router)
+app.include_router(video_stt_router)
+app.include_router(voice_conversion_router)
 app.include_router(media_router)
 app.include_router(trend_report_router)
 app.include_router(insight_campaign_router)

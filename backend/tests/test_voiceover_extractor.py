@@ -59,6 +59,10 @@ class VoiceoverScriptExtractorTests(unittest.TestCase):
         result = self.extract("VO: \"_Ưu đãi hôm nay!_\"")
         self.assertEqual(result.cleaned_script, "Ưu đãi hôm nay!")
 
+    def test_emoji_are_removed_from_filtered_dialogue(self):
+        result = self.extract("VO: Me chan ga \U0001F62B ngon qua!")
+        self.assertEqual(result.status, "success")
+        self.assertEqual(result.cleaned_script, "Me chan ga ngon qua!")
     def test_plain_non_script_stays_uncertain_not_success(self):
         result = self.extract("Đây là câu trả lời thông thường về cách xây dựng nội dung quảng cáo.")
         self.assertEqual(result.status, "uncertain")

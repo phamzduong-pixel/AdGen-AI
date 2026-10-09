@@ -89,6 +89,12 @@ class VoiceoverScriptExtractor:
         re.IGNORECASE,
     )
 
+    # Decorative emoji and variation selectors are not spoken dialogue. Remove
+    # them from the filtered script so they are not shown or passed to TTS.
+    EMOJI_PATTERN = re.compile(
+        r'[\U0001F000-\U0001FAFF\U0001FC00-\U0001FFFD'
+        r'\u2600-\u27BF\u200D\uFE0E\uFE0F]+'
+    )
     @classmethod
     def _clean_spoken_text(cls, text: str) -> str:
         """
@@ -103,6 +109,9 @@ class VoiceoverScriptExtractor:
 
         # Remove parenthetical acting notes e.g. (Giọng điệu lôi cuốn), (cười tươi)
         cleaned = cls.PARENTHESIS_PATTERN.sub('', cleaned)
+
+        # Emoji are visual decoration, not text that should be displayed/read.
+        cleaned = cls.EMOJI_PATTERN.sub("", cleaned)
 
         # Remove inline dialogue prefixes if repeated
         cleaned = re.sub(

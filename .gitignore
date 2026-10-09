@@ -37,3 +37,5 @@ frontend/dist/
 *.sqlite
 *.sqlite3
 backend/uploads/
+.codex-backups/
+*.codex-backups/

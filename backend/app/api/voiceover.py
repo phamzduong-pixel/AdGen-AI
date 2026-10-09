@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -14,6 +14,7 @@ from app.schemas.voiceover import (
     VoiceoverGenerateResponse,
 )
 from app.services.voiceover.voiceover_service import voiceover_service
+from app.services.voiceover.providers.vieneu_reference_provider import ReferenceVoiceError
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.database.database import get_db
@@ -33,7 +34,10 @@ async def list_available_voices():
     try:
         return await voiceover_service.get_available_voices()
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Không thể lấy danh sách giọng đọc: {error}") from error
+        raise HTTPException(
+            status_code=500,
+            detail="Không thể lấy danh sách giọng đọc.",
+        ) from error
 
 
 @router.post("/clean-script", response_model=CleanScriptResponse)
@@ -42,7 +46,10 @@ async def clean_script(request: CleanScriptRequest):
     try:
         return voiceover_service.clean_script(request.raw_script)
     except Exception as error:
-        raise HTTPException(status_code=400, detail=f"Lỗi xử lý kịch bản: {error}") from error
+        raise HTTPException(
+            status_code=400,
+            detail="Không thể xử lý kịch bản.",
+        ) from error
 
 
 @router.post("/generate", response_model=VoiceoverGenerateResponse)
@@ -84,9 +91,18 @@ async def generate_voiceover(
         db.add(record)
         db.commit()
         return response
+    except ReferenceVoiceError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=error.http_status,
+            detail={"code": error.code, "message": error.public_message},
+        ) from error
     except ValueError as error:
         db.rollback()
-        raise HTTPException(status_code=400, detail=str(error)) from error
+        raise HTTPException(
+            status_code=400,
+            detail="Nội dung voiceover không hợp lệ.",
+        ) from error
     except Exception as error:
         db.rollback()
         # Do not leave an unowned generated file if metadata persistence fails.
@@ -99,7 +115,57 @@ async def generate_voiceover(
         raise HTTPException(status_code=500, detail="Lỗi tạo voiceover hoặc lưu quyền sở hữu audio.") from error
 
 
-@router.api_route("/audio/{filename}", methods=["GET", "HEAD"])
+@router.post("/generate-reference", response_model=VoiceoverGenerateResponse)
+async def generate_reference_voiceover(
+    text: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate speech from text with a user-provided reference voice."""
+
+    try:
+        response = await voiceover_service.generate_reference_voiceover(
+            text=text,
+            reference_audio=file,
+        )
+        record = VoiceoverAudio(
+            audio_id=response.audio_id,
+            filename=f"{response.audio_id}.mp3",
+            user_id=current_user.id,
+            file_size_bytes=response.file_size_bytes,
+            duration_seconds=response.duration_seconds,
+            voice_id=response.voice_id,
+        )
+        db.add(record)
+        db.commit()
+        return response
+    except ReferenceVoiceError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=error.http_status,
+            detail={"code": error.code, "message": error.public_message},
+        ) from error
+    except ValueError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Nội dung voiceover không hợp lệ.",
+        ) from error
+    except Exception as error:
+        db.rollback()
+        audio_path = AUDIO_DIR / f"{getattr(locals().get('response', None), 'audio_id', '')}.mp3"
+        if audio_path.name != ".mp3":
+            try:
+                audio_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+        raise HTTPException(
+            status_code=500,
+            detail="Lỗi tạo voiceover hoặc lưu quyền sở hữu audio.",
+        ) from error
+
+@router.get("/audio/{filename}")
 async def get_audio_file(
     filename: str,
     download: bool = Query(False),
@@ -133,3 +199,13 @@ async def get_audio_file(
     disposition = "attachment" if download else "inline"
     headers = {"Content-Disposition": f'{disposition}; filename="{safe_filename}"'}
     return FileResponse(path=str(file_path), media_type="audio/mpeg", headers=headers)
+
+@router.head("/audio/{filename}", include_in_schema=False)
+async def head_audio_file(
+    filename: str,
+    download: bool = Query(False),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return the same ownership-checked headers as GET without an OpenAPI duplicate."""
+    return await get_audio_file(filename, download, db, current_user)

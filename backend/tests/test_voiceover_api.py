@@ -81,6 +81,45 @@ class VoiceoverOwnershipApiTest(unittest.TestCase):
         response = self.client.post("/voiceover/generate", json={"text": "hello"})
         self.assertEqual(response.status_code, 401)
 
+    def test_tts_error_details_do_not_expose_internal_exception_text(self):
+        voiceover_module = __import__(
+            "app.api.voiceover",
+            fromlist=["voiceover_service"],
+        )
+        with patch.object(
+            voiceover_module.voiceover_service,
+            "get_available_voices",
+            new=AsyncMock(side_effect=RuntimeError("secret internal path")),
+        ):
+            voices_response = self.client.get("/voiceover/voices")
+
+        with patch.object(
+            voiceover_module.voiceover_service,
+            "clean_script",
+            side_effect=RuntimeError("secret internal path"),
+        ):
+            clean_response = self.client.post(
+                "/voiceover/clean-script",
+                json={"raw_script": "hello"},
+            )
+
+        with patch.object(
+            voiceover_module.voiceover_service,
+            "generate_voiceover",
+            new=AsyncMock(side_effect=ValueError("secret internal path")),
+        ):
+            generate_response = self.client.post(
+                "/voiceover/generate",
+                json={"text": "hello"},
+            )
+
+        for response in (voices_response, clean_response, generate_response):
+            self.assertNotIn("secret internal path", response.text)
+
+        self.assertEqual(voices_response.status_code, 500)
+        self.assertEqual(clean_response.status_code, 400)
+        self.assertEqual(generate_response.status_code, 400)
+
     def test_owner_can_generate_stream_and_download_but_other_user_cannot(self):
         response = self._response()
         with patch("app.api.voiceover.AUDIO_DIR", self.audio_dir), patch.object(

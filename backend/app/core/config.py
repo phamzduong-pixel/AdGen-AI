@@ -42,11 +42,11 @@ def _allowed_origins() -> list[str]:
         parsed = urlparse(origin)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise RuntimeError(
-                "ALLOWED_ORIGINS chỉ chấp nhận URL http/https hợp lệ"
+                "ALLOWED_ORIGINS chá»‰ cháº¥p nháº­n URL http/https há»£p lá»‡"
             )
         if parsed.path not in {"", "/"} or parsed.params or parsed.query or parsed.fragment:
             raise RuntimeError(
-                "ALLOWED_ORIGINS không được chứa path, query hoặc fragment"
+                "ALLOWED_ORIGINS khÃ´ng Ä‘Æ°á»£c chá»©a path, query hoáº·c fragment"
             )
         if origin not in origins:
             origins.append(origin)
@@ -62,8 +62,14 @@ def _env_bool(name: str, default: bool) -> bool:
         return True
     if normalized in {"0", "false", "no", "off"}:
         return False
-    raise RuntimeError(f"{name} phải là true hoặc false")
+    raise RuntimeError(f"{name} pháº£i lÃ  true hoáº·c false")
 
+
+def _default_vieneu_path(*parts: str) -> str:
+    local_app_data = os.getenv("LOCALAPPDATA", "").strip()
+    if not local_app_data:
+        return ""
+    return str(Path(local_app_data).joinpath("AdGenAI", "experiments", "vieneu-tts", *parts))
 
 class Settings:
 
@@ -92,6 +98,70 @@ class Settings:
     OPENAI_IMAGE_MODEL = os.getenv(
         "OPENAI_IMAGE_MODEL", "gpt-image-2.5-sunburst"
     ).strip()
+    STT_PROVIDER = os.getenv("STT_PROVIDER", "").strip().lower()
+    STT_DEFAULT_LANGUAGE = os.getenv("STT_DEFAULT_LANGUAGE", "vi-VN").strip()
+    GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS", ""
+    ).strip()
+    GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "").strip()
+    STT_AUDIO_MAX_SIZE = int(
+        os.getenv("STT_AUDIO_MAX_SIZE", str(10 * 1024 * 1024))
+    )
+    STT_AUDIO_MAX_DURATION_SECONDS = float(
+        os.getenv("STT_AUDIO_MAX_DURATION_SECONDS", "60")
+    )
+    STT_PROVIDER_TIMEOUT_SECONDS = float(
+        os.getenv("STT_PROVIDER_TIMEOUT_SECONDS", "600")
+    )
+    VOSK_MODEL_PATH = os.getenv("VOSK_MODEL_PATH", "").strip()
+    VC_PROVIDER = os.getenv("VC_PROVIDER", "disabled").strip().lower()
+    VC_MODEL = os.getenv("VC_MODEL", "").strip()
+    VC_PROVIDER_TIMEOUT_SECONDS = float(
+        os.getenv("VC_PROVIDER_TIMEOUT_SECONDS", "120")
+    )
+    VC_AUDIO_MAX_SIZE_BYTES = int(
+        os.getenv("VC_AUDIO_MAX_SIZE_BYTES", str(10 * 1024 * 1024))
+    )
+    VC_AUDIO_MAX_DURATION_SECONDS = int(
+        os.getenv("VC_AUDIO_MAX_DURATION_SECONDS", "300")
+    )
+    VC_AUDIO_PROBE_TIMEOUT_SECONDS = float(
+        os.getenv("VC_AUDIO_PROBE_TIMEOUT_SECONDS", "5")
+    )
+    VC_OUTPUT_MAX_SIZE_BYTES = int(
+        os.getenv("VC_OUTPUT_MAX_SIZE_BYTES", str(50 * 1024 * 1024))
+    )
+    VC_PERSIST_OUTPUT = _env_bool("VC_PERSIST_OUTPUT", False)
+    SEED_VC_PYTHON = os.getenv(
+        "SEED_VC_PYTHON",
+        _default_vieneu_path("..", "seed-vc", "venv", "Scripts", "python.exe"),
+    ).strip()
+    SEED_VC_DIR = os.getenv(
+        "SEED_VC_DIR",
+        _default_vieneu_path("..", "seed-vc"),
+    ).strip()
+    SEED_VC_DIFFUSION_STEPS = int(os.getenv("SEED_VC_DIFFUSION_STEPS", "20"))
+    # Local reference-voice TTS runs in a separate CPU/ONNX environment.
+    VIENEU_PYTHON = os.getenv(
+        "VIENEU_PYTHON",
+        _default_vieneu_path("venv", "Scripts", "python.exe"),
+    ).strip()
+    VIENEU_CACHE_DIR = os.getenv(
+        "VIENEU_CACHE_DIR",
+        _default_vieneu_path("hf-cache"),
+    ).strip()
+    VIENEU_PROVIDER_TIMEOUT_SECONDS = float(
+        os.getenv("VIENEU_PROVIDER_TIMEOUT_SECONDS", "900")
+    )
+    VIENEU_REFERENCE_MAX_SIZE_BYTES = int(
+        os.getenv("VIENEU_REFERENCE_MAX_SIZE_BYTES", str(10 * 1024 * 1024))
+    )
+    VIENEU_REFERENCE_MAX_DURATION_SECONDS = float(
+        os.getenv("VIENEU_REFERENCE_MAX_DURATION_SECONDS", "60")
+    )
+    VIENEU_OUTPUT_MAX_SIZE_BYTES = int(
+        os.getenv("VIENEU_OUTPUT_MAX_SIZE_BYTES", str(50 * 1024 * 1024))
+    )
     IMAGE_GENERATION_TIMEOUT_SECONDS = int(
         os.getenv("IMAGE_GENERATION_TIMEOUT_SECONDS", "120")
     )
@@ -154,6 +224,12 @@ class Settings:
     )
 
     MAX_VIDEO_SIZE = int(os.getenv("MAX_VIDEO_SIZE", str(50 * 1024 * 1024)))
+    VIDEO_PROBE_TIMEOUT_SECONDS = float(
+        os.getenv("VIDEO_PROBE_TIMEOUT_SECONDS", "5")
+    )
+    VIDEO_AUDIO_EXTRACTION_TIMEOUT_SECONDS = float(
+        os.getenv("VIDEO_AUDIO_EXTRACTION_TIMEOUT_SECONDS", "60")
+    )
     MAX_VIDEO_DURATION_SECONDS = int(os.getenv("MAX_VIDEO_DURATION_SECONDS", "300"))
     MAX_VIDEO_GENERATION_DURATION_SECONDS = int(os.getenv("MAX_VIDEO_GENERATION_DURATION_SECONDS", "8"))
     FFMPEG_BINARY = os.getenv("FFMPEG_BINARY", "ffmpeg").strip()
@@ -203,16 +279,56 @@ class Settings:
             missing.append("DATABASE_URL")
         if missing:
             raise RuntimeError(
-                "Thiếu biến môi trường bắt buộc: " + ", ".join(missing)
+                "Thiáº¿u biáº¿n mÃ´i trÆ°á»ng báº¯t buá»™c: " + ", ".join(missing)
             )
         if "*" in self.ALLOWED_ORIGINS:
             raise RuntimeError(
-                "ALLOWED_ORIGINS không được dùng '*' khi cho phép credentials"
+                "ALLOWED_ORIGINS khÃ´ng Ä‘Æ°á»£c dÃ¹ng '*' khi cho phÃ©p credentials"
             )
         if self.MAX_UPLOAD_SIZE <= 0:
-            raise RuntimeError("MAX_UPLOAD_SIZE phải lớn hơn 0")
+            raise RuntimeError("MAX_UPLOAD_SIZE pháº£i lá»›n hÆ¡n 0")
+        if self.STT_AUDIO_MAX_SIZE <= 0:
+            raise RuntimeError("STT_AUDIO_MAX_SIZE pháº£i lá»›n hÆ¡n 0")
+        if self.STT_AUDIO_MAX_DURATION_SECONDS <= 0:
+            raise RuntimeError("STT_AUDIO_MAX_DURATION_SECONDS must be greater than 0")
+        if self.STT_PROVIDER_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("STT_PROVIDER_TIMEOUT_SECONDS pháº£i lá»›n hÆ¡n 0")
+        if self.STT_PROVIDER not in {"", "google-cloud", "vosk"}:
+            raise RuntimeError("STT_PROVIDER must be empty, 'google-cloud', or 'vosk'")
+        if self.VC_PROVIDER not in {"disabled", "elevenlabs", "azure", "seed-vc", "rvc"}:
+            raise RuntimeError(
+                "VC_PROVIDER must be disabled or a known provider identifier"
+            )
+        if self.VC_PROVIDER_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("VC_PROVIDER_TIMEOUT_SECONDS must be greater than 0")
+        if self.VC_AUDIO_MAX_SIZE_BYTES <= 0:
+            raise RuntimeError("VC_AUDIO_MAX_SIZE_BYTES must be greater than 0")
+        if self.VC_AUDIO_MAX_DURATION_SECONDS <= 0:
+            raise RuntimeError("VC_AUDIO_MAX_DURATION_SECONDS must be greater than 0")
+        if self.VC_AUDIO_PROBE_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("VC_AUDIO_PROBE_TIMEOUT_SECONDS must be greater than 0")
+        if self.VC_OUTPUT_MAX_SIZE_BYTES <= 0:
+            raise RuntimeError("VC_OUTPUT_MAX_SIZE_BYTES must be greater than 0")
+        if self.SEED_VC_DIFFUSION_STEPS <= 0:
+            raise RuntimeError("SEED_VC_DIFFUSION_STEPS must be greater than 0")
+        if self.VIENEU_PROVIDER_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("VIENEU_PROVIDER_TIMEOUT_SECONDS must be greater than 0")
+        if self.VIENEU_REFERENCE_MAX_SIZE_BYTES <= 0:
+            raise RuntimeError("VIENEU_REFERENCE_MAX_SIZE_BYTES must be greater than 0")
+        if self.VIENEU_REFERENCE_MAX_DURATION_SECONDS <= 0:
+            raise RuntimeError("VIENEU_REFERENCE_MAX_DURATION_SECONDS must be greater than 0")
+        if self.VIENEU_OUTPUT_MAX_SIZE_BYTES <= 0:
+            raise RuntimeError("VIENEU_OUTPUT_MAX_SIZE_BYTES must be greater than 0")
+        if self.VC_PERSIST_OUTPUT:
+            raise RuntimeError(
+                "VC_PERSIST_OUTPUT must remain false in the foundation checkpoint"
+            )
+        if self.VIDEO_PROBE_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("VIDEO_PROBE_TIMEOUT_SECONDS must be greater than 0")
+        if self.VIDEO_AUDIO_EXTRACTION_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError("VIDEO_AUDIO_EXTRACTION_TIMEOUT_SECONDS must be greater than 0")
         if self.IMAGE_GENERATION_TIMEOUT_SECONDS <= 0:
-            raise RuntimeError("IMAGE_GENERATION_TIMEOUT_SECONDS phải lớn hơn 0")
+            raise RuntimeError("IMAGE_GENERATION_TIMEOUT_SECONDS pháº£i lá»›n hÆ¡n 0")
         retrieval_values = {
             "EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS": self.EXTERNAL_RETRIEVAL_TIMEOUT_SECONDS,
             "EXTERNAL_RETRIEVAL_MAX_RESULTS": self.EXTERNAL_RETRIEVAL_MAX_RESULTS,
@@ -228,10 +344,10 @@ class Settings:
                 "External retrieval configuration is invalid: " + ", ".join(invalid_retrieval_values)
             )
         if not self.ALLOWED_ORIGINS:
-            raise RuntimeError("ALLOWED_ORIGINS phải có ít nhất một origin")
+            raise RuntimeError("ALLOWED_ORIGINS pháº£i cÃ³ Ã­t nháº¥t má»™t origin")
         if self.ENVIRONMENT not in {"development", "test", "production"}:
             raise RuntimeError(
-                "ENVIRONMENT phải là development, test hoặc production"
+                "ENVIRONMENT pháº£i lÃ  development, test hoáº·c production"
             )
         reset_values = {
             "SMTP_PORT": self.SMTP_PORT,
@@ -261,7 +377,7 @@ class Settings:
         ]
         if invalid_reset_values:
             raise RuntimeError(
-                "Các cấu hình phải lớn hơn 0: "
+                "CÃ¡c cáº¥u hÃ¬nh pháº£i lá»›n hÆ¡n 0: "
                 + ", ".join(invalid_reset_values)
             )
 
