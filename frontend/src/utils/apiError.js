@@ -39,6 +39,13 @@ export const getUserErrorMessage = (error, fallback) => {
     if (!navigator.onLine) {
       return "Bạn đang mất kết nối mạng. Hãy kiểm tra Internet.";
     }
+    // Axios timeout: error.code === 'ECONNABORTED'
+    if (
+      error?.code === "ECONNABORTED" ||
+      (error?.message && typeof error.message === "string" && error.message.toLowerCase().includes("timeout"))
+    ) {
+      return "Yêu cầu mất quá nhiều thời gian. Vui lòng thử lại hoặc kiểm tra kết nối mạng.";
+    }
     if (error?.message && typeof error.message === "string" && !error.message.includes("status code")) {
       return error.message;
     }
