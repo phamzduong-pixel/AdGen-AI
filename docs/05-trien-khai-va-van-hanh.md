@@ -16,7 +16,9 @@
 
 ### Backend tùy chọn
 
-`ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `GOOGLE_CLIENT_ID`, các biến `SMTP_*`, nhóm `PASSWORD_RESET_*`, nhóm `EMAIL_VERIFICATION_*` và `PORT`.
+`ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `GOOGLE_CLIENT_ID`, các biến `SMTP_*`, nhóm `PASSWORD_RESET_*`, nhóm `EMAIL_VERIFICATION_*`, `PORT`, nhóm `STT_*`/`VOSK_*`, `VIENEU_*`, `VC_*` và `SEED_VC_*`.
+
+Seed-VC chạy tách khỏi virtual environment API. Để bật Direct Voice Conversion trên CPU, đặt `VC_PROVIDER=seed-vc`, `SEED_VC_PYTHON` tới Python 3.10 của môi trường Seed-VC và `SEED_VC_DIR` tới checkout có `inference.py`. Adapter ép `CUDA_VISIBLE_DEVICES=-1` và `--fp16 false`. Thiếu bất kỳ thành phần nào thì endpoint fail-closed; không fallback sang transcript hoặc tạo audio giả.
 
 ### Frontend
 
@@ -86,6 +88,8 @@ npm run build
 
 AI tests dùng mock, không nên tiêu thụ Gemini quota. Migration production cần backup trước và chạy một lần trước khi chuyển traffic.
 
+Snapshot kiểm tra ngày 10/10/2026: backend 495 tests và 74 subtests PASS; frontend 68/68 tests, lint và production build PASS; OpenAPI có 97 paths; `/health`, CORS local, migration head, compileall, `pip check` và `git diff --check` PASS. Seed-VC inference thật chưa PASS trong máy local hiện tại vì chưa cấu hình `SEED_VC_PYTHON`/`SEED_VC_DIR`; preset Mạnh Dũng cũng cần bổ sung file `manh_dung_ref.wav` hợp lệ.
+
 ## 6.6. Vận hành an toàn
 
 - Cấu hình HTTPS cho frontend/backend public.
@@ -125,4 +129,6 @@ toàn cho mọi database đã phát hành.
 
 `backend/Dockerfile` chạy `python -m app.database.prepare_database` trước Uvicorn. Database rỗng được bootstrap từ schema đã validate; database canonical hiện hữu chỉ được kiểm tra; mọi schema legacy/lệch đều làm container dừng để tránh tự sửa dữ liệu. Database đã có dữ liệu cần nâng cấp phải chạy `alembic upgrade head` sau backup trước khi deploy. Không dùng `stamp`, `drop_all()` hoặc xóa database để vượt qua lỗi schema.
 
-Frontend dùng Node 22 và npm 10.9.2 để tạo lockfile ổn định. Render giữ `npm ci && npm run build`; chạy clean install/test/lint/build như hướng dẫn ở `docs/15-runtime-hardening-and-handoff.md`.
+Frontend dùng Node 22 và npm 10.9.2 để tạo lockfile ổn định. Render giữ `npm ci && npm run build`; chạy clean install/test/lint/build như hướng dẫn ở `docs/01-chuc-nang-he-thong.md`.
+
+Canonical migration head hiện tại là `20261006_0025_trend_report_history_soft_delete`. Trước deploy cần kiểm tra `alembic current`, `alembic heads`, `alembic check` và bảo đảm database đã ở đúng head; không stamp để che stale schema.

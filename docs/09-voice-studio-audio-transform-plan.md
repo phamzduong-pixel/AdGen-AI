@@ -4,10 +4,10 @@
 |---|---|
 | Plan | 18 |
 | Name | Voice Studio Audio Transform |
-| Status | DESIGN / NOT IMPLEMENTED |
+| Status | IMPLEMENTED / RUNTIME CONDITIONAL |
 | Created | 2026-10-06 |
 | Scope | AdGen Voice Studio |
-| Implementation | NOT STARTED |
+| Implementation | SOURCE + TEST FOUNDATION COMPLETE |
 
 ## 1. Mục tiêu và phạm vi
 
@@ -18,7 +18,7 @@ Tài liệu này định hướng mở rộng AdGen Voice Studio theo hai trục
 
 Chức năng Text → TTS hiện tại phải tiếp tục hoạt động. Voice Studio được mở rộng trong cùng UI hiện có, không tạo một ứng dụng voice riêng.
 
-Ở checkpoint này chỉ thiết kế và lập roadmap. Chưa triển khai upload audio, STT, voice conversion, voice cloning, provider mới, migration hoặc API mới.
+Plan đã đi qua giai đoạn thiết kế và có implementation cho audio/video input, STT, reference-voice TTS và Direct Voice Conversion Seed-VC. Trạng thái production vẫn có điều kiện vì model/runtime local phải được cài và xác minh riêng.
 
 ## 2. Trạng thái hiện tại
 
@@ -284,10 +284,16 @@ Plan này không bao gồm:
 
 ## Current Status
 
-- Plan created.
-- Existing Text → TTS Voice Studio improvements are complete: deterministic marker extraction, controlled no-marker fallback, shared clean/generate extraction contract, original/cleaned text toggle, light/dark theme compatibility and simplified mic icons.
-- The Audio Transform implementation described by this plan has not started.
-- Phase 0 audit pending.
-- Provider capability chưa được xác minh cho voice conversion, STT, voice cloning, custom voice hoặc speaker-conditioned TTS.
-- No backend/frontend/database/provider changes in this checkpoint.
-- No commit/push.
+- Cập nhật đồng bộ: 09/10/2026.
+- **Text → Edge TTS:** đã có và được giữ nguyên; hỗ trợ chỉnh sửa lời thoại, chọn giọng có sẵn, tốc độ đọc, nghe thử và tải audio.
+- **Content Source:** Voice Studio đã có hai lựa chọn `Văn bản quảng cáo` và `File giọng nói`. File audio/video được preview, thay/xóa và định tuyến theo loại media.
+- **Audio/Video → STT → TTS:** đã có foundation và contract API hiện hành: `/stt/transcribe` cho audio, `/stt/transcribe-video` cho video; transcript có thể chỉnh sửa trước khi tạo Edge TTS. Provider chưa sẵn sàng thì vẫn fail-closed, không tạo transcript giả.
+- **Local Vosk STT:** adapter, factory, validation/cleanup và test foundation đã có. Model Vosk được thiết kế ngoài repository; runtime còn phụ thuộc cấu hình `STT_PROVIDER`, model path và môi trường backend.
+- **Voice Source:** đã tách `Giọng có sẵn` và `Giọng tham chiếu của tôi`. Reference voice dùng endpoint `/voiceover/generate-reference`, hỗ trợ audio và video có audio, kiểm tra size/duration/codec, trích xuất PCM bằng FFmpeg và cleanup file tạm.
+- **VieNeu-TTS:** provider local CPU/ONNX được gọi qua worker môi trường riêng; đây là capability có điều kiện, không phải fallback tự động của Edge TTS. Runtime production/demo chỉ được coi là PASS sau khi xác minh model, worker, quyền đọc và một request thật.
+- **Voice Conversion trực tiếp:** đã có `SeedVCConverter`, reference manager, audio service, video extract/remux, các endpoint `/voice-conversion/convert-reference` và `/convert-reference-video`, cùng nhánh frontend khi file source không có transcript. Adapter chạy subprocess CPU-only và fail-closed.
+- **Preset reference:** mapping có Ngọc Huyền và Mạnh Dũng; repository hiện xác minh có `ngoc_huyen_ref.wav`, còn `manh_dung_ref.wav` chưa hiện diện nên preset Mạnh Dũng chưa thể chạy thật.
+- **UI/state hardening:** đã tinh chỉnh responsive/compact layout, source/voice tabs, trạng thái loading/error, stale-response guard, object URL cleanup và nhãn hiển thị theo thương hiệu AdGen AI.
+- **Kiểm thử frontend gần nhất:** 68/68 test pass, lint PASS, build PASS. Các test này không thay thế xác minh runtime provider local.
+- **Kiểm thử hệ thống 10/10/2026:** frontend 68/68 tests, lint và build PASS; backend 495 tests và 74 subtests PASS; OpenAPI 97 paths, health, CORS local, migration head, compile và dependency integrity PASS.
+- Các giới hạn còn lại: cần cấu hình/xác minh runtime Vosk/VieNeu/Seed-VC trong đúng môi trường triển khai, bổ sung `manh_dung_ref.wav`, dùng credentials/auth khi gọi endpoint bảo vệ và không coi mock/unit test là bằng chứng provider thật.

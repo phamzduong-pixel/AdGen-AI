@@ -8,7 +8,7 @@ AdGen AI giúp biến một ý tưởng hoặc brief thành nội dung quảng c
 
 ```text
 Hồ sơ thương hiệu → Mẫu quảng cáo / Chat → Thư viện → Chiến dịch
-                                  ↓
+                                 ↓
                          Đánh giá, chỉnh sửa, tạo biến thể
 ```
 
@@ -16,6 +16,12 @@ Hồ sơ thương hiệu → Mẫu quảng cáo / Chat → Thư viện → Chi�
 - Dùng **Chat** để tạo và hoàn thiện nội dung theo một yêu cầu cụ thể.
 - Lưu kết quả tốt vào **Thư viện** để tái sử dụng.
 - Gom các nội dung phục vụ cùng một mục tiêu vào **Chiến dịch**.
+
+Khi cần dùng dữ liệu xu hướng, quy trình mở rộng là:
+
+```text
+Báo cáo xu hướng → Độ tin cậy sản phẩm → Góc quảng cáo → Brief → Chiến dịch → Số liệu
+```
 
 ## New Chat và Chat
 
@@ -86,6 +92,16 @@ Hồ sơ thương hiệu → Mẫu quảng cáo / Chat → Thư viện → Chi�
 
 **Nên dùng khi:** Lần đầu thiết lập tài khoản, khi đổi nhu cầu làm việc hoặc khi cần quản lý bảo mật.
 
+## Báo cáo xu hướng / Trend Radar
+
+**Dùng để làm gì:** Theo dõi một chủ đề, thu thập Trend Report có nguồn, xem evidence và đánh giá mức độ đủ tin cậy trước khi chuyển insight thành nội dung quảng cáo.
+
+**Vai trò với người dùng:** Giúp phân biệt claim có bằng chứng với suy luận, cảnh báo dữ liệu stale/conflicting/insufficient và giữ provenance khi insight đi tiếp qua góc quảng cáo, brief, campaign và metric.
+
+**Nên dùng khi:** Bạn muốn tham khảo tín hiệu xu hướng trước khi xây dựng hoặc điều chỉnh một chiến dịch. Hãy đọc evidence và risk/action thay vì xem `verified` như “AI chắc chắn đúng”.
+
+**Quản lý lịch sử:** Có thể xóa từng Trend Report khỏi danh sách. Hệ thống dùng soft-delete để giữ downstream artifacts và provenance.
+
 ## Tính năng hỗ trợ trong luồng tạo nội dung
 
 Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp các công cụ hỗ trợ ngay trong Chat hoặc nội dung đã tạo:
@@ -117,4 +133,4 @@ Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp cá
 - Lưu nội dung tốt vào Thư viện và gắn vào Chiến dịch khi phù hợp để công việc dễ tìm, dễ bàn giao và dễ tái sử dụng hơn.
 - Khi dùng dữ liệu Trend Radar, hãy đọc evidence, warning và risk/action trước khi dùng claim trong quảng cáo.
 
-Xem hướng dẫn thao tác từng bước tại [16-huong-dan-su-dung-he-thong.md](./16-huong-dan-su-dung-he-thong.md).
+Xem hướng dẫn thao tác từng bước tại [01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md).

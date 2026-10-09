@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng hệ thống AdGen AI
 
-> Phiên bản tài liệu: 04/10/2026  
+> Phiên bản tài liệu: 07/10/2026
 > Phạm vi: các chức năng đang có trong frontend/backend của repository hiện tại.
 
 AdGen AI là trợ lý tạo và quản lý nội dung quảng cáo bằng AI. Người dùng có thể tạo nội dung theo hội thoại hoặc brief có cấu trúc, áp dụng quy chuẩn thương hiệu, đánh giá chất lượng, tạo biến thể, lưu thành thư viện, gom vào chiến dịch và tạo các tài sản media như ảnh, video hoặc voiceover.
@@ -170,13 +170,17 @@ Chọn một thương hiệu trước khi dùng chức năng này. Kết quả g
 
 Từ một phản hồi AI, chọn **Voiceover** để mở Voice Studio:
 
-1. Xác nhận hoặc chỉnh sửa lời thoại, tối đa 10.000 ký tự.
-2. Chọn giọng đọc được cung cấp, ví dụ Hoài My hoặc Nam Minh.
-3. Điều chỉnh tốc độ từ 0,8x đến 1,5x.
-4. Chọn **Tạo Voiceover**.
-5. Nghe thử file, xem thời lượng và tải audio xuống.
+1. Chọn **Nguồn nội dung**: **Văn bản quảng cáo** hoặc **File giọng nói**.
+2. Với văn bản, xác nhận hoặc chỉnh sửa lời thoại, tối đa 10.000 ký tự.
+3. Với file, chọn audio/video hợp lệ để preview; có thể bấm **Nhận dạng lời thoại**, kiểm tra và chỉnh sửa transcript trước khi tạo.
+4. Chọn **Nguồn giọng**: giọng có sẵn hoặc giọng tham chiếu nếu local provider đã sẵn sàng.
+5. Chọn tốc độ đọc khi dùng giọng có sẵn. Nếu muốn STT → TTS, giữ transcript đã nhận dạng/chỉnh sửa rồi bấm tạo.
+6. Nếu muốn đổi trực tiếp giọng của file mà không chuyển thành chữ, để transcript trống, chọn preset hoặc file giọng tham chiếu rồi bấm tạo. Audio được chuyển giọng; video được remux với track âm thanh đã chuyển.
+7. Khi tạo thành công, nghe thử file, xem thời lượng và tải kết quả xuống.
 
-Nếu mở Voice Studio từ nội dung có tệp/kịch bản, hệ thống có thể hỗ trợ làm sạch hoặc trích xuất kịch bản trước khi tạo audio. Hãy kiểm tra lại văn bản sau khi làm sạch vì tên riêng, số liệu và ký hiệu có thể cần sửa thủ công.
+Luồng file dùng `/stt/transcribe` cho audio và `/stt/transcribe-video` cho video khi người dùng chọn nhận dạng. Nếu transcript có nội dung, bước tạo dùng đúng transcript đó. Nếu transcript trống, frontend gọi `/voice-conversion/convert-reference` hoặc `/voice-conversion/convert-reference-video`; nhánh Direct Voice Conversion không tự tạo text. Provider chưa được cấu hình hoặc file vượt validation thì giao diện hiển thị lỗi và không tạo transcript/audio giả.
+
+Khi chọn **Giọng tham chiếu của tôi**, file audio hoặc video có track âm thanh được kiểm tra loại file, MIME/signature, dung lượng, thời lượng và cleanup. Với nội dung văn bản/transcript, luồng dùng VieNeu-TTS reference voice; với file source và transcript trống, luồng dùng Seed-VC. Hai runtime local này độc lập, nên trạng thái `Chưa khả dụng` của một provider không có nghĩa Edge TTS bị lỗi.
 
 ### 6.1. Văn bản gốc và văn bản đã lọc
 
@@ -188,6 +192,28 @@ Voice Studio ưu tiên nhận diện các marker lời thoại như **VO**, **L�
 - Nếu nhận diện không chắc chắn, hãy đọc lại và chỉnh sửa trực tiếp trước khi chọn **Tạo Voiceover**.
 
 Các tiêu đề, metadata, hướng dẫn và chỉ dẫn sản xuất như Visual, Camera, Nhạc, SFX hoặc Caption không được xem là lời thoại trừ khi người dùng giữ/chỉnh sửa chúng trong văn bản đang chọn.
+
+## 6.2. Trend Radar và Báo cáo xu hướng
+
+Mở **Báo cáo xu hướng** từ khu vực Chat để theo dõi một chủ đề và xem dữ liệu xu hướng có nguồn. Quy trình sử dụng:
+
+```text
+Nhập chủ đề cần theo dõi
+  → Thu thập
+  → tạo Trend Report / Snapshot
+  → kiểm tra claim, evidence, nguồn và Độ tin cậy sản phẩm
+  → nếu đủ điều kiện: Advertising Angle → Brief → Campaign → Metrics
+```
+
+- **Tất cả bằng chứng**: dùng mọi evidence hợp lệ theo đánh giá trust của backend.
+- **Chỉ bằng chứng đã xác minh**: chỉ dùng evidence có verification basis hợp lệ; không phải điểm tự tin của AI.
+- Ô URL và **Tin cậy** dùng để cấu hình source policy cho tài khoản hiện tại.
+- **Loại trừ** loại nguồn khỏi trust assessment; source mặc định/chưa cấu hình không tự động được xem là trusted.
+- Đây là chính sách nguồn, không phải ô nhập sản phẩm để tìm trend.
+
+Trend Report có thể hiển thị trạng thái verified, partial, unverified, contradicted hoặc insufficient cùng evidence, source, freshness, conflict, risk/action và warning. EMPTY/ERROR hoặc dữ liệu không đủ không được trình bày như bằng chứng mới.
+
+Trong quy trình theo dõi, Snapshot SUCCESS hợp lệ mới có thể tạo/cập nhật Alert. Alert hỗ trợ xu hướng mới/tăng đột biến và lifecycle **Mới → Đang hoạt động → Đã xử lý**. Người dùng có thể xóa một bản ghi lịch sử Trend Report; thao tác này chỉ ẩn bản ghi bằng soft-delete, không xóa campaign, metric hoặc provenance downstream.
 
 ## 7. Media Studio: ảnh và video
 
@@ -464,7 +490,7 @@ Tài liệu này mô tả cách dùng giao diện và hành vi theo source hiệ
 - Chỉnh sửa video thực tế phụ thuộc FFmpeg/FFprobe.
 - File upload cần persistent disk hoặc object storage khi triển khai lâu dài.
 
-Khi thay đổi route, label, giới hạn file, provider hoặc nghiệp vụ, cần cập nhật tài liệu này cùng với [docs/07-quy-uoc-dong-bo-tai-lieu.md](./07-quy-uoc-dong-bo-tai-lieu.md).
+Khi thay đổi route, label, giới hạn file, provider hoặc nghiệp vụ, cần cập nhật tài liệu này cùng với [docs/01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md).
 
 ## Ghi chu cap nhat giao dien — 05/10/2026
 

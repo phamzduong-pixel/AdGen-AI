@@ -11,6 +11,7 @@ Tất cả endpoint ngoài `/` và `/health` cần JWT theo `get_current_user`, 
 | `/conversations` | CRUD, pin, title, brand | `POST`, `GET`, `PUT`, `DELETE`, các `PATCH` |
 | `/messages` | message, history, stream, regenerate | `POST`, `GET /{conversation_id}`, `POST /stream`, `PUT /{message_id}/stream` |
 | `/uploads` | upload/list/download/delete | `POST /{conversation_id}`, `GET /file/{id}/download` |
+| `/media` | media asset/job, generation, edit, versions và download | create/edit/status/download/delete asset theo contract Media Studio |
 | `/brands` | brand profile, asset, consistency | CRUD, check, upload/download asset |
 | `/templates` | system/custom template, favorite | CRUD custom, favorite/unfavorite |
 | `/saved-contents` | lưu, đọc, xóa content | create/list/delete |
@@ -18,7 +19,11 @@ Tất cả endpoint ngoài `/` và `/health` cần JWT theo `get_current_user`, 
 | `/contents` | editor document/version/rewrite | CRUD, versions, restore, rewrite |
 | `/campaigns` | campaign và content links | CRUD, add/remove, primary content |
 | `/dashboard` | summary/activity/platform usage | `GET /summary`, `/activity`, `/platform-usage` |
-| `/voiceover` | voices, clean script, generate audio | `GET /voices`, `POST /clean-script`, `/generate` |
+| `/voiceover` | voices, clean script, system/reference TTS và protected audio | `GET /voices`, `POST /clean-script`, `/generate`, `/generate-reference`, `GET/HEAD /audio/{filename}` |
+| `/stt` | nhận dạng lời nói từ audio/video | `POST /transcribe`, `POST /transcribe-video` |
+| `/voice-conversion` | Direct Voice Conversion và video remux | `POST /convert`, `/convert-reference`, `/convert-reference-video` |
+| `/trend-reports` | retrieve/list/get/delete Trend Report, trust summary, source policy | `POST /retrieve`, `POST`, `GET`, `DELETE /{report_key}`, `GET /{report_key}/trust`, `GET/PUT /source-policies` |
+| `/insight-campaign` | Trend Monitor/Snapshot/Alert overview, Brief, Campaign và metric snapshot | `GET /overview`, `POST /advertising-angles/{id}/brief`, `POST /briefs/{id}/campaign`, `GET/POST /campaigns/{id}/metric-snapshots` |
 
 Danh sách chi tiết nên kiểm tra trực tiếp trong `backend/app/api/`; bảng trên là bản đồ nghiệp vụ, không thay thế OpenAPI.
 
@@ -31,6 +36,7 @@ Danh sách chi tiết nên kiểm tra trực tiếp trong `backend/app/api/`; b�
 - Stream dùng Fetch API để đọc body từng chunk và hỗ trợ AbortController.
 - Response lỗi được chuẩn hóa qua `frontend/src/utils/apiError.js`.
 - Voiceover dùng cùng contract trích xuất `VoiceoverScriptExtractor` cho bước làm sạch script và generation; frontend giữ riêng văn bản gốc/văn bản đã lọc khi người dùng chuyển phiên bản trong Voice Studio.
+- Khi chế độ file có transcript, frontend gửi đúng transcript hiện tại sang TTS. Khi transcript trống, `voiceoverApi.js` gọi Direct Voice Conversion bằng file source và preset/custom reference; không tự tạo text.
 
 ## 5.3. Route giao diện
 
@@ -53,7 +59,8 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 | Score/variants | `contentToolsApi` | content |
 | Dashboard | `dashboardApi` | dashboard |
 | Attachments | `uploadApi` | uploads |
-| Voiceover modal | `voiceoverApi` | voiceover |
+| Voiceover modal | `voiceoverApi` | voiceover, stt, voice-conversion |
+| Trend Report panel | `trendReportApi`, `trendReportMessage`, `trendReportTrust`, `trendReportSourceStatus` | trend-reports, insight-campaign |
 
 ## 5.5. Bảo mật tích hợp
 
@@ -61,6 +68,8 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 - Google credential chỉ gửi backend để verify; không lưu credential Google trong local storage.
 - File download phải đi qua endpoint protected.
 - Backend luôn lọc dữ liệu theo `current_user.id`; frontend không được xem ID là quyền truy cập.
+- Trend Report delete là soft-delete theo owner; downstream evidence, angle, brief, campaign và metric snapshot không bị xóa theo lịch sử hiển thị.
+- Trend Report panel nằm trong Chat, không phải một search engine độc lập; Product Trust/backend là nguồn sự thật cho status, evidence, policy và action.
 
 ## 5.6. Contract nền tảng
 

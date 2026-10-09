@@ -13,11 +13,11 @@ Tài liệu phải mô tả hành vi đã có trong mã nguồn, không mô tả
 
 | Thay đổi | Tài liệu cần xem lại |
 | --- | --- |
-| Thêm/sửa endpoint | `05-api-va-frontend.md`, `02-chuc-nang-he-thong.md` |
-| Thêm/sửa AI/prompt | `03-luong-xu-ly-ai.md`, `02-chuc-nang-he-thong.md` |
-| Thêm model/migration | `04-co-so-du-lieu.md` |
-| Thêm page/hook/API client | `05-api-va-frontend.md`, `02-chuc-nang-he-thong.md` |
-| Đổi env/deploy/runtime | `01-tong-quan-he-thong.md`, `06-trien-khai-va-van-hanh.md` |
+| Thêm/sửa endpoint | `01-chuc-nang-he-thong.md`, `04-api-va-frontend.md` |
+| Thêm/sửa AI/prompt | `01-chuc-nang-he-thong.md`, `02-luong-xu-ly-ai.md` |
+| Thêm model/migration | `03-co-so-du-lieu.md` |
+| Thêm page/hook/API client | `01-chuc-nang-he-thong.md`, `04-api-va-frontend.md` |
+| Đổi env/deploy/runtime | `00-tong-quan-he-thong.md`, `05-trien-khai-va-van-hanh.md` |
 | Đổi security/giới hạn | tài liệu liên quan và mục giới hạn |
 
 ## 7.3. Checklist cập nhật
@@ -45,7 +45,14 @@ rg --files docs
 rg -n "@router|__tablename__|revision:|VITE_|GEMINI_|DATABASE_URL" backend frontend docker-compose.yml render.yaml
 ```
 
-Sau đó chạy các lệnh trong [06-trien-khai-va-van-hanh.md](./06-trien-khai-va-van-hanh.md). Nếu endpoint hoặc table mới chưa được phản ánh, cập nhật tài liệu cùng commit với thay đổi code.
+Sau đó chạy các lệnh trong [05-trien-khai-va-van-hanh.md](./05-trien-khai-va-van-hanh.md). Nếu endpoint hoặc table mới chưa được phản ánh, cập nhật tài liệu cùng thay đổi code.
+
+## 7.7. Snapshot đồng bộ hiện tại — 10/10/2026
+
+- Canonical application schema: 34 bảng, Alembic head `20261006_0025`.
+- Plan 17 Trend Radar: Stage 1–4 hoàn thành trong phạm vi implementation hiện tại; provider thật, production scheduler và notification provider vẫn là giới hạn nếu chưa có bằng chứng runtime riêng.
+- Voice Studio: Text → TTS, STT → TTS, reference-voice TTS và Seed-VC Direct Voice Conversion integration đã có; provider runtime thật vẫn phải được báo cáo tách khỏi mock/unit tests.
+- Khi cập nhật Trend Radar hoặc Voice Studio, xem đồng thời `00`–`09` và tài liệu chức năng/API/vận hành tương ứng.
 ## 7.6. Cleanup filesystem — 30/09/2026
 
 Đã rà soát reference trong toàn workspace và thực hiện cleanup an toàn, không refactor code, không thay đổi API, AI pipeline, migration hoặc dữ liệu người dùng.

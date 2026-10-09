@@ -1,8 +1,8 @@
-﻿# AdGen AI — Báo cáo tổng hợp hệ thống
+# AdGen AI — Báo cáo tổng hợp hệ thống
 
-> Cập nhật: 06/10/2026
+> Cập nhật: 09/10/2026
 > Phạm vi: source code và kết quả kiểm thử hiện có trong repository  
-> Trạng thái tổng thể: **Code local ổn định trong phạm vi đã kiểm tra; runtime provider và PostgreSQL vẫn cần xác minh riêng**.
+> Trạng thái tổng thể: **Voice Studio đã có foundation cho text/file STT-TTS và reference-voice local; runtime provider thật vẫn cần xác minh riêng**. Alembic source head hiện tại: `20261006_0025`.
 
 ## 1. Mục đích sản phẩm
 
@@ -19,6 +19,8 @@ Người dùng → React UI → API FastAPI → Service/domain logic
                          ├─ Gemini/OpenAI image provider
                          ├─ Gemini video provider
                          ├─ Edge TTS provider
+                         ├─ Local STT provider (Vosk / Google fail-closed)
+                         ├─ VieNeu-TTS local reference-voice worker (optional)
                          └─ Local file storage / media assets
 ```
 
@@ -31,7 +33,9 @@ Người dùng → React UI → API FastAPI → Service/domain logic
 | AI text | Gemini service, prompt/context pipeline | `backend/app/services/ai_service.py`, `backend/app/prompts/` |
 | AI image | Provider adapter Gemini/OpenAI | `backend/app/services/media/providers/` |
 | AI video | Gemini Veo adapter và MediaJob | `backend/app/services/media/` |
-| TTS | `edge-tts`, mock provider | `backend/app/services/voiceover/` |
+| TTS | `edge-tts`, VieNeu-TTS reference-voice worker, mock provider | `backend/app/services/voiceover/` |
+| STT | Vosk local adapter, Google Cloud adapter fail-closed | `backend/app/services/stt/`, `backend/app/api/stt.py`, `backend/app/api/video_stt.py` |
+| Voice conversion | Contract foundation, provider mặc định `disabled` | `backend/app/services/voice_conversion/`, `backend/app/api/voice_conversion.py` |
 | Database | SQLite local/test, PostgreSQL production mục tiêu | `backend/app/database/`, `backend/alembic/` |
 | File storage | Local upload directory | `backend/uploads/`, storage/media services |
 | Deployment | Dockerfile, Compose, Nginx, Render config | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `render.yaml` |
@@ -48,7 +52,7 @@ Các nhóm source quan trọng:
 - `backend/app/api/`: router HTTP.
 - `backend/app/schemas/`: request/response contract.
 - `backend/app/models/`: SQLAlchemy models và quan hệ dữ liệu.
-- `backend/app/services/`: nghiệp vụ, AI, media, auth, storage, voiceover.
+- `backend/app/services/`: nghiệp vụ, AI, media, auth, storage, voiceover, STT, video-to-STT, voice studio và voice conversion.
 - `backend/tests/` và `frontend/tests/`: kiểm thử tự động.
 
 ## 3. Chức năng sản phẩm
@@ -96,17 +100,37 @@ Các nhóm source quan trọng:
 
 ### Voice Studio
 
-- Trích xuất và làm sạch script thoại.
-- Ưu tiên parser theo marker `VO`, `Lời thoại`, `Narration`, `Voiceover`, `MC`, `Host` và các biến thể tương đương.
-- Có fallback heuristic có kiểm soát cho kịch bản thoại tự nhiên không có marker; giữ nguyên thứ tự/nội dung ứng viên, không rewrite hoặc tự thêm câu.
-- Loại phần giới thiệu, heading, metadata, markdown và chỉ dẫn sản xuất rõ ràng trước khi đưa vào vùng văn bản đọc.
-- `/voiceover/clean-script` và `/voiceover/generate` dùng chung contract `VoiceoverScriptExtractor` cho việc làm sạch/trích xuất.
-- Voice Studio giữ đồng thời văn bản gốc và văn bản đã lọc; người dùng có thể chuyển qua lại nhiều lần mà không làm mất bản đã lọc hoặc thay đổi ngoài ý muốn.
-- Chọn voice/language.
-- Tổng hợp audio qua Edge TTS.
-- Kiểm tra output non-empty và cleanup file tạm khi provider lỗi hoặc output không hợp lệ.
-- Có mock provider để kiểm thử offline.
-- Modal và Audio Player dùng icon mic dạng nét đơn giản, đồng bộ light/dark theme hiện tại.
+- Trích xuất và làm sạch script thoại deterministic.
+- Ưu tiên parser theo marker `VO`, `Lời thoại`, `Narration`, `Voiceover`, `MC`, `Host` và có fallback heuristic có kiểm soát cho kịch bản thoại tự nhiên không có marker; không rewrite hoặc tự thêm lời thoại.
+- Giữ riêng văn bản gốc và văn bản đã lọc; người dùng có thể chuyển qua lại, chỉnh sửa và xác nhận nội dung trước khi tạo audio.
+- Có hai **Content Source**: `Văn bản quảng cáo` và `File giọng nói`. File audio/video được preview, thay/xóa và định tuyến theo loại media.
+- Nút **Nhận dạng lời thoại** chỉ gọi STT và điền transcript; nút tạo giọng đọc mới thực hiện TTS từ nội dung đã xác nhận. Khi transcript/provider lỗi, hệ thống không tạo transcript hoặc audio giả.
+- Audio content dùng `POST /stt/transcribe`; video content dùng `POST /stt/transcribe-video`. Backend validate kích thước, MIME/signature, container/codec, duration, audio stream, FFmpeg/FFprobe, timeout và cleanup trước/sau xử lý theo contract hiện có.
+- STT factory hỗ trợ provider `vosk` local khi package/model path hợp lệ; thiếu cấu hình, package hoặc model thì trả `UnavailableSTTProvider` theo fail-closed. Google Cloud adapter vẫn không được coi là runtime đã xác minh.
+- Có hai **Voice Source**: `Giọng có sẵn` qua Edge TTS và `Giọng tham chiếu của tôi` qua `POST /voiceover/generate-reference`.
+- Reference voice hỗ trợ file audio và video có track âm thanh; backend kiểm tra extension/MIME/signature, size/duration/codec, dùng FFmpeg trích xuất PCM mono 16 kHz và cleanup file tham chiếu/tạm. Audio kết quả được kiểm tra trước khi trả playback/download.
+- VieNeu-TTS được gọi qua worker CPU/ONNX ở môi trường riêng ngoài `backend/venv`; provider chỉ hoạt động khi Python worker, model cache và các asset cần thiết sẵn sàng. Đây là reference-voice TTS, không phải Direct Voice Conversion.
+- Direct Voice Conversion có các endpoint Seed-VC cho audio/video, preset/custom reference và video remux. Nhánh này chỉ chạy khi `VC_PROVIDER=seed-vc` cùng runtime ngoài repository được cấu hình; nếu thiếu sẽ fail-closed và không tự động fallback sang STT/TTS.
+- Frontend đã có responsive/compact layout, light/dark compatibility, loading/error state, stale-response guard, object URL cleanup và nhãn hiển thị theo thương hiệu AdGen AI.
+
+### Trạng thái kiểm chứng Voice Studio
+
+| Hạng mục | Trạng thái hiện tại |
+| --- | --- |
+| Text → Edge TTS | Có implementation; targeted/frontend checks đã đạt; real provider từng được xác minh ở checkpoint trước |
+| Audio → STT → Edge TTS | Có endpoint, validation, Vosk adapter và UI flow; authenticated E2E cần xác minh theo môi trường đang chạy |
+| Video → STT → Edge TTS | Có validation/extraction/endpoint và UI routing; runtime provider thật chưa được coi là PASS |
+| Text + reference audio/video → VieNeu-TTS | Có endpoint/provider worker/validation foundation; phụ thuộc môi trường model riêng, chưa mặc định production-ready |
+| Direct Voice Conversion | Seed-VC source/API/UI integration đã có; runtime thật chưa PASS do thiếu cấu hình môi trường/model/reference đầy đủ |
+
+### Trend Radar và Insight-to-Campaign
+
+- Thu thập Trend Report có evidence/provenance, source status, stale/conflict metadata và Product Trust.
+- Source policy theo user hỗ trợ `trusted`/`excluded`; `verified_only` chỉ dùng evidence đạt verification contract, không dựa trên LLM confidence.
+- Trend Monitor lưu query, cadence, timezone, next run và Trend Snapshot; luồng manual/due run giữ idempotency theo `run_key`.
+- Alert Engine xử lý `TREND_NEW` và `TREND_SPIKE` theo lifecycle `NEW → ACTIVE → RESOLVED`; chỉ SUCCESS hợp lệ được đánh giá, EMPTY/ERROR không tạo hoặc resolve alert.
+- Advertising Angle được tạo từ claim/evidence đủ điều kiện; Brief quảng cáo, Campaign và Campaign Metric Snapshot giữ provenance và ownership.
+- Lịch sử Trend Report hỗ trợ xóa an toàn bằng soft-delete `deleted_at`; evidence và downstream artifacts không bị cascade-delete.
 
 ## 4. Generative AI và provider
 
@@ -234,8 +258,10 @@ Database mới đã được bootstrap và xác minh:
 ```text
 schema_status = PASS
 state         = MANAGED_CANONICAL_SCHEMA
-revision      = 20261001_0016
+revision      = 20261006_0025
 ```
+
+Canonical manifest hiện mô tả **34 bảng ứng dụng** và bảng điều khiển `alembic_version`; runtime chỉ khởi động khi schema vật lý, marker và migration head khớp.
 
 Database cũ `backend/chatbot.db` được giữ nguyên. Nó có marker
 `20260727_0008` nhưng schema mismatch, nên runtime guard từ chối khởi động trên
@@ -243,7 +269,7 @@ file này để bảo vệ dữ liệu. Không được tự ý stamp hoặc ch�
 
 ### Migration history cần lưu ý
 
-Chuỗi `20260727_0001` đến `20261001_0016` còn vấn đề lịch sử:
+Chuỗi lịch sử từ `20260727_0001` đến `20261001_0016` còn vấn đề:
 
 - `0001` gọi `Base.metadata.create_all()` và tạo trước một phần schema thuộc các
   revision sau.
@@ -251,6 +277,8 @@ Chuỗi `20260727_0001` đến `20261001_0016` còn vấn đề lịch sử:
 - Các revision sau còn nguy cơ duplicate column/table/index tùy trạng thái schema.
 - SQLite disposable đã tái hiện lỗi từ database rỗng tại `0008`.
 - Không rewrite migration history vì chưa xác định được database nào đã dùng revision.
+
+Các migration sau đó đã được nối tuần tự từ `20261003_0017` đến `20261006_0025`, gồm ownership audio Voice Studio, Trend Report evidence/source status, Product Trust, Monitor/Snapshot, Alert, Advertising Angle, Brief/Metric và soft-delete lịch sử Trend Report.
 
 Đường hỗ trợ local hiện tại là bootstrap explicit. PostgreSQL disposable và chiến
 lược migration legacy production vẫn cần checkpoint riêng.
@@ -311,7 +339,18 @@ Không ghi secret thật vào tài liệu hoặc repository. Các biến quan tr
 | `UPLOAD_DIR` | Thư mục lưu file |
 | `VITE_API_URL` | Backend URL của frontend |
 | `SMTP_*` | Email verification/password reset |
-| `FFMPEG_BINARY` / `FFPROBE_BINARY` | Binary xử lý video |
+| `STT_PROVIDER` | `vosk`, `google-cloud` hoặc rỗng để fail-closed |
+| `STT_DEFAULT_LANGUAGE` | Ngôn ngữ STT mặc định, hiện là `vi-VN` |
+| `STT_AUDIO_MAX_SIZE` / `STT_AUDIO_MAX_DURATION_SECONDS` | Giới hạn upload audio trực tiếp |
+| `STT_PROVIDER_TIMEOUT_SECONDS` | Timeout provider STT |
+| `VOSK_MODEL_PATH` | Model Vosk local; nếu rỗng dùng đường dẫn mặc định ngoài repository trên Windows |
+| `VC_PROVIDER` / `VC_MODEL` | Provider/model voice conversion; mặc định provider là `disabled` |
+| `VC_AUDIO_MAX_SIZE_BYTES` / `VC_AUDIO_MAX_DURATION_SECONDS` | Giới hạn input voice conversion |
+| `VIENEU_PYTHON` / `VIENEU_CACHE_DIR` | Python worker và cache model VieNeu-TTS riêng |
+| `VIENEU_PROVIDER_TIMEOUT_SECONDS` | Timeout worker reference voice |
+| `VIENEU_REFERENCE_MAX_SIZE_BYTES` / `VIENEU_REFERENCE_MAX_DURATION_SECONDS` | Giới hạn file reference voice |
+| `VIENEU_OUTPUT_MAX_SIZE_BYTES` | Giới hạn audio output reference voice |
+| `FFMPEG_BINARY` / `FFPROBE_BINARY` | Binary xử lý audio/video và probing |
 
 ## 9. Kiểm thử và bằng chứng hiện có
 
@@ -320,12 +359,16 @@ Các kết quả đã xác minh gần nhất:
 - Backend targeted regression Plan 09: **74 passed**, 1 warning deprecation
   từ Starlette/httpx.
 - Schema manifest/state/bootstrap tests: PASS.
-- Explicit SQLite bootstrap: PASS tại `20261001_0016`.
+- Explicit SQLite bootstrap/runtime validation: PASS; managed local database hiện ở revision `20261006_0025`.
 - FastAPI startup trên database mới: PASS.
 - `GET /health`: HTTP 200.
 - Demo login qua API: HTTP 200 và token được cấp; token không in vào log.
 - TTS focused tests: PASS; real Edge TTS ngắn đã từng thành công.
 - Frontend `npm run build`: PASS.
+- Plan 17 Trend Radar: Stage 1–4 đã hoàn thành; targeted/regression tests, schema validation và migration head đã được kiểm tra theo các checkpoint.
+- Frontend Voice Studio/Trend Radar hiện có lint, test và production build theo các checkpoint tương ứng.
+- Voice Studio targeted suites gồm `test_stt_api.py`, `test_video_to_stt.py`, `test_vosk_stt.py`, `test_vieneu_reference_api.py`, `test_voiceover_api.py`, cùng các contract test frontend cho audio/video/file input và modal.
+- Frontend Voice Studio gần nhất: **68/68 tests pass**, `npm run lint` PASS và `npm run build` PASS.
 - Python compile check: PASS.
 - Frontend user message alignment: đã sửa và build PASS.
 
@@ -369,9 +412,14 @@ database, cần đăng ký lại tài khoản demo.
 - Auth: `backend/app/api/auth.py`, `backend/app/services/auth_service.py`
 - Chat: `backend/app/api/message.py`, `backend/app/services/`
 - Media API: `backend/app/api/media.py`, `backend/app/services/media/`
-- Voiceover: `backend/app/api/voiceover.py`, `backend/app/services/voiceover/`
+- Voiceover: `backend/app/api/voiceover.py`, `backend/app/services/voiceover/`, `backend/app/services/voiceover/providers/vieneu_reference_provider.py`, `backend/app/services/voiceover/providers/vieneu_worker.py`
+- STT/audio/video: `backend/app/api/stt.py`, `backend/app/api/video_stt.py`, `backend/app/services/stt/`, `backend/app/services/voice_studio/`
+- Voice conversion foundation: `backend/app/api/voice_conversion.py`, `backend/app/services/voice_conversion/`
+- Trend Radar: `backend/app/api/trend_report.py`, `backend/app/api/insight_campaign.py`, `backend/app/services/trend_report_service.py`, `backend/app/services/trend_monitor_service.py`, `backend/app/services/trend_alert_service.py`, `backend/app/services/advertising_angle_service.py`, `backend/app/services/insight_campaign_service.py`
+- Trend Radar models: `backend/app/models/trend_report.py`, `trend_monitor.py`, `trend_alert.py`, `advertising_angle.py`, `advertising_brief.py`, `evidence_source_policy.py`
 - Frontend chat bubble: `frontend/src/components/chat/MessageBubble/`
 - Frontend API clients: `frontend/src/services/api/`
+- Trend Radar UI: `frontend/src/components/chat/TrendReportPanel/`, `frontend/src/services/api/trendReportApi.js`, `frontend/src/utils/trendReport*.js`
 - Tests: `backend/tests/`, `frontend/tests/`
 - Deployment: `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`,
   `render.yaml`
@@ -461,7 +509,7 @@ Upload hỗ trợ tài liệu DOCX/PDF/TXT, ảnh JPEG/JPG/PNG/WEBP và video MP
 - `frontend/src/pages/`, `frontend/src/components/`, `frontend/src/hooks/`, `frontend/src/services/api/`: giao diện, trạng thái và client API.
 - `backend/app/api/`: router HTTP theo domain.
 - `backend/app/schemas/`, `backend/app/models/`: hợp đồng request/response và dữ liệu SQLAlchemy.
-- `backend/app/services/`: AI, auth, storage, conversation, content, brand, campaign, media và voiceover.
+- `backend/app/services/`: nghiệp vụ, AI, media, auth, storage, voiceover, STT, video-to-STT, voice studio và voice conversion.
 - `backend/app/database/`, `backend/alembic/`: database engine, schema guard và migration.
 - `backend/tests/`, `frontend/tests/`: kiểm thử backend/frontend.
 
@@ -471,23 +519,43 @@ Các phase Image, Technical Video Editing, AI Video Generation foundation và Co
 
 Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local/demo một instance; upload production cần persistent disk hoặc object storage; stream chưa đồng nhất hoàn toàn với non-stream; quota/rate limit Gemini và media cần được cấu hình khi triển khai rộng.
 
-## 18. Cập nhật Voice Studio và phạm vi kế hoạch mở rộng (06/10/2026)
+## 18. Cập nhật Voice Studio và trạng thái Plan 18 (10/10/2026)
 
-Các cải thiện đã hoàn thành trong Voice Studio hiện hữu:
+### Đã hoàn thành trong source
 
-- Trích xuất lời thoại deterministic với marker path và fallback có kiểm soát cho script tự nhiên không có marker.
-- Giữ nguyên placeholder, thứ tự và nội dung được chọn; không dùng LLM để rewrite hoặc bịa thêm lời thoại.
-- Có trạng thái/warning phù hợp khi fallback chưa chắc chắn hoặc không tìm thấy cấu trúc thoại.
-- Toggle hai chiều giữa **Văn bản đã lọc** và **Văn bản gốc**; mỗi phiên bản có state riêng, việc chỉnh sửa phiên bản này không ghi đè phiên bản kia.
-- Giao diện Voice Studio tương thích light/dark theme của ứng dụng; modal và Audio Player dùng icon mic nét đơn giản, không thay đổi TTS provider.
+- Text → Edge TTS vẫn là luồng nền tảng, không bị thay đổi bởi các nhánh file/STT/reference voice.
+- Voice Studio đã tách rõ Content Source (`Văn bản quảng cáo`, `File giọng nói`) và Voice Source (`Giọng có sẵn`, `Giọng tham chiếu của tôi`).
+- File audio/video có preview, thay/xóa, routing theo media kind và state guard để response cũ không ghi đè trạng thái mới.
+- Audio → STT dùng `/stt/transcribe`; video → STT dùng `/stt/transcribe-video`; transcript được review/edit trước bước Edge TTS.
+- Backend có audio/video validation, FFprobe/FFmpeg probing/extraction, giới hạn size/duration, stable error mapping và cleanup temporary files theo các test liên quan.
+- Vosk local đã có adapter/factory/configuration fail-closed; model được giữ ngoài Git và không tự tải trong request.
+- Reference voice đã có `/voiceover/generate-reference`, hỗ trợ reference audio hoặc video có audio, chuyển về PCM mono 16 kHz và gọi VieNeu-TTS worker local CPU/ONNX khi môi trường riêng đã sẵn sàng.
+- Voice Conversion đã có Seed-VC CPU adapter, preset/custom reference resolution, endpoint audio/video và video remux. Frontend gọi trực tiếp nhánh này khi người dùng chọn file nhưng để transcript trống.
+- UI đã được tinh chỉnh responsive/compact, light/dark, loading/error, nút thao tác, transcript counter và nhãn thương hiệu AdGen AI. Các nhãn người dùng không còn hiển thị Gemini như tên sản phẩm.
 
-Kế hoạch Audio Transform được ghi tại [`docs/19-voice-studio-audio-transform-plan.md`](./19-voice-studio-audio-transform-plan.md). Kế hoạch này vẫn ở trạng thái thiết kế: Audio → Target Voice, STT, voice conversion, voice cloning và Filtered Text → User Voice chưa được triển khai hoặc mặc định là capability của provider.
+### Phân biệt trạng thái runtime
 
-Bằng chứng kiểm tra frontend gần nhất cho nhóm thay đổi Voice Studio:
+- **Đã có implementation/test foundation:** routes, schemas, validation, cleanup, factory/provider adapters, frontend contract và regression tests.
+- **Runtime còn điều kiện:** Vosk cần `STT_PROVIDER=vosk`, package/model path hợp lệ, FFmpeg/FFprobe và phiên xác thực hợp lệ; VieNeu cần Python worker, cache model/codec assets và đủ tài nguyên CPU/RAM.
+- **Chưa được xác minh production:** authenticated E2E audio/video → STT → Edge TTS, VieNeu reference-voice runtime ổn định trên mọi file, Seed-VC inference thật, PostgreSQL/storage persistent.
+- Không dùng mock/unit test để kết luận provider thật hoạt động; không coi reference-voice TTS là Direct Voice Conversion.
 
-- `npm run lint`: PASS.
-- `npm test`: PASS, 49 tests.
-- `npm run build`: PASS.
-- `git diff --check`: PASS.
+### Bằng chứng kiểm tra gần nhất
 
-Các kết quả trên xác nhận kiểm tra lint/unit/build của frontend; không thay thế cho feasibility audit của provider hoặc kiểm thử runtime audio transform.
+- Frontend tests: **68/68 pass**.
+- `npm run lint`: **PASS**.
+- `npm run build`: **PASS**.
+- `git diff --check`: **PASS**; các cảnh báo LF/CRLF là cảnh báo line ending của working tree, không phải lỗi whitespace nội dung.
+- Backend có targeted tests cho STT, video-to-STT, Vosk, reference voice, voice conversion và audio probe; kết quả runtime thật phải được báo cáo tách biệt với mock/unit tests.
+- Full backend suite: **495 passed**, 74 subtests passed; OpenAPI 97 paths, health check, CORS local, migration head, compileall và `pip check` PASS.
+
+### Giới hạn và bước tiếp theo
+
+1. Xác minh một phiên authenticated runtime cho audio → Vosk STT → Edge TTS bằng file được phép sử dụng.
+2. Xác minh riêng video → extraction → Vosk STT → Edge TTS với fixture hợp lệ, không gọi provider trả phí.
+3. Kiểm tra VieNeu worker/model/cache trên máy triển khai sau khi đủ RAM và quyền sử dụng reference voice.
+4. Cấu hình Python 3.10/checkpoint Seed-VC qua `SEED_VC_PYTHON` và `SEED_VC_DIR`, sau đó chạy authenticated E2E trên CPU trước khi công bố runtime PASS.
+5. Bổ sung `backend/app/assets/ref_audios/manh_dung_ref.wav` hợp lệ; hiện chỉ xác minh có preset WAV Ngọc Huyền.
+6. Tiếp tục giữ file tham chiếu và transcript tạm thời ngoài database, cleanup khi request kết thúc và không log secret/audio nhạy cảm.
+
+Các tài liệu chi tiết liên quan: [01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md), [07-huong-dan-su-dung-he-thong.md](./07-huong-dan-su-dung-he-thong.md) và [09-voice-studio-audio-transform-plan.md](./09-voice-studio-audio-transform-plan.md).

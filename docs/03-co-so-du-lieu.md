@@ -1,5 +1,7 @@
 # 4. Cơ sở dữ liệu
 
+> Trạng thái canonical hiện tại: **34 bảng ứng dụng**, Alembic head `20261006_0025_trend_report_history_soft_delete`.
+
 ## 4.1. Database runtime
 
 - URL nằm ở `DATABASE_URL`.
@@ -32,6 +34,20 @@
 | `content_documents` | Tài liệu editor, status, version, campaign link | user, message, saved content, campaign |
 | `content_versions` | Snapshot version của document | n-1 content document/user |
 | `voiceover_audios` | Metadata ownership và file information của audio voiceover đã tạo | n-1 user, tùy chọn n-1 message |
+| `trend_reports` | Report, query, summary, source status, Product Trust và lịch sử | n-1 user, tùy chọn conversation/message |
+| `trend_report_evidence` | Evidence có citation, URL, publisher, freshness và verification metadata | n-1 trend report |
+| `trend_report_claims` | Claim được đánh giá trong report | n-1 trend report |
+| `trend_report_claim_evidence` | Liên kết claim với evidence | claim/evidence |
+| `evidence_source_policies` | Chính sách trusted/excluded theo user và source | n-1 user |
+| `trend_monitors` | Chủ đề theo dõi, cadence, timezone và next run | n-1 user, tùy chọn trend report |
+| `trend_snapshots` | Kết quả từng lần thu thập, run key, status, freshness và payload | n-1 monitor |
+| `trend_alerts` | Alert theo monitor/claim, lifecycle và severity | n-1 user/monitor, tùy chọn snapshot |
+| `advertising_angles` | Góc quảng cáo có provenance claim/evidence và trust action | n-1 user/trend report |
+| `advertising_briefs` | Brief được tạo từ angle đủ điều kiện | n-1 user/angle |
+| `campaign_metric_snapshots` | Số liệu thực tế theo campaign và thời điểm ghi nhận | n-1 user/campaign, tùy chọn brief |
+| `media_assets` | Asset ảnh/video, metadata, trạng thái và lineage version | n-1 user, tùy chọn conversation/job |
+| `media_jobs` | Job tạo media, provider, trạng thái và idempotency metadata | n-1 user, tùy chọn asset |
+| `media_edit_requests` | Request chỉnh sửa media, payload hash và trạng thái | n-1 user, tùy chọn asset |
 
 ## 4.3. Quan hệ nghiệp vụ
 
@@ -54,6 +70,9 @@ User
 - Một saved content không lặp cùng `user_id + message_id`.
 - Một document không có hai version cùng `content_id + version_number`.
 - `voiceover_audios.user_id` bảo vệ quyền truy cập audio theo owner; `message_id` chỉ là liên kết tùy chọn tới message nguồn.
+- Trend Report, Monitor, Snapshot, Alert, Angle, Brief và Metric Snapshot đều có owner/FK hoặc quan hệ owner-scoped; service không cho đọc/ghi chéo user.
+- `trend_reports.deleted_at` là soft-delete lịch sử; evidence, angle, brief, campaign và metric không bị xóa khi user dọn lịch sử report.
+- `trend_snapshots` unique theo `monitor_id + run_key`; `trend_alerts.active_key` unique để ngăn duplicate active incident.
 
 ## 4.4. Trường dữ liệu đáng chú ý
 
@@ -77,6 +96,12 @@ Document giữ bản hiện hành; version giữ snapshot title/content/CTA/hash
 
 Bảng lưu `audio_id`, `filename`, `user_id`, `message_id` tùy chọn, kích thước, thời lượng, `voice_id` và `created_at`. `audio_id` và `filename` là duy nhất. `user_id` có foreign key `ON DELETE CASCADE`; `message_id` dùng `ON DELETE SET NULL` để xóa message không làm mất metadata ownership của audio. Protected audio endpoint chỉ phục vụ file khi xác định được owner an toàn.
 
+### Trend Radar và downstream artifacts
+
+`trend_reports` chứa query/summary, source status, Product Trust và `deleted_at`; các bảng evidence/claim giữ provenance và quan hệ citation. `trend_monitors` lưu cadence/timezone/next run nhưng không tự tạo worker hoặc production cron. `trend_snapshots` lưu cả SUCCESS, EMPTY và ERROR để phản ánh execution history; Alert Engine chỉ đánh giá SUCCESS hợp lệ.
+
+`advertising_angles` giữ claim/evidence source và trust action. `advertising_briefs` tham chiếu angle; `campaigns` có thể tham chiếu Trend Report/Brief; `campaign_metric_snapshots` lưu payload metric do caller cung cấp. Các quan hệ này được giữ lại khi Trend Report bị soft-delete.
+
 ## 4.5. Migration chain
 
 | Revision | Nội dung |
@@ -90,6 +115,14 @@ Bảng lưu `audio_id`, `filename`, `user_id`, `message_id` tùy chọn, kích t
 | `20260727_0007` | Content editor và versions |
 | `20260727_0008` | Partial unique index cho campaign primary |
 | `20261003_0017` | Ownership metadata cho generated voiceover audio |
+| `20261005_0018` | Trend Report evidence store và claim/evidence links |
+| `20261005_0019` | Per-source/platform status cho Trend Report |
+| `20261006_0020` | Product Trust JSON và source policies |
+| `20261006_0021` | Trend Monitor và Trend Snapshot foundation |
+| `20261006_0022` | Trend Alert Engine và active-key uniqueness |
+| `20261006_0023` | Advertising Angle provenance/trust gate |
+| `20261006_0024` | Advertising Brief, Campaign link và Campaign Metric Snapshot |
+| `20261006_0025` | Soft-delete lịch sử Trend Report bằng `deleted_at` |
 
 Migration nằm ở `backend/alembic/versions/`. Trước production migration cần backup database; không dùng `Base.metadata.drop_all()` hoặc xóa SQLite để cập nhật schema.
 

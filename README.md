@@ -437,7 +437,7 @@ Không sửa migration đã phát hành, không stamp để che mismatch, không
 
 Voice Studio yêu cầu JWT cho generate và stream/download audio. Audio legacy không có owner bị từ chối; frontend dùng Axios Blob với header xác thực, không đưa JWT vào URL. Gemini được dùng qua API; learning dataset chỉ là dữ liệu ghi nhận cho đánh giá/quy trình huấn luyện riêng, không đồng nghĩa tự training/fine-tuning. Trend registry không tự thu thập trend trực tuyến. Regex validator chỉ là heuristic, không bảo đảm claim đúng sự thật.
 
-Xem quy trình đầy đủ tại [docs/15-runtime-hardening-and-handoff.md](docs/15-runtime-hardening-and-handoff.md).
+Xem quy trình đầy đủ tại [docs/01-chuc-nang-he-thong.md](docs/01-chuc-nang-he-thong.md).
 ## Cập nhật giao diện và nhận diện thương hiệu — 04/10/2026
 
 Đã đồng bộ màu logo thương hiệu và giao diện Chat với Login/Register cho cả light, dark và system dark. Logo DG tại Sidebar, Login/Register, Recovery và Workspace dùng nền lavender/indigo thống nhất; biểu tượng thương hiệu ở Chat dùng cùng token. Logo tia sét trong tiêu đề Chat đã được bỏ; avatar người dùng vẫn độc lập. Kiểm tra sau cập nhật: `npm run lint` PASS, `npm test` PASS (38/38), `npm run build` PASS.

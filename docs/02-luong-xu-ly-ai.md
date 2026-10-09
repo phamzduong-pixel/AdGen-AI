@@ -134,7 +134,39 @@ AI message.content
 
 `VoiceoverScriptExtractor` là contract chung cho việc chọn nội dung cần đọc; không dùng LLM để rewrite hoặc bịa thêm câu. Extraction ưu tiên marker, sau đó mới dùng heuristic có kiểm soát; heading, metadata và chỉ dẫn sản xuất rõ ràng không được đưa vào lời đọc. Nếu không đủ chắc chắn, kết quả được đánh dấu để người dùng kiểm tra thay vì tự biến một phản hồi thông thường thành script quảng cáo.
 
-Frontend giữ riêng văn bản gốc và văn bản đã lọc. Toggle chỉ đổi phiên bản đang hiển thị, không gọi API mới và không chạy extraction lại. Generation dùng đúng nội dung hiện đang được người dùng chọn/chỉnh sửa. Voice Studio hiện chỉ triển khai Text → TTS; Audio Transform là kế hoạch riêng, chưa triển khai.
+Frontend giữ riêng văn bản gốc và văn bản đã lọc. Toggle chỉ đổi phiên bản đang hiển thị, không gọi API mới và không chạy extraction lại. Generation dùng đúng nội dung hiện đang được người dùng chọn/chỉnh sửa.
+
+Nhánh file có hai hành vi rõ ràng:
+
+```text
+file + transcript có nội dung → TTS/reference-voice TTS từ đúng transcript đang hiển thị
+file + transcript trống → /voice-conversion/convert-reference[-video]
+                       → Seed-VC CPU → audio đã đổi giọng hoặc video đã remux
+```
+
+Nhánh thứ hai là Speech-to-Speech/Direct Voice Conversion, không dùng STT và không sinh thêm nội dung chữ. Adapter gọi Seed-VC bằng subprocess với CUDA bị vô hiệu hóa, giữ dependency ML ngoài môi trường API chính và fail-closed khi runtime/model/reference audio chưa sẵn sàng.
+
+## 3.8.1. Trend Radar và Insight-to-Campaign
+
+Luồng Trend Radar tách retrieval/evidence khỏi luồng tạo quảng cáo thông thường:
+
+```text
+Chủ đề người dùng nhập
+  → retrieval collector / multi-platform orchestration
+  → chuẩn hóa evidence + source status + provenance
+  → Trend Report
+  → Product Trust: claim → evidence → trust status → risk/action
+  → Monitor/Snapshot (nếu theo dõi)
+  → Alert NEW → ACTIVE → RESOLVED (chỉ SUCCESS hợp lệ)
+  → Advertising Angle đủ điều kiện
+  → Advertising Brief
+  → Campaign
+  → Campaign Metric Snapshot
+```
+
+`verified_only` được enforce ở backend và không dựa trên LLM confidence. Source `excluded`, evidence thiếu verification basis, stale/conflicting/insufficient evidence và high-risk contradiction không được tự động coi là verified. Khi không dùng Trend Radar, generation flow hiện hữu không gọi retrieval ngoài ý muốn.
+
+Lịch sử Trend Report bị người dùng xóa được đánh dấu `deleted_at`; service ẩn report khỏi danh sách hiện hành nhưng giữ provenance và downstream artifacts.
 
 ## 3.9. Nền tảng và custom platform
 

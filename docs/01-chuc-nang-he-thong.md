@@ -15,8 +15,10 @@
 | Content editor | Document, version history, compare, restore, AI rewrite | `content_document.py`, `content_document_service.py` | ContentEditor, Version panels |
 | Chất lượng nội dung | Điểm theo 9 tiêu chí, tạo 3 biến thể A/B/C, activity | `content.py`, evaluation/variant services | ContentScorePanel, VariantGeneratorModal |
 | Upload | Đính kèm image/video/PDF/text, kiểm tra MIME/kích thước/quyền | `upload.py`, `upload_service.py` | ChatInput, AttachmentPreview |
+| Media Studio | Tạo ảnh/video, upload, chỉnh sửa media, version, preview và download | `media.py`, `media_service.py`, `video_service.py` | MediaStudio |
 | Dashboard | Summary, activity theo ngày, platform usage | `dashboard.py`, `dashboard_service.py` | Dashboard, ActivityChart, PlatformChart |
-| Voice Studio | Liệt kê voice, trích xuất/làm sạch script, chỉnh sửa văn bản gốc/đã lọc, tạo/tải audio | `voiceover.py`, `voiceover_service.py`, `voiceover/extractor.py` | VoiceoverModal, AudioPlayer |
+| Voice Studio | Text → TTS, audio/video → STT → TTS, reference-voice TTS và Direct Voice Conversion Seed-VC có điều kiện | `voiceover.py`, `stt.py`, `video_stt.py`, `voice_conversion.py`, các voice services | VoiceoverModal, AudioPlayer |
+| Trend Radar | Trend Report, Product Trust, monitor/snapshot, alert, angle, brief, campaign metric và lịch sử | `trend_report.py`, `insight_campaign.py`, trend services | TrendReportPanel, Stage4WorkflowPanel |
 | User settings | Profile, đổi password, AI defaults, theme, export defaults | `user.py`, `user_service.py` | Profile, Settings, ThemeContext |
 
 ## 2.2. Chat và tạo nội dung
@@ -74,6 +76,22 @@ Từ một assistant message, người dùng chọn **Voiceover** để mở Voi
 3. Nếu không có marker nhưng nội dung có cấu trúc kịch bản thoại tự nhiên, dùng fallback heuristic có kiểm soát để chọn các đoạn có khả năng được đọc.
 4. Giữ nguyên nội dung, thứ tự và placeholder; không rewrite hoặc tự thêm lời thoại. Heading, metadata, markdown không cần đọc và chỉ dẫn sản xuất như Visual, Camera, Nhạc, SFX, Caption được loại khỏi ứng viên khi nhận diện được.
 5. Hiển thị văn bản đã lọc trong textarea, đồng thời giữ văn bản gốc để người dùng chuyển qua lại bằng **Xem văn bản gốc** và **Quay lại văn bản đã lọc**.
-6. Khi người dùng chọn **Tạo Voiceover**, nội dung đang hiển thị sau chỉnh sửa được gửi tới TTS provider. Kết quả có thể nghe trong AudioPlayer hoặc tải xuống.
+6. Ở chế độ văn bản, nội dung đang hiển thị sau chỉnh sửa được gửi tới system TTS hoặc reference-voice TTS tùy nguồn giọng.
+7. Ở chế độ file, người dùng có thể trích transcript rồi chỉnh sửa và tạo TTS. Nếu transcript để trống, nút tạo gọi Direct Voice Conversion: file audio được chuyển giọng trực tiếp; file video được tách audio, chuyển giọng rồi remux vào video.
+8. Direct Voice Conversion chọn giọng đích từ preset reference hoặc file tham chiếu tùy chỉnh và chỉ chạy khi Seed-VC runtime hợp lệ.
 
-Việc nhận diện và làm sạch là deterministic; nếu fallback chưa chắc chắn, UI hiển thị cảnh báo nhẹ để người dùng kiểm tra trước khi tạo audio. Voice Studio hiện vẫn là Text → TTS với system voice; Audio → Target Voice và User Voice Reference chỉ là phạm vi thiết kế trong Plan Voice Studio, chưa phải chức năng đang có.
+Việc nhận diện và làm sạch là deterministic; nếu fallback chưa chắc chắn, UI hiển thị cảnh báo nhẹ để người dùng kiểm tra trước khi tạo audio. Nhánh Direct Voice Conversion không cần chuyển lời nói thành text và giữ timing/prosody của source theo khả năng của Seed-VC. Integration đã có trong source nhưng fail-closed nếu thiếu Python 3.10 riêng, checkout/model Seed-VC hoặc reference WAV; vì vậy chưa được xem là runtime production đã PASS.
+
+## 2.8. Trend Radar và quy trình insight-to-campaign
+
+Trend Radar hiện được mở trong Chat, không phải một công cụ tìm kiếm độc lập. Người dùng có thể:
+
+- nhập chủ đề và thu thập Trend Report từ collector đã cấu hình;
+- xem claim, evidence, source, freshness, conflict và Product Trust;
+- chọn `all_evidence` hoặc `verified_only`; backend quyết định evidence hợp lệ;
+- cấu hình source policy theo owner với **Tin cậy** hoặc **Loại trừ**;
+- theo dõi chủ đề bằng Monitor, lưu Snapshot và đánh giá Alert khi có SUCCESS hợp lệ;
+- chuyển insight đủ điều kiện thành Advertising Angle → Brief quảng cáo → Campaign → Metric Snapshot;
+- xóa bản ghi lịch sử Trend Report bằng soft-delete mà không xóa artifact downstream.
+
+EMPTY/ERROR snapshot không tạo hoặc resolve alert. Alert lifecycle hiện hỗ trợ TREND_NEW và TREND_SPIKE; Product Trust không đồng nghĩa với độ tự tin của LLM.
