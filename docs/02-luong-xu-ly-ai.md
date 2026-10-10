@@ -343,3 +343,13 @@ Với input: “Viết quảng cáo sản phẩm này cho TikTok, giọng trẻ 
 Luồng chat hiện giới hạn lịch sử còn khoảng sáu cặp user/assistant bằng `context_engine`, vẫn giữ brief/attachment/referential context và chèn yêu cầu follow-up hiện tại. `product_aware` tạo product/audience context khi brief trích xuất được; brand context và product context đi vào vùng reference data của user, không trộn trực tiếp vào system instruction. Gemini vẫn là bước LLM inference duy nhất của luồng text và được gọi qua API.
 
 Non-stream và stream dùng cùng output validator và generation logging sau khi có kết quả hoàn chỉnh. Output rỗng hoặc ERROR/CRITICAL bị từ chối; WARNING được log nhưng không tự biến thành lỗi chặn. Stream lỗi trả marker lỗi, không lưu kết quả chưa hoàn tất; client hủy sau khi đã nhận một phần thì phần đã nhận được lưu để có thể khôi phục. Validator regex/heuristic chỉ kiểm tra cấu trúc/rủi ro, không bảo đảm claim đúng sự thật. Learning dataset là dữ liệu ghi nhận cho đánh giá/quy trình huấn luyện riêng, không phải cơ chế tự training/fine-tuning; trend registry không tự thu thập trend trực tuyến.
+
+## 3.12. Lifecycle stream đã đồng bộ
+
+```text
+validate/ownership → persist + commit user message → retrieval gate → normalize/validate evidence
+→ build prompt → raw provider chunks → validation/sanitization/Product Trust/citation validation
+→ canonical final content → persist assistant khi completion hợp lệ
+```
+
+Retrieval timeout/error không rollback user message đã commit. `INVALID_RESPONSE` không phải success evidence. Local `GeneratorExit`/disconnect đóng iterator nếu hỗ trợ; không suy ra remote cancellation. Edit cancellation/error giữ assistant cũ.

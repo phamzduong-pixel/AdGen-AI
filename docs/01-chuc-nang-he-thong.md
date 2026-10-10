@@ -95,3 +95,9 @@ Trend Radar hiện được mở trong Chat, không phải một công cụ tìm
 - xóa bản ghi lịch sử Trend Report bằng soft-delete mà không xóa artifact downstream.
 
 EMPTY/ERROR snapshot không tạo hoặc resolve alert. Alert lifecycle hiện hỗ trợ TREND_NEW và TREND_SPIKE; Product Trust không đồng nghĩa với độ tự tin của LLM.
+
+## 2.9. Contract chat lifecycle và sidebar
+
+User message được commit trước retrieval. Stream hoàn tất chỉ lưu canonical content sau validation/sanitization; lỗi provider không tạo assistant completed. Evidence phải normalize/validate trước khi dùng làm citation. Edit stream chỉ thay assistant cũ khi completion hợp lệ; cancellation/disconnect là cleanup local, không phải bằng chứng remote provider cancel.
+
+Desktop ChatLayout có sidebar resize 220–480px, pointer/keyboard/localStorage. Brand/New Chat/Chat/Dashboard cố định; điều hướng còn lại và history cuộn; account card cố định đáy. Mobile tiếp tục dùng `MobileSidebar`.

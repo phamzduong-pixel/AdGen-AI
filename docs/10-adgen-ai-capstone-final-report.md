@@ -376,3 +376,7 @@ Date: Chưa cung cấp
 **PARTIAL — REPORT FILLED FROM CURRENT SOURCE AND TEST EVIDENCE**
 
 Bản báo cáo đã điền theo cấu trúc của `main.pdf`, nhưng chưa thể đánh dấu production-ready vì authenticated runtime STT/video, VieNeu-TTS runtime ổn định và Seed-VC inference thật vẫn chưa được xác minh đầy đủ. Seed-VC đã có integration source/API/UI; điều còn thiếu là external runtime/model/reference assets và bằng chứng CPU E2E. Không có kết luận rằng hệ thống đã huấn luyện model riêng chỉ từ sự tồn tại của learning dataset hoặc provider package. Không có kết luận rằng hệ thống đã huấn luyện model riêng chỉ từ sự tồn tại của learning dataset hoặc provider package.
+
+## Addendum — Chat lifecycle audit (11/10/2026)
+
+Audit CP-1 đến CP-12 xác minh commit user trước retrieval, validation evidence, canonical final content và edit consistency bằng source/test offline. Chưa có bằng chứng cho full backend discovery, FFmpeg/FFprobe/provider integration thật hoặc remote provider cancellation; các mục này không được coi là PASS.

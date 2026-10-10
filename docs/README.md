@@ -1,6 +1,6 @@
 # Tài liệu hệ thống AdGen AI
 
-> Phiên bản tài liệu: 10/10/2026
+> Phiên bản tài liệu: 11/10/2026
 > Phạm vi: mã nguồn hiện tại trong repository `AdGenAI`
 
 Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thống đang có. Mỗi tài liệu trỏ về module hoặc file nguồn liên quan để dễ kiểm tra khi mã nguồn thay đổi.
@@ -63,3 +63,9 @@ README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập 
 Ngày 10/10/2026, vòng audit toàn hệ thống đã sửa lỗi cú pháp cuối file Voice Studio, loại bỏ operation ID OpenAPI trùng, làm rõ import `ConversationItem` và chuẩn hóa whitespace/UTF-8 ở các file bị ảnh hưởng. Không xóa dữ liệu hay source nghiệp vụ.
 
 Kết quả: frontend **68/68 tests PASS**, lint/build PASS; backend **495 tests PASS** và 74 subtests PASS; OpenAPI 97 paths, health check, CORS local, migration head, compile và dependency integrity đều PASS. Các cảnh báo deprecation không chặn runtime.
+
+## Đồng bộ CP-1 đến CP-12 — 11/10/2026
+
+Docs đã phản ánh stream lifecycle, retrieval reliability, canonical final content, edit consistency, dataset isolation và sidebar responsive. Trạng thái audit là **PARTIAL**: targeted offline/mock có bằng chứng, nhưng full discovery, pytest-only suites, FFmpeg/FFprobe integration và remote provider cancellation chưa được xác minh. Xem `00-tong-quan-he-thong.md` cho báo cáo tổng hợp.
+
+Các số test/provider ở phần lịch sử là snapshot tại thời điểm ghi nhận, không phải xác nhận hồi quy đầy đủ hiện tại.

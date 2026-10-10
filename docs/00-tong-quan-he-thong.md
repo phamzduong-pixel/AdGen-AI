@@ -559,3 +559,31 @@ Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local
 6. Tiếp tục giữ file tham chiếu và transcript tạm thời ngoài database, cleanup khi request kết thúc và không log secret/audio nhạy cảm.
 
 Các tài liệu chi tiết liên quan: [01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md), [07-huong-dan-su-dung-he-thong.md](./07-huong-dan-su-dung-he-thong.md) và [09-voice-studio-audio-transform-plan.md](./09-voice-studio-audio-transform-plan.md).
+
+## 19. Snapshot CP-1 đến CP-12 — 11/10/2026
+
+### Chat lifecycle và retrieval
+
+| Contract | Trạng thái | Bằng chứng đã có |
+| --- | --- | --- |
+| Commit user message trước retrieval | VERIFIED | `message_service.py` commit rồi mới gọi `ExternalRetrievalService.retrieve()` ở create, stream và edit stream. |
+| Persist canonical final content | VERIFIED | `stream_ai()` gọi `on_final_content` sau validation/sanitization; message service ưu tiên nội dung này khi lưu assistant. |
+| Không tạo assistant hoàn tất giả khi provider lỗi | VERIFIED | Nhánh lỗi không đặt `stream_completed`; không persist assistant completed. |
+| Evidence malformed không tạo citation giả | VERIFIED | `EvidenceNormalizer` + `EvidenceValidator`; không còn evidence hợp lệ trả `INVALID_RESPONSE`. |
+| Edit stream an toàn | VERIFIED | Assistant cũ chỉ bị thay sau completion mới hợp lệ; lỗi/cancel giữ assistant cũ. |
+| Disconnect/cancel cục bộ | PARTIALLY VERIFIED | API đóng iterator/generator cục bộ khi ASGI disconnect; không suy ra provider đã dừng generation từ xa. |
+
+### Giao diện Chat đã hoàn thành
+
+- Desktop sidebar có thể resize 220–480px bằng chuột, bàn phím và lưu kích thước bằng `localStorage`; mobile tiếp tục dùng `MobileSidebar`.
+- Header/brand, New Chat, Chat và Dashboard cố định; điều hướng còn lại và lịch sử hội thoại cuộn trong vùng giữa; thẻ tài khoản cố định ở đáy.
+- Vạch ngăn sidebar/chat có vùng hit-area cho kéo nhưng nét hiển thị 1px, nhạt; không đổi chat API hay giao thức stream.
+
+### Bằng chứng và giới hạn audit
+
+- CP-11: 343 test offline; CP-11A: 45; CP-11B: 6 voice-conversion orchestration. Đây là số theo checkpoint, không phải tổng unique.
+- Dataset giữ hash `15BA8C83435DAF4339C53E0C0BF8818376B2A7A92B18A13D38C4B5525A5E9B90`, 6811 bytes từ CP-11B/CP-12.
+- Full backend discovery chưa chạy. Pytest-only suites, FFmpeg/FFprobe integration và remote provider cancellation chưa được xác minh.
+- Frontend `npm run build` PASS sau thay đổi sidebar ngày 11/10/2026.
+
+Snapshot này là trạng thái audit mới nhất; các số liệu test/provider runtime ở các phần lịch sử phải được đọc theo thời điểm ghi nhận, không thay thế giới hạn trên.

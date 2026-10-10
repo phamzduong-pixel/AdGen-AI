@@ -73,3 +73,7 @@ Giữ nguyên:
 - prompts, context engine, knowledge base, learning dataset, output validator, platform intelligence, product aware, trend intelligence, voiceover, Alembic và tests.
 
 Build/test không chạy lại sau cleanup vì dependency local đã bị xóa theo yêu cầu; không tự cài lại dependency. Không commit và không push.
+
+## 7.8. Đồng bộ CP-1 đến CP-12 — 11/10/2026
+
+`00`, `01`, `02`, `04`, `10` và `README` đã được đồng bộ lifecycle stream, retrieval, cancellation local, dataset isolation và sidebar responsive. Luôn phân biệt test offline/mock với integration thật; không cộng số test checkpoint thành tổng unique hoặc tuyên bố full regression PASS khi discovery chưa chạy.

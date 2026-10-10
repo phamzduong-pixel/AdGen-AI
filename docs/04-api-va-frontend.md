@@ -76,3 +76,9 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 Các request tạo message thường và stream nhận `prompt_type` cùng `platform_name`; `ad_brief.platform` và `ad_brief.platform_name` được giữ xuyên suốt. Template, saved content, content document, campaign, evaluation/variants và settings dùng cùng cặp trường. `platform_name` chỉ được chấp nhận như input dữ liệu, được giới hạn 2–80 ký tự và chuẩn hóa khoảng trắng.
 
 Frontend không đưa Email, Landing Page, SEO, Slogan, Viết lại hoặc Tóm tắt vào bộ chọn nền tảng mới. Các giá trị legacy vẫn được render khi mở bản ghi cũ, nhưng không được tạo mới từ selector; thao tác Viết lại/Tóm tắt không bị xóa khỏi editor/action flow.
+
+## 5.7. Stream disconnect và layout chat
+
+`POST /messages/stream` và `PUT /messages/{message_id}/stream` giữ `text/plain; charset=utf-8`. `_stream_with_disconnect()` kiểm tra ASGI disconnect và đóng generator local; không thêm endpoint cancellation hay cam kết remote cancellation.
+
+Resize sidebar chỉ là UI tại `ChatLayout`, không thay đổi `chatApi.js`/`useChat.js` hay request/response contract.
