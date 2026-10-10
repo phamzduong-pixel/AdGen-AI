@@ -500,7 +500,9 @@ class ConversationManagementApiTest(unittest.TestCase):
             .order_by(Message.id.desc())
             .first()
         )
-        self.assertEqual(latest_assistant.content, "Bản chỉnh sửa một phần")
+        # CP-8 keeps the prior completed assistant when an edit stream is
+        # cancelled; the partial replacement is not a completed response.
+        self.assertEqual(latest_assistant.content, "Phần nội dung đã tạo")
 
 
 if __name__ == "__main__":

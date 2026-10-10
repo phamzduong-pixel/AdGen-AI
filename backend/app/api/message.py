@@ -1,7 +1,10 @@
+import anyio
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
 from app.core.security import get_current_user
 from app.database.database import get_db
@@ -20,6 +23,40 @@ router = APIRouter(
     prefix="/messages",
     tags=["Messages"],
 )
+
+
+def _next_stream_chunk(generator):
+    try:
+        return True, next(generator)
+    except StopIteration:
+        return False, None
+
+
+def _close_stream_generator(generator) -> None:
+    close = getattr(generator, "close", None)
+    if callable(close):
+        close()
+
+
+async def _stream_with_disconnect(request: Request, generator):
+    """Stop local generation when the ASGI client disconnects.
+
+    This closes only the local Python generator. Provider-side cancellation is
+    delegated to the provider iterator's supported ``close`` implementation.
+    """
+    try:
+        while not await request.is_disconnected():
+            has_chunk, chunk = await run_in_threadpool(_next_stream_chunk, generator)
+            if not has_chunk:
+                return
+            if await request.is_disconnected():
+                return
+            yield chunk
+    finally:
+        # A disconnect cancels the ASGI response task. Shield cleanup so the
+        # service generator can persist its cancellation contract before exit.
+        with anyio.CancelScope(shield=True):
+            await run_in_threadpool(_close_stream_generator, generator)
 
 
 @router.delete("/conversation/{conversation_id}")
@@ -92,6 +129,7 @@ def update_message(
 @router.post("/stream")
 def stream_message(
     message: MessageCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -106,7 +144,7 @@ def stream_message(
     )
 
     return StreamingResponse(
-        generator,
+        _stream_with_disconnect(request, generator),
         media_type="text/plain; charset=utf-8",
         headers={
             "Cache-Control": "no-cache",
@@ -119,6 +157,7 @@ def stream_message(
 def edit_message_stream(
     message_id: int,
     message: MessageUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -135,7 +174,7 @@ def edit_message_stream(
     )
 
     return StreamingResponse(
-        generator,
+        _stream_with_disconnect(request, generator),
         media_type="text/plain; charset=utf-8",
         headers={
             "Cache-Control": "no-cache",

@@ -9,6 +9,7 @@ from app.services import ai_service
 from app.services.external_retrieval.evidence import Evidence, EvidenceSourceType
 from app.services.external_retrieval.provider import SearchProviderResult, SearchProviderStatus
 from app.services.output_validator.models import ValidationResult
+from tests.dataset_writer_isolation import block_ai_writer
 
 
 def evidence_result():
@@ -49,6 +50,7 @@ class StreamingCitationValidationTests(unittest.TestCase):
             return_value=valid,
         )
 
+    @block_ai_writer
     def test_valid_citation_split_across_chunks_is_preserved(self):
         client_patch, validation_patch = self.stream(["Trend signal [S", "1] remains unverified."])
 

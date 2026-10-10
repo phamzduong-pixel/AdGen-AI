@@ -1,4 +1,4 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 import json
 import logging
 import re
@@ -30,6 +30,20 @@ def _gemini_client():
     if client is None:
         raise RuntimeError("GEMINI_API_KEY chua duoc cau hinh")
     return client
+
+
+def _close_local_stream(response_stream) -> None:
+    """Release a provider iterator locally when it supports ``close``.
+
+    The synchronous Gemini SDK exposes a Python iterator. Closing it releases
+    the local iterator; it is not evidence of remote generation cancellation.
+    """
+    close = getattr(response_stream, "close", None)
+    if callable(close):
+        try:
+            close()
+        except Exception:
+            logger.warning("Unable to close local AI provider stream", exc_info=True)
 
 
 def generate_structured_content(*, system_instruction: str, payload: dict) -> str:
@@ -325,6 +339,7 @@ def stream_ai(
     external_retrieval_requested: bool = False,
     external_retrieval_result: SearchProviderResult | None = None,
     product_claim_assessments: tuple[tuple[ProductClaim, ClaimAssessment], ...] | None = None,
+    on_final_content: Callable[[str], None] | None = None,
 ) -> Generator[str, None, None]:
     fallback_response = (
         build_retrieval_fallback_response(external_retrieval_result)
@@ -332,6 +347,8 @@ def stream_ai(
         else None
     )
     if fallback_response is not None:
+        if on_final_content is not None:
+            on_final_content(fallback_response)
         yield fallback_response
         return
     contents = format_history(history)
@@ -359,6 +376,7 @@ def stream_ai(
         external_retrieval_result=external_retrieval_result,
     )
     full_response: list[str] = []
+    response_stream = None
     try:
         response_stream = _gemini_client().models.generate_content_stream(
             model=MODEL_NAME,
@@ -389,6 +407,8 @@ def stream_ai(
                 content=final_content,
                 validation=validation,
             )
+            if on_final_content is not None:
+                on_final_content(final_content)
             yield final_content
             return
         for chunk in response_stream:
@@ -418,8 +438,13 @@ def stream_ai(
             content=final_content,
             validation=validation,
         )
+        if on_final_content is not None:
+            on_final_content(final_content)
     except GeneratorExit:
         logger.info("AI stream cancelled by client after %d characters", len("".join(full_response)))
         raise
     except Exception as error:
         raise RuntimeError(f"Khong the stream phan hoi tu Gemini: {error}") from error
+    finally:
+        if response_stream is not None:
+            _close_local_stream(response_stream)

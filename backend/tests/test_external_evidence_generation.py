@@ -25,6 +25,7 @@ from app.services.external_retrieval.provider import SearchProviderResult, Searc
 from app.services.external_retrieval.retrieval_service import ExternalRetrievalService
 from app.services.message_service import stream_message_service
 from app.services.output_validator.models import ValidationResult
+from tests.dataset_writer_isolation import block_ai_writer
 
 
 def sample_evidence(*, excerpt="Market discussion is increasing."):
@@ -116,6 +117,7 @@ class EvidencePromptContractTests(unittest.TestCase):
                 self.assertIn(f"Status: {provider_status.value}", context.text)
                 self.assertEqual(context.citation_ids, frozenset())
 
+    @block_ai_writer
     def test_ai_gets_evidence_as_reference_not_system_instruction(self):
         models = FakeModels()
         result = self.provider_result()
@@ -244,7 +246,32 @@ class MessageServiceEvidenceIntegrationTests(unittest.TestCase):
         self.assertEqual(output, "Mocked response")
         self.assertEqual(len(provider.calls), 1)
         self.assertTrue(captured["external_retrieval_requested"])
-        self.assertIs(captured["external_retrieval_result"], expected)
+        received = captured["external_retrieval_result"]
+        self.assertEqual(received.status, expected.status)
+        self.assertEqual(received.message, expected.message)
+        self.assertEqual(received.metadata, expected.metadata)
+        self.assertEqual(len(received.evidences), 1)
+
+        received_evidence = received.evidences[0]
+        expected_evidence = expected.evidences[0]
+        self.assertEqual(received_evidence.evidence_id, expected_evidence.evidence_id)
+        self.assertEqual(received_evidence.title, expected_evidence.title)
+        self.assertEqual(received_evidence.source_url, expected_evidence.source_url)
+        self.assertEqual(received_evidence.publisher, expected_evidence.publisher)
+        self.assertEqual(received_evidence.retrieved_at, expected_evidence.retrieved_at)
+        self.assertEqual(received_evidence.excerpt, expected_evidence.excerpt)
+        self.assertEqual(received_evidence.source_type, expected_evidence.source_type)
+        self.assertEqual(received_evidence.published_at, expected_evidence.published_at)
+        self.assertEqual(
+            received_evidence.content_hash,
+            "e48242fbe5d6b6a878280eee4baeaac01848880fae5dbf57627a9967a22cf674",
+        )
+        self.assertEqual(
+            received_evidence.verification_status,
+            expected_evidence.verification_status,
+        )
+        self.assertEqual(received_evidence.confidence, expected_evidence.confidence)
+        self.assertEqual(received_evidence.metadata, expected_evidence.metadata)
 
     def test_retrieval_failure_does_not_break_streaming(self):
         output, provider, captured = self.stream_with(

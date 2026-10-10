@@ -281,6 +281,7 @@ def get_user_conversation(
 def build_history(
     db: Session,
     conversation_id: int,
+    through_message_id: int | None = None,
 ) -> list[dict]:
     """
     Lấy toàn bộ lịch sử hội thoại theo thứ tự tăng dần.
@@ -297,6 +298,9 @@ def build_history(
         )
         .all()
     )
+
+    if through_message_id is not None:
+        messages = [message for message in messages if message.id <= through_message_id]
 
     history = []
     for message in messages:
@@ -321,6 +325,18 @@ def build_history(
             ]
         history.append(item)
     return history
+
+
+def _delete_message_successors(
+    *,
+    db: Session,
+    conversation_id: int,
+    message_id: int,
+) -> None:
+    db.query(Message).filter(
+        Message.conversation_id == conversation_id,
+        Message.id > message_id,
+    ).delete(synchronize_session="fetch")
 
 
 def attach_files_to_message(
@@ -511,8 +527,6 @@ def create_message_service(
     )
 
     content = message.content.strip()
-    retrieval_outcome = external_retrieval_service.retrieve(content)
-
     if not content:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -553,6 +567,7 @@ def create_message_service(
     )
     db.commit()
     db.refresh(user_message)
+    retrieval_outcome = external_retrieval_service.retrieve(content)
     _persist_requested_retrieval_report(
         retrieval_outcome=retrieval_outcome,
         query=content,
@@ -799,8 +814,6 @@ def stream_message_service(
     )
 
     content = message.content.strip()
-    retrieval_outcome = external_retrieval_service.retrieve(content)
-
     if not content:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -841,6 +854,7 @@ def stream_message_service(
     )
     db.commit()
     db.refresh(user_message)
+    retrieval_outcome = external_retrieval_service.retrieve(content)
     _persist_requested_retrieval_report(
         retrieval_outcome=retrieval_outcome,
         query=content,
@@ -886,6 +900,11 @@ def stream_message_service(
         full_response = ""
         stream_completed = False
         stream_cancelled = False
+        canonical_response: str | None = None
+
+        def capture_final_content(content: str) -> None:
+            nonlocal canonical_response
+            canonical_response = content
 
         try:
             for chunk in stream_ai(
@@ -901,6 +920,7 @@ def stream_message_service(
                 product_claim_assessments=product_claim_assessments,
                 external_retrieval_requested=retrieval_outcome.was_requested,
                 external_retrieval_result=retrieval_outcome.provider_result,
+                on_final_content=capture_final_content,
             ):
                 full_response += chunk
 
@@ -919,11 +939,16 @@ def stream_message_service(
             )
             yield f"\n{marker}\n"
         finally:
-            if full_response.strip() and (stream_completed or stream_cancelled):
+            assistant_content = (
+                canonical_response.strip()
+                if canonical_response is not None
+                else full_response.strip()
+            )
+            if assistant_content and (stream_completed or stream_cancelled):
                 assistant_message = Message(
                     conversation_id=conversation.id,
                     role="assistant",
-                    content=full_response.strip(),
+                    content=assistant_content,
                     prompt_type=prompt_type,
                     platform_name=custom_platform_name,
                     brand_id=brand.id if brand else None,
@@ -964,7 +989,6 @@ def edit_message_stream_service(
         )
 
     content = message_data.content.strip()
-    retrieval_outcome = external_retrieval_service.retrieve(content)
 
     if not content:
         raise HTTPException(
@@ -1002,19 +1026,9 @@ def edit_message_stream_service(
     existing_message.platform_name = custom_platform_name
     existing_message.brand_id = brand.id if brand else None
 
-    (
-        db.query(Message)
-        .filter(
-            Message.conversation_id == conversation_id,
-            Message.id > existing_message.id,
-        )
-        .delete(
-            synchronize_session=False
-        )
-    )
-
     db.commit()
     db.refresh(existing_message)
+    retrieval_outcome = external_retrieval_service.retrieve(content)
     _persist_requested_retrieval_report(
         retrieval_outcome=retrieval_outcome,
         query=content,
@@ -1025,6 +1039,11 @@ def edit_message_stream_service(
     )
 
     if trend_gate and trend_gate.action is RecommendedAction.ASK_USER:
+        _delete_message_successors(
+            db=db,
+            conversation_id=conversation_id,
+            message_id=existing_message.id,
+        )
         _persist_trust_clarification(
             db=db,
             conversation_id=conversation.id,
@@ -1037,6 +1056,7 @@ def edit_message_stream_service(
     history = build_history(
         db=db,
         conversation_id=conversation_id,
+        through_message_id=existing_message.id,
     )
     ai_history, product_context = build_ai_context(
         history, content, prompt_type, brand,
@@ -1056,6 +1076,11 @@ def edit_message_stream_service(
         full_response = ""
         stream_completed = False
         stream_cancelled = False
+        canonical_response: str | None = None
+
+        def capture_final_content(content: str) -> None:
+            nonlocal canonical_response
+            canonical_response = content
 
         try:
             for chunk in stream_ai(
@@ -1071,6 +1096,7 @@ def edit_message_stream_service(
                 product_claim_assessments=product_claim_assessments,
                 external_retrieval_requested=retrieval_outcome.was_requested,
                 external_retrieval_result=retrieval_outcome.provider_result,
+                on_final_content=capture_final_content,
             ):
                 full_response += chunk
 
@@ -1089,11 +1115,21 @@ def edit_message_stream_service(
             )
             yield f"\n{marker}\n"
         finally:
-            if full_response.strip() and (stream_completed or stream_cancelled):
+            assistant_content = (
+                canonical_response.strip()
+                if canonical_response is not None
+                else full_response.strip()
+            )
+            if assistant_content and stream_completed:
+                _delete_message_successors(
+                    db=db,
+                    conversation_id=conversation_id,
+                    message_id=existing_message.id,
+                )
                 assistant_message = Message(
                     conversation_id=conversation_id,
                     role="assistant",
-                    content=full_response.strip(),
+                    content=assistant_content,
                     prompt_type=prompt_type,
                     platform_name=custom_platform_name,
                     brand_id=brand.id if brand else None,

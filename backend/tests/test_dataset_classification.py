@@ -8,11 +8,16 @@ from app.services.learning_dataset.models import (
     UserEditDelta,
 )
 from app.services.learning_dataset.service import LearningDatasetService
+from tests.dataset_writer_isolation import temporary_learning_dataset_service
 
 
 class DatasetClassificationTest(unittest.TestCase):
     def setUp(self):
-        self.service = LearningDatasetService()
+        self._temporary_service = temporary_learning_dataset_service()
+        self.service, self.storage_path = self._temporary_service.__enter__()
+
+    def tearDown(self):
+        self._temporary_service.__exit__(None, None, None)
 
     def test_dataset_classification_rules(self):
         # 1. Basic generation -> Evaluation dataset

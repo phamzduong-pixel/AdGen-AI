@@ -10,11 +10,16 @@ from app.services.learning_dataset.service import (
     LearningDatasetService,
     learning_dataset_service,
 )
+from tests.dataset_writer_isolation import temporary_learning_dataset_service
 
 
 class LearningDatasetTest(unittest.TestCase):
     def setUp(self):
-        self.service = LearningDatasetService()
+        self._temporary_service = temporary_learning_dataset_service()
+        self.service, self.storage_path = self._temporary_service.__enter__()
+
+    def tearDown(self):
+        self._temporary_service.__exit__(None, None, None)
 
     def test_log_generation_and_retrieve(self):
         record = LearningDatasetRecord(
