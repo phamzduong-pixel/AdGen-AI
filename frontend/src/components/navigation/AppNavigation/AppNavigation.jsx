@@ -11,7 +11,7 @@ import { NavLink } from "react-router-dom";
 
 import "./AppNavigation.css";
 
-const ITEMS = [
+export const NAVIGATION_ITEMS = [
   { to: "/chat", label: "Chat", icon: FiMessageSquare },
   { to: "/dashboard", label: "Dashboard", icon: FiBarChart2 },
   { to: "/library", label: "Thư viện", icon: FiBookmark },
@@ -21,10 +21,10 @@ const ITEMS = [
   { to: "/settings", label: "Cài đặt", icon: FiSettings },
 ];
 
-function AppNavigation({ compact = false }) {
+function AppNavigation({ compact = false, items = NAVIGATION_ITEMS }) {
   return (
     <nav className={`app-navigation ${compact ? "app-navigation--compact" : ""}`}>
-      {ITEMS.map(({ to, label, icon: Icon }) => (
+      {items.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}

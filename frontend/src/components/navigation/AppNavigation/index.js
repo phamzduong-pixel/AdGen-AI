@@ -1,1 +1,1 @@
-export { default } from "./AppNavigation";
+export { default, NAVIGATION_ITEMS } from "./AppNavigation";

@@ -1,10 +1,11 @@
 .sidebar-footer {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
 
-  margin-top: auto;
-  padding: 8px 10px 10px;
+  flex: 0 0 auto;
+  margin-top: 0;
+  padding: 6px 10px 8px;
 
   border-top: 1px solid #e5e7eb;
 }
@@ -52,13 +53,13 @@
   align-items: center;
   gap: 6px;
 
-  min-height: 50px;
+  min-height: 46px;
 
-  padding: 6px 7px;
+  padding: 5px 6px;
 
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 13px;
+  border-radius: 11px;
 }
 
 .sidebar-user__avatar {
@@ -67,8 +68,8 @@
   justify-content: center;
   flex-shrink: 0;
 
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   overflow: hidden;
 
   color: #ffffff;
@@ -90,7 +91,8 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 0;
 
   min-width: 0;
 }
@@ -99,8 +101,9 @@
   overflow: hidden;
 
   color: #111827;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -109,7 +112,8 @@
   overflow: hidden;
 
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -126,8 +130,8 @@
   align-items: center;
   justify-content: center;
 
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
 
   color: #64748b;
 

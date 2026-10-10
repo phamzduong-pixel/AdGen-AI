@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
 
-  width: 280px;
-  min-width: 280px;
+  width: 100%;
+  min-width: 0;
   height: 100vh;
 
   background: #f8fafc;
@@ -15,8 +15,22 @@
 }
 
 .sidebar--collapsed {
-  width: 76px;
-  min-width: 76px;
+  width: 100%;
+  min-width: 0;
+}
+
+.sidebar__fixed {
+  flex: 0 0 auto;
+}
+
+.sidebar__scrollable {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 /* Shared brand palette overrides */

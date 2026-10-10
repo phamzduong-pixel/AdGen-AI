@@ -210,6 +210,7 @@ function Chat() {
   return (
     <>
     <ChatLayout
+      sidebarCollapsed={isSidebarCollapsed}
       sidebar={
         <>
           <Sidebar
