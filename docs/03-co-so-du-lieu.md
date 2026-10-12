@@ -140,3 +140,27 @@ Với dữ liệu cũ, `platform_name` có thể null và UI dùng nhãn tương
 Migration `20261003_0017_voiceover_audio_ownership` thêm bảng `voiceover_audios`, liên kết mỗi file voiceover với user tạo file và message tùy chọn. File không có metadata owner không được tự gán trong quá trình nâng cấp; endpoint protected sẽ từ chối file legacy đó.
 
 Database rỗng phải dùng bootstrap explicit đã validate (`app.database.bootstrap` hoặc `app.database.prepare_database`). Database có dữ liệu phải backup và nâng cấp bằng Alembic; schema lệch hoặc không rõ lịch sử bị fail-closed. Không sửa migration cũ, stamp để che mismatch, drop bảng hoặc xóa database.
+
+## 4.8. Đồng bộ persistence sau rà soát
+
+### Voiceover audio
+
+voiceover_audios là metadata ownership, không phải nơi lưu bytes audio. File thực tế nằm trong audio storage; bản ghi giữ audio_id, filename, owner, message link, size, duration và voice id. Router protected chỉ trả file khi bản ghi thuộc user hiện tại.
+
+persist_latest_voiceover() và persist_latest_voiceover_record() đảm bảo một message chỉ giữ audio voiceover mới nhất. Quy trình là tạo/kiểm tra output mới, lưu bản ghi mới, xóa metadata cũ cùng message và dọn file cũ sau khi commit. Nếu xóa file vật lý gặp lỗi, metadata mới vẫn được giữ đúng; orphan cleanup có thể xử lý riêng.
+
+### Quan hệ với message và conversation
+
+- message_id của voiceover là liên kết tùy chọn; khi có giá trị, backend kiểm tra message thuộc conversation của user hiện tại.
+- Audio voiceover không làm thay đổi nội dung message gốc, brief, transcript hay reference file.
+- File upload/reference/PCM tạm không lưu bytes vào database và phải cleanup sau request.
+- Tạo audio mới trong cùng message thay audio cũ; F5 hoặc tải lại trang không làm mất kết quả nếu frontend lấy lại audio theo message/record đã persist.
+
+### Database safety contract
+
+```text
+request → auth/ownership → schema validation → service transaction
+       → commit canonical metadata → file cleanup
+```
+
+Database hiện vẫn được bảo vệ bởi schema manifest, schema validator, bootstrap explicit và Alembic head 20261006_0025. Không xóa database cũ, không stamp để che drift và không sửa migration đã áp dụng.

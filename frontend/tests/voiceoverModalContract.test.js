@@ -13,9 +13,9 @@ test("Voice Studio keeps text mode and exposes one unified voice-file mode", () 
 
   assert.match(source, /adgen-mode-tabs/);
   assert.match(source, /role="tab"/);
-  assert.match(source, /Tạo Voiceover/);
+  assert.match(source, /Tạo giọng đọc/);
   assert.match(source, /Tạo giọng đọc từ file/);
-  assert.match(source, /File giọng nói/);
+  assert.match(source, /Âm thanh \/ video/);
   assert.doesNotMatch(source, /activeMode === "audio"/);
   assert.doesNotMatch(source, /activeMode === "video"/);
   assert.match(source, /sourceObjectUrlRef/);
@@ -45,10 +45,10 @@ test("Voice Studio keeps content and voice sources independent", () => {
 
   assert.match(modalSource, /Nguồn nội dung/);
   assert.match(modalSource, /Văn bản quảng cáo/);
-  assert.match(modalSource, /File giọng nói/);
-  assert.match(modalSource, /Nguồn giọng đọc/);
-  assert.match(modalSource, /Giọng có sẵn/);
-  assert.match(modalSource, /Giọng tham chiếu của tôi/);
+  assert.match(modalSource, /Âm thanh \/ video/);
+  assert.match(modalSource, /Cách chọn giọng đọc/);
+  assert.match(modalSource, /Dùng giọng có sẵn/);
+  assert.match(modalSource, /Dùng giọng từ file của tôi/);
   assert.match(modalSource, /generateReferenceVoiceover/);
   assert.match(modalSource, /Sẵn sàng/);
   assert.match(modalSource, /referenceAudioObjectUrlRef/);
@@ -75,6 +75,17 @@ test("Voice Studio keeps transcription and audio generation as separate actions"
   assert.match(modalSource, /transcriptionInFlightRef/);
   assert.match(modalSource, /Boolean\(selectedSourceFile\)/);
 });
+
+test("Voice Studio uses speech-to-speech only when the file has no transcript", () => {
+  const source = fs.readFileSync(modalPath, "utf8");
+
+  assert.match(source, /const isDirectVoiceConversion =\s*activeMode === 'file' && !fileTranscript\.trim\(\)/);
+  assert.match(source, /if \(isDirectVoiceConversion\) \{\s*result = await convertVoiceFileDirect\(/);
+  assert.match(source, /presetVoiceId: directPresetVoiceId/);
+  assert.match(source, /generateReferenceVoiceover/);
+  assert.match(source, /generateVoiceover/);
+});
+
 test("Voice Studio invalidates stale generated audio when inputs or modal state change", () => {
   const modalSource = fs.readFileSync(modalPath, "utf8");
 

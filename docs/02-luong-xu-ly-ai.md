@@ -353,3 +353,66 @@ validate/ownership → persist + commit user message → retrieval gate → norm
 ```
 
 Retrieval timeout/error không rollback user message đã commit. `INVALID_RESPONSE` không phải success evidence. Local `GeneratorExit`/disconnect đóng iterator nếu hỗ trợ; không suy ra remote cancellation. Edit cancellation/error giữ assistant cũ.
+
+## 3.13. Pipeline input hội thoại và các nhánh xử lý
+
+Đây là pipeline chuẩn được dùng để giải thích hệ thống cho người phát triển và người vận hành:
+
+```text
+Input UI
+  → request contract
+  → authentication/ownership
+  → persist user message
+  → intent + context + retrieval gate
+  → prompt composition
+  → provider inference
+  → output/evidence validation
+  → canonical persistence
+  → stream/return result
+```
+
+### A. Input từ Chat
+
+1. Chat.jsx và ChatInput gom nội dung, platform, brand, template, brief và attachment.
+2. chatApi.js gửi non-stream hoặc stream đến backend/app/api/message.py.
+3. Backend xác minh JWT, conversation/brand/file ownership và chuẩn hóa request trước khi gọi AI.
+4. message_service.py commit user message trước retrieval để bảo toàn lịch sử ngay cả khi retrieval/provider lỗi.
+5. context_engine nhận diện yêu cầu mới hay follow-up; ContextPruner giới hạn history nhưng giữ brief, attachment metadata và context tham chiếu cần thiết.
+6. external_retrieval chỉ chạy khi intent gate cho phép; evidence được normalize/validate, Product Trust kiểm soát claim và nguồn.
+7. prompt_service ghép system rules, platform intelligence, brand/product context và yêu cầu hiện tại. Context người dùng được truyền như reference data, không được nâng thành system instruction.
+8. ai_service gọi Gemini ở chế độ stream hoặc non-stream. Kết quả đi qua output validator, citation/evidence validation và canonical final-content callback.
+9. Chỉ assistant completion hợp lệ mới được lưu; lỗi, cancel hoặc output malformed không tạo assistant hoàn tất giả. Frontend nhận stream/result và mở action lưu, editor, variant, đánh giá hoặc voiceover.
+
+### B. Input cho Voice Studio
+
+```text
+Text source
+  → script cleaner/extractor
+  → review/edit
+  → Edge TTS hoặc VieNeu-TTS reference voice
+
+Audio/video source + text/transcript
+  → media validation
+  → optional STT
+  → review/edit transcript
+  → TTS
+
+Audio/video source không có text
+  → media validation
+  → Voice Conversion trực tiếp
+  → output audio/video
+```
+
+Nhận dạng lời thoại là một công cụ tham khảo/chỉnh sửa, không phải điều kiện bắt buộc của nhánh chuyển giọng trực tiếp. Khi provider chuyển giọng hoặc model chưa được cấu hình, backend fail-closed và frontend hiển thị lỗi có mã; không tự động giả transcript, giả audio hoặc âm thầm đổi sang nhánh khác.
+
+### C. Boundary giữa AI text, TTS, STT và Voice Conversion
+
+| Nhánh | Đầu vào | Vai trò model/provider | Kết quả |
+| --- | --- | --- | --- |
+| Chat text | Brief/context | Gemini text | Message/stream text |
+| STT | Audio/video | Vosk hoặc adapter STT | Transcript để xem/chỉnh sửa |
+| TTS | Text đã xác nhận | Edge TTS hoặc VieNeu-TTS | Audio voiceover |
+| Reference voice | Text + reference audio/video | VieNeu-TTS local worker | Audio mang đặc tính reference |
+| Voice Conversion | Audio/video + target voice | Seed-VC khi được bật | Audio/video chuyển giọng trực tiếp |
+
+Learning dataset chỉ ghi nhận dữ liệu phục vụ đánh giá/quy trình huấn luyện riêng; nó không tự làm hệ thống fine-tune model trong request.

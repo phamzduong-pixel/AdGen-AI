@@ -9,7 +9,10 @@ from app.core.config import settings
 from app.schemas.voiceover import VoiceoverGenerateRequest
 from app.services.voiceover.providers.edge_tts_provider import EdgeTTSProvider
 from app.services.voiceover.providers.mock_provider import MockTTSProvider
-from app.services.voiceover.voiceover_service import VoiceoverService
+from app.services.voiceover.voiceover_service import (
+    VoiceoverProviderTimeoutError,
+    VoiceoverService,
+)
 
 
 def fake_edge_tts(communicate_class):
@@ -150,6 +153,26 @@ class VoiceoverServiceTests(unittest.IsolatedAsyncioTestCase):
                 )
 
             self.assertEqual(list((Path(directory) / "audio").glob("*.mp3")), [])
+
+
+    async def test_provider_timeout_is_bounded_and_exposed(self):
+        class SlowProvider(MockTTSProvider):
+            async def synthesize(self, *args, **kwargs):
+                await asyncio.sleep(10)
+                return b''
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+            settings, 'UPLOAD_DIR', directory
+        ), patch.object(
+            settings, 'TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS', 0.01
+        ), patch.object(
+            settings, 'TTS_PROVIDER_MAX_ATTEMPTS', 1
+        ):
+            service = VoiceoverService(provider=SlowProvider())
+            with self.assertRaises(VoiceoverProviderTimeoutError):
+                await service.generate_voiceover(
+                    VoiceoverGenerateRequest(text='A short test script')
+                )
 
 
 if __name__ == "__main__":

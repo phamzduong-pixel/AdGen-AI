@@ -16,6 +16,7 @@ from app.schemas.voiceover import (
     VoiceoverGenerateResponse,
 )
 from app.services.voiceover.script_cleaner import ScriptCleaner
+from app.services.voiceover.emotion import apply_vieneu_emotion_cue
 from app.services.voiceover.providers.base import BaseTTSProvider
 from app.services.voiceover.providers.edge_tts_provider import EdgeTTSProvider
 from app.services.voiceover.providers.mock_provider import MockTTSProvider
@@ -64,6 +65,11 @@ REFERENCE_VIDEO_MIME_TYPES = {
 }
 REFERENCE_TEMP_CHUNK_SIZE = 1024 * 1024
 
+
+class VoiceoverProviderTimeoutError(RuntimeError):
+    code = 'VOICEOVER_PROVIDER_TIMEOUT'
+    public_message = 'Dich vu tao giong noi da qua thoi gian cho.'
+
 class VoiceoverService:
     """
     Central orchestration service for AdGen Voice Studio.
@@ -84,6 +90,7 @@ class VoiceoverService:
             voices = [VoiceOption(**v) for v in voices_data]
             if self.reference_provider.is_configured():
                 voices.extend(VoiceOption(**voice) for voice in self.reference_provider.PRESET_VOICES)
+                asyncio.create_task(self.reference_provider.warmup())
             return voices
         except Exception as e:
             logger.warning(f"Failed to fetch voices from primary provider: {e}. Falling back to mock.")
@@ -131,18 +138,19 @@ class VoiceoverService:
         text_to_read = text_to_read.replace('&', ' và ').replace('<', ' ').replace('>', ' ')
 
         if self.reference_provider.is_preset_voice(request.voice_id):
+            text_to_read = apply_vieneu_emotion_cue(text_to_read, request.emotion_cue)
             return await self._generate_vieneu_preset_voiceover(request, text_to_read)
 
         audio_id = str(uuid.uuid4())
         filename = f"{audio_id}.mp3"
         file_path = self.audio_dir / filename
 
-        # Synthesize via primary provider with retry and 60s timeout
+        # Keep retries bounded so the client gets a deterministic result.
         import asyncio
         audio_bytes = None
         last_error = None
 
-        for attempt in range(2):
+        for attempt in range(settings.TTS_PROVIDER_MAX_ATTEMPTS):
             try:
                 audio_bytes = await asyncio.wait_for(
                     self.provider.synthesize(
@@ -152,15 +160,15 @@ class VoiceoverService:
                         pitch=request.pitch or 0,
                         output_file_path=str(file_path)
                     ),
-                    timeout=120.0
+                    timeout=settings.TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS,
                 )
                 if audio_bytes and len(audio_bytes) > 2000:
                     break
             except Exception as e:
                 last_error = e
                 logger.warning(f"TTS synthesis attempt {attempt + 1} failed: {e}")
-                if attempt == 0:
-                    await asyncio.sleep(1.0)
+                if attempt + 1 < settings.TTS_PROVIDER_MAX_ATTEMPTS:
+                    await asyncio.sleep(0.5)
 
         file_is_usable = False
         try:
@@ -174,6 +182,8 @@ class VoiceoverService:
             except OSError:
                 logger.warning("Could not clean up failed voiceover file %s", file_path)
             logger.error(f"TTS synthesis failed on primary provider: {last_error}")
+            if isinstance(last_error, asyncio.TimeoutError):
+                raise VoiceoverProviderTimeoutError from last_error
             raise RuntimeError(
                 f"Không thể tạo âm thanh lúc này từ dịch vụ TTS. Vui lòng thử lại sau vài giây."
             )
@@ -234,10 +244,11 @@ class VoiceoverService:
         *,
         text: str,
         reference_audio: UploadFile,
+        emotion_cue: str = 'none',
     ) -> VoiceoverGenerateResponse:
         """Generate speech from reviewed text using a local reference voice."""
 
-        request = VoiceoverGenerateRequest(text=text)
+        request = VoiceoverGenerateRequest(text=text, emotion_cue=emotion_cue)
         text_to_read = request.text.strip()
         extraction = ScriptCleaner.extract(text_to_read)
         if extraction.status == "success" and extraction.cleaned_script:
@@ -246,6 +257,7 @@ class VoiceoverService:
 
         safe_name = Path((reference_audio.filename or "").replace("\\", "/")).name.strip()
         extension = Path(safe_name).suffix.lower()
+        text_to_read = apply_vieneu_emotion_cue(text_to_read, request.emotion_cue)
         content_type = (reference_audio.content_type or "").lower().split(";", 1)[0].strip()
         is_video_reference = extension in REFERENCE_VIDEO_MIME_TYPES
         if not safe_name or (

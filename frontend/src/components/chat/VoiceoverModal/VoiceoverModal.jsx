@@ -6,6 +6,7 @@ import {
   FiVolume2,
   FiCheck,
   FiAlertCircle,
+  FiSmile,
   FiSliders,
   FiEdit3,
   FiLoader,
@@ -33,6 +34,17 @@ import {
 import AudioPlayer from "./AudioPlayer";
 import "./VoiceoverModal.css";
 
+// Seed-VC uses reference-audio preset IDs, while the voice list uses TTS IDs.
+// Keep this mapping local to the audio/video conversion flow; text mode keeps
+// using the selected TTS voice ID unchanged.
+const VOICE_CONVERSION_PRESET_BY_ID = Object.freeze({
+  "vi-VN-HoaiMyNeural": "ngoc-huyen",
+  "vieneu-v3-turbo:Ngọc Huyền": "ngoc-huyen",
+});
+
+const getVoiceConversionPresetId = (voiceId) =>
+  VOICE_CONVERSION_PRESET_BY_ID[String(voiceId || "")] || null;
+
 const getTranscriptionErrorMessage = (error) => {
   const code = error?.response?.data?.detail?.code;
   // Axios client timeout (no response received)
@@ -46,7 +58,7 @@ const getTranscriptionErrorMessage = (error) => {
     return "Nhận dạng lời thoại mất quá nhiều thời gian. Vui lòng thử lại với file ngắn hơn.";
   }
   if (code === "STT_PROVIDER_NOT_CONFIGURED") {
-    return "Provider nhận dạng lời thoại chưa được cấu hình trên máy chủ.";
+      return "Tính năng nhận dạng lời thoại hiện chưa sẵn sàng. Vui lòng thử lại sau.";
   }
   if (code === "STT_PROVIDER_TIMEOUT") {
     return "Nhận dạng lời thoại đã quá thời gian chờ. Vui lòng thử lại sau.";
@@ -64,14 +76,14 @@ const getTranscriptionErrorMessage = (error) => {
     VIDEO_DURATION_INVALID: "Không đọc được thời lượng video.",
     VIDEO_DURATION_TOO_LONG: "Thời lượng video vượt quá giới hạn cho phép.",
     VIDEO_TOO_LARGE: "File video vượt quá giới hạn 50 MB.",
-    VIDEO_AUDIO_EXTRACTION_FAILED: "Không thể trích xuất audio từ video.",
+    VIDEO_AUDIO_EXTRACTION_FAILED: "Không thể trích xuất âm thanh từ video.",
     VIDEO_AUDIO_EXTRACTION_TIMEOUT:
-      "Trích xuất audio từ video mất quá nhiều thời gian.",
-    VIDEO_EXTRACTED_AUDIO_INVALID: "Audio trích xuất từ video không hợp lệ.",
-    FFMPEG_NOT_CONFIGURED: "Máy chủ chưa có FFmpeg để xử lý video.",
-    FFPROBE_NOT_CONFIGURED: "Máy chủ chưa có FFprobe để kiểm tra video.",
+      "Trích xuất âm thanh từ video mất quá nhiều thời gian.",
+    VIDEO_EXTRACTED_AUDIO_INVALID: "Âm thanh trích xuất từ video không hợp lệ.",
+    FFMPEG_NOT_CONFIGURED: "Máy chủ chưa sẵn sàng để xử lý video.",
+    FFPROBE_NOT_CONFIGURED: "Máy chủ chưa sẵn sàng để kiểm tra video.",
     FFPROBE_TIMEOUT: "Kiểm tra video mất quá nhiều thời gian.",
-    FFPROBE_FAILED: "Không thể kiểm tra metadata của video.",
+    FFPROBE_FAILED: "Không thể kiểm tra thông tin video.",
   };
   if (videoErrors[code]) return videoErrors[code];
   if (
@@ -85,33 +97,33 @@ const getTranscriptionErrorMessage = (error) => {
     );
   }
   const transcriptionErrors = {
-    STT_AUDIO_TOO_LARGE: "File audio vượt quá giới hạn 10 MB.",
+    STT_AUDIO_TOO_LARGE: "File âm thanh vượt quá giới hạn 10 MB.",
     STT_AUDIO_TOO_LONG:
-      "Thời lượng audio vượt quá giới hạn cho phép. Vui lòng dùng file ngắn hơn.",
-    STT_UNSUPPORTED_AUDIO_FORMAT: "Định dạng audio không được hỗ trợ.",
-    STT_UNSUPPORTED_AUDIO_MIME: "Loại file audio không khớp với phần mở rộng.",
+      "Thời lượng âm thanh vượt quá giới hạn cho phép. Vui lòng dùng file ngắn hơn.",
+    STT_UNSUPPORTED_AUDIO_FORMAT: "Định dạng âm thanh không được hỗ trợ.",
+    STT_UNSUPPORTED_AUDIO_MIME: "Loại file âm thanh không khớp với phần mở rộng.",
     STT_UNSUPPORTED_AUDIO_CODEC:
-      "Codec audio chưa được hỗ trợ. Vui lòng chuyển file sang định dạng phù hợp.",
-    STT_EMPTY_AUDIO: "File audio đang trống.",
-    STT_INVALID_AUDIO: "File audio không hợp lệ hoặc bị hỏng.",
-    STT_AUDIO_PROBE_NOT_CONFIGURED: "Máy chủ chưa có công cụ kiểm tra audio.",
+      "Định dạng âm thanh chưa được hỗ trợ. Vui lòng chuyển file sang định dạng phù hợp.",
+    STT_EMPTY_AUDIO: "File âm thanh đang trống.",
+    STT_INVALID_AUDIO: "File âm thanh không hợp lệ hoặc bị hỏng.",
+    STT_AUDIO_PROBE_NOT_CONFIGURED: "Máy chủ chưa có công cụ kiểm tra âm thanh.",
     STT_AUDIO_PROBE_TIMEOUT:
-      "Kiểm tra audio mất quá nhiều thời gian. Vui lòng thử file ngắn hơn.",
-    STT_AUDIO_CONVERSION_FAILED: "Không thể chuyển đổi audio để nhận dạng.",
+      "Kiểm tra âm thanh mất quá nhiều thời gian. Vui lòng thử file ngắn hơn.",
+    STT_AUDIO_CONVERSION_FAILED: "Không thể chuyển đổi âm thanh để nhận dạng.",
     STT_AUDIO_CONVERSION_NOT_CONFIGURED:
-      "Máy chủ chưa có công cụ chuyển đổi audio.",
+      "Máy chủ chưa sẵn sàng để chuyển đổi âm thanh.",
     STT_AUDIO_CONVERSION_TIMEOUT:
-      "Chuyển đổi audio mất quá nhiều thời gian. Vui lòng thử file ngắn hơn.",
+      "Chuyển đổi âm thanh mất quá nhiều thời gian. Vui lòng thử file ngắn hơn.",
     STT_EMPTY_TRANSCRIPT: "Không nhận dạng được lời thoại trong file này.",
     STT_INVALID_LANGUAGE: "Mã ngôn ngữ không hợp lệ.",
     STT_PROVIDER_AUTHENTICATION_FAILED:
-      "Provider nhận dạng lời thoại chưa xác thực được.",
+      "Dịch vụ nhận dạng lời thoại chưa sẵn sàng. Vui lòng thử lại sau.",
     STT_PROVIDER_RATE_LIMITED:
-      "Provider nhận dạng lời thoại đang quá tải. Vui lòng thử lại sau.",
-    STT_PROVIDER_QUOTA_EXCEEDED: "Provider nhận dạng lời thoại đã hết hạn mức.",
+      "Dịch vụ nhận dạng lời thoại đang bận. Vui lòng thử lại sau.",
+    STT_PROVIDER_QUOTA_EXCEEDED: "Dịch vụ nhận dạng lời thoại đã tạm hết lượt sử dụng. Vui lòng thử lại sau.",
     STT_PROVIDER_INVALID_RESPONSE:
-      "Provider nhận dạng lời thoại trả về phản hồi không hợp lệ.",
-    STT_PROVIDER_ERROR: "Provider nhận dạng lời thoại gặp lỗi.",
+      "Dịch vụ nhận dạng lời thoại trả về kết quả không hợp lệ.",
+    STT_PROVIDER_ERROR: "Dịch vụ nhận dạng lời thoại gặp lỗi. Vui lòng thử lại sau.",
   };
   if (transcriptionErrors[code]) return transcriptionErrors[code];
   if (code?.startsWith("STT_")) {
@@ -129,33 +141,78 @@ const getReferenceVoiceErrorMessage = (error) => {
   const code = error?.response?.data?.detail?.code;
   const messages = {
     VOICE_REFERENCE_PROVIDER_NOT_CONFIGURED:
-      "Provider giọng tham chiếu chưa được cấu hình trên máy chủ.",
+      "Tính năng dùng giọng từ file hiện chưa sẵn sàng. Vui lòng thử lại sau.",
     VOICE_REFERENCE_PROVIDER_TIMEOUT:
-      "Tạo giọng tham chiếu mất quá nhiều thời gian. Vui lòng thử lại sau.",
+      "Tạo giọng từ file mất nhiều thời gian. Vui lòng thử lại sau.",
     VOICE_REFERENCE_PROVIDER_BUSY:
-      "Provider giọng tham chiếu đang bận. Vui lòng thử lại sau.",
+      "Tính năng đang bận. Vui lòng thử lại sau.",
     VOICE_REFERENCE_UNSUPPORTED_FORMAT:
-      "Định dạng file giọng tham chiếu không được hỗ trợ.",
+      "Định dạng file mẫu giọng không được hỗ trợ.",
     VOICE_REFERENCE_MIME_MISMATCH:
-      "Loại file giọng tham chiếu không khớp với phần mở rộng.",
+      "Loại file không khớp với phần mở rộng.",
     VOICE_REFERENCE_TOO_LARGE:
-      "File audio tham chiếu tối đa 10 MB; video tham chiếu tối đa 50 MB.",
+      "Âm thanh tối đa 10 MB; video tối đa 50 MB.",
     VOICE_REFERENCE_TOO_LONG:
-      "File giọng tham chiếu vượt quá giới hạn thời lượng cho phép.",
-    VOICE_REFERENCE_INVALID: "File giọng tham chiếu không hợp lệ hoặc bị hỏng.",
+      "File mẫu giọng vượt quá thời lượng cho phép.",
+    VOICE_REFERENCE_INVALID: "File mẫu giọng không hợp lệ hoặc bị hỏng.",
     VOICE_REFERENCE_OUTPUT_INVALID:
-      "Provider không tạo được audio đầu ra hợp lệ.",
+      "Không tạo được file âm thanh. Vui lòng thử lại.",
     VOICE_REFERENCE_NO_AUDIO_STREAM:
-      "Video giọng tham chiếu không có luồng âm thanh.",
+      "Video không có phần âm thanh để dùng làm mẫu giọng.",
   };
   return (
     messages[code] ||
     getUserErrorMessage(
       error,
-      "Không thể tạo giọng đọc bằng file tham chiếu. Vui lòng thử lại.",
+      "Không thể tạo giọng đọc từ file. Vui lòng thử lại.",
     )
   );
 };
+
+const getVoiceConversionErrorMessage = (error) => {
+  const code = error?.response?.data?.detail?.code;
+  const messages = {
+    VC_PROVIDER_NOT_CONFIGURED:
+      "Tính năng chuyển giọng trực tiếp hiện chưa sẵn sàng. Vui lòng thử lại sau.",
+    VC_PROVIDER_TIMEOUT:
+      "Mô hình chuyển giọng mất quá thời gian xử lý. Thời lượng file không phải nguyên nhân; vui lòng thử lại khi hệ thống đang rảnh.",
+    VC_REFERENCE_REQUIRED:
+      "Vui lòng chọn mẫu giọng đích trước khi chuyển giọng trực tiếp.",
+    VC_REFERENCE_NOT_FOUND:
+      "Mẫu giọng đích chưa được cài đặt. Vui lòng chọn Ngọc Huyền hoặc tải file mẫu giọng.",
+    VC_OUTPUT_INVALID: "Seed-VC không tạo được file âm thanh hợp lệ. Vui lòng thử lại.",
+    VC_VIDEO_PROCESSING_TIMEOUT:
+      "Chuyển giọng cho video mất quá nhiều thời gian. Vui lòng thử file ngắn hơn.",
+    VC_VIDEO_TOOL_NOT_CONFIGURED:
+      "Máy chủ chưa sẵn sàng để xử lý chuyển giọng cho video.",
+  };
+  return (
+    messages[code] ||
+    getUserErrorMessage(
+      error,
+      "Không thể chuyển âm thanh sang giọng đích lúc này. Vui lòng thử lại.",
+    )
+  );
+};
+
+const getVoiceoverErrorMessage = (error) => {
+  const code = error?.response?.data?.detail?.code;
+  if (code === 'VOICEOVER_PROVIDER_TIMEOUT') {
+    return '\u0044\u1ecbch v\u1ee5 gi\u1ecdng \u0111\u1ecdc \u0111ang ph\u1ea3n h\u1ed3i ch\u1eadm. H\u00e3y th\u1eed l\u1ea1i sau \u00edt ph\u00fat.';
+  }
+  if (
+    !error?.response &&
+    (error?.code === 'ECONNABORTED' ||
+      String(error?.message || '').toLowerCase().includes('timeout'))
+  ) {
+    return '\u0054\u1ea1o gi\u1ecdng \u0111\u1ecdc \u0111ang m\u1ea5t nhi\u1ec1u th\u1eddi gian. Vui l\u00f2ng gi\u1eef c\u1eeda s\u1ed5 n\u00e0y m\u1edf v\u00e0 th\u1eed l\u1ea1i.';
+  }
+  return getUserErrorMessage(
+    error,
+    '\u004b\u0068\u00f4ng th\u1ec3 sinh audio l\u00fac n\u00e0y. Vui l\u00f2ng ki\u1ec3m tra l\u1ea1i n\u1ed9i dung v\u00e0 th\u1eed l\u1ea1i.',
+  );
+};
+
 export default function VoiceoverModal({
   isOpen,
   onClose,
@@ -166,6 +223,7 @@ export default function VoiceoverModal({
   const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState("vi-VN-HoaiMyNeural");
   const [speed, setSpeed] = useState(1.0);
+  const [emotionCue, setEmotionCue] = useState('none');
   const [textToRead, setTextToRead] = useState("");
   const [originalScript, setOriginalScript] = useState("");
   const [cleanedScript, setCleanedScript] = useState("");
@@ -227,6 +285,7 @@ export default function VoiceoverModal({
         setFileTranscriptBaseline("");
         setPendingTranscript(null);
         setIsTranscribing(false);
+        setEmotionCue('none');
         setVoiceSource("builtin");
         setReferenceAudio(null);
         setReferenceAudioObjectUrl(null);
@@ -249,6 +308,7 @@ export default function VoiceoverModal({
       setPendingTranscript(null);
       setSelectedSourceFile(null);
       setSelectedSourceKind(null);
+      setEmotionCue('none');
       setSourceObjectUrl(null);
       setVoiceSource("builtin");
       setReferenceAudio(null);
@@ -449,7 +509,7 @@ export default function VoiceoverModal({
 
       const transcript = String(result?.transcript || "").trim();
       if (!transcript) {
-        setError("Provider không trả về transcript. Vui lòng thử file khác.");
+        setError("Không nhận dạng được lời thoại. Vui lòng thử file khác.");
         return null;
       }
 
@@ -517,12 +577,21 @@ export default function VoiceoverModal({
 
   const handleVoiceChange = (event) => {
     invalidateGeneratedAudio();
-    setSelectedVoice(event.target.value);
+    const nextVoice = event.target.value;
+    setSelectedVoice(nextVoice);
+    if (!nextVoice.startsWith('vieneu-v3-turbo:')) {
+      setEmotionCue('none');
+    }
   };
 
   const handleSpeedChange = (event) => {
     invalidateGeneratedAudio();
     setSpeed(parseFloat(event.target.value));
+  };
+
+  const handleEmotionCueChange = (event) => {
+    invalidateGeneratedAudio();
+    setEmotionCue(event.target.value);
   };
 
   const handleModeKeyDown = (event) => {
@@ -538,6 +607,13 @@ export default function VoiceoverModal({
     if (event.key === "End") nextIndex = contentModes.length - 1;
     changeActiveMode(contentModes[nextIndex]);
   };
+
+  const isVieNeuVoice = selectedVoice.startsWith('vieneu-v3-turbo:');
+  const isDirectVoiceConversion =
+    activeMode === 'file' && !fileTranscript.trim();
+  const emotionCueAvailable =
+    !isDirectVoiceConversion &&
+    (voiceSource === 'reference' || isVieNeuVoice);
 
   if (!isOpen) return null;
 
@@ -557,7 +633,18 @@ export default function VoiceoverModal({
       return;
     }
     if (voiceSource === "reference" && !referenceAudio) {
-      setError("Vui lòng chọn file giọng tham chiếu trước khi tạo audio.");
+      setError("Vui lòng chọn file mẫu giọng trước khi tạo giọng đọc.");
+      return;
+    }
+
+    const directPresetVoiceId =
+      isDirectVoiceConversion && voiceSource === "builtin"
+        ? getVoiceConversionPresetId(selectedVoice)
+        : null;
+    if (isDirectVoiceConversion && voiceSource === "builtin" && !directPresetVoiceId) {
+      setError(
+        "Chuyển giọng trực tiếp hiện có mẫu Ngọc Huyền. Vui lòng chọn Ngọc Huyền hoặc dùng giọng từ file của tôi.",
+      );
       return;
     }
 
@@ -570,23 +657,27 @@ export default function VoiceoverModal({
       let text =
         activeMode === "text" ? textToRead.trim() : fileTranscript.trim();
       let result;
-      if (activeMode === "file" && !text) {
+      if (isDirectVoiceConversion) {
         result = await convertVoiceFileDirect({
           sourceFile: selectedSourceFile,
           sourceKind: selectedSourceKind,
           referenceAudio: voiceSource === "reference" ? referenceAudio : null,
-          presetVoiceId: voiceSource === "builtin" ? selectedVoice : null,
+          presetVoiceId: directPresetVoiceId,
+          messageId,
         });
       } else if (voiceSource === "reference") {
         result = await generateReferenceVoiceover({
           text,
           referenceAudio,
+          emotionCue,
+          messageId,
         });
       } else {
         result = await generateVoiceover({
           text,
           voiceId: selectedVoice,
           speed,
+          emotionCue: emotionCueAvailable ? emotionCue : 'none',
           messageId,
         });
       }
@@ -600,9 +691,11 @@ export default function VoiceoverModal({
       if (requestId !== generationRequestRef.current) return;
       console.error("Generate voiceover failed:", err);
       setError(
-        voiceSource === "reference"
+        isDirectVoiceConversion
+          ? getVoiceConversionErrorMessage(err)
+          : voiceSource === "reference"
           ? getReferenceVoiceErrorMessage(err)
-          : getUserErrorMessage(
+          : getVoiceoverErrorMessage(
               err,
               "Không thể sinh audio lúc này. Vui lòng kiểm tra lại nội dung và thử lại.",
             ),
@@ -643,13 +736,13 @@ export default function VoiceoverModal({
   const generateButtonLabel =
     voiceSource === "reference"
       ? referenceAudio
-        ? "Tạo giọng đọc bằng giọng tham chiếu"
-        : "Chọn file giọng tham chiếu"
+        ? "Tạo giọng đọc từ file của tôi"
+        : "Chọn file mẫu giọng"
       : activeMode !== "text"
         ? selectedSourceFile
           ? "Tạo giọng đọc từ file"
-          : "Chọn file giọng nói"
-        : "Tạo Voiceover";
+          : "Chọn âm thanh / video"
+        : "Tạo giọng đọc";
   const modalContent = (
     <div className="adgen-modal-overlay" onClick={handleClose}>
       <div
@@ -693,7 +786,7 @@ export default function VoiceoverModal({
                 </h4>
               </div>
               <span className="adgen-source-section__hint">
-                Độc lập với nguồn giọng
+                Có thể chọn riêng nội dung và giọng đọc
               </span>
             </div>
             <div
@@ -725,7 +818,7 @@ export default function VoiceoverModal({
                 onClick={() => changeActiveMode("file")}
                 onKeyDown={handleModeKeyDown}
               >
-                File giọng nói
+                Âm thanh / video
               </button>
             </div>
           </section>
@@ -746,6 +839,9 @@ export default function VoiceoverModal({
               <div
                 className={
                   "adgen-audio-dropzone " +
+                  (selectedSourceFile
+                    ? "adgen-audio-dropzone--has-file "
+                    : "") +
                   (isFileDragging ? "adgen-audio-dropzone--dragging" : "")
                 }
                 onDragOver={(event) => {
@@ -755,18 +851,86 @@ export default function VoiceoverModal({
                 onDragLeave={() => setIsFileDragging(false)}
                 onDrop={handleSourceDrop}
               >
-                <FiUploadCloud aria-hidden="true" />
-                <strong>Thêm file giọng nói để nhận dạng lời thoại</strong>
-                <span>
-                  Hỗ trợ FLAC, M4A, MP3, OGG, WAV, MP4, MOV, WEBM — audio tối đa
-                  10 MB / 5 phút; video tối đa 50 MB / 5 phút
-                </span>
-                <label
-                  className="adgen-btn adgen-btn--secondary adgen-audio-file-label"
-                  htmlFor={sourceInputId}
-                >
-                  <FiUploadCloud /> Chọn file giọng nói
-                </label>
+                {selectedSourceFile ? (
+                  <div className="adgen-audio-dropzone__selected">
+                    <span className="adgen-audio-dropzone__selected-badge">
+                      <FiCheck aria-hidden="true" /> File đã chọn
+                    </span>
+                    <div className="adgen-selected-audio">
+                      <div className="adgen-selected-audio__meta">
+                        {selectedSourceKind === "video" ? (
+                          <FiVideo aria-hidden="true" />
+                        ) : (
+                          <FiMic aria-hidden="true" />
+                        )}
+                        <div>
+                          <strong>{selectedSourceFile.name}</strong>
+                          <span>
+                            {formatVoiceFileSize(
+                              selectedSourceFile,
+                              selectedSourceKind,
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="adgen-selected-audio__actions adgen-file-actions">
+                        <button
+                          type="button"
+                          className="adgen-btn-link adgen-file-action adgen-file-action--replace"
+                          onClick={() => sourceInputRef.current?.click()}
+                          disabled={isTranscribing || isGenerating}
+                          aria-label="Thay file nguồn"
+                        >
+                          <FiUploadCloud /> Thay file
+                        </button>
+                        <button
+                          type="button"
+                          className="adgen-btn-link adgen-btn-link--danger adgen-file-action adgen-file-action--remove"
+                          onClick={() => replaceSelectedSource(null)}
+                          disabled={isTranscribing || isGenerating}
+                          aria-label="Xóa file nguồn"
+                        >
+                          <FiTrash2 /> Xóa file
+                        </button>
+                      </div>
+                      {sourceObjectUrl &&
+                        (selectedSourceKind === "video" ? (
+                          <video
+                            className="adgen-source-video-player"
+                            controls
+                            preload="metadata"
+                            src={sourceObjectUrl}
+                          >
+                            Trình duyệt không hỗ trợ phát video.
+                          </video>
+                        ) : (
+                          <audio
+                            className="adgen-source-audio-player"
+                            controls
+                            preload="metadata"
+                            src={sourceObjectUrl}
+                          >
+                            Trình duyệt không hỗ trợ phát audio.
+                          </audio>
+                        ))}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <FiUploadCloud aria-hidden="true" />
+                    <strong>Thêm âm thanh hoặc video để nhận dạng lời thoại</strong>
+                    <span>
+                      Hỗ trợ FLAC, M4A, MP3, OGG, WAV, MP4, MOV, WEBM — audio tối đa
+                      10 MB / 5 phút; video tối đa 50 MB / 5 phút
+                    </span>
+                    <label
+                      className="adgen-btn adgen-btn--secondary adgen-audio-file-label"
+                      htmlFor={sourceInputId}
+                    >
+                      <FiUploadCloud /> Chọn âm thanh / video
+                    </label>
+                  </>
+                )}
                 <input
                   ref={sourceInputRef}
                   id={sourceInputId}
@@ -777,70 +941,11 @@ export default function VoiceoverModal({
                 />
               </div>
 
-              {selectedSourceFile && (
-                <div className="adgen-selected-audio">
-                  <div className="adgen-selected-audio__meta">
-                    {selectedSourceKind === "video" ? (
-                      <FiVideo aria-hidden="true" />
-                    ) : (
-                      <FiMic aria-hidden="true" />
-                    )}
-                    <div>
-                      <strong>{selectedSourceFile.name}</strong>
-                      <span>
-                        {formatVoiceFileSize(
-                          selectedSourceFile,
-                          selectedSourceKind,
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="adgen-selected-audio__actions">
-                    <button
-                      type="button"
-                      className="adgen-btn-link"
-                      onClick={() => sourceInputRef.current?.click()}
-                      disabled={isTranscribing || isGenerating}
-                    >
-                      Thay file
-                    </button>
-                    <button
-                      type="button"
-                      className="adgen-btn-link adgen-btn-link--danger"
-                      onClick={() => replaceSelectedSource(null)}
-                      disabled={isTranscribing || isGenerating}
-                    >
-                      <FiTrash2 /> Xóa file
-                    </button>
-                  </div>
-                  {sourceObjectUrl &&
-                    (selectedSourceKind === "video" ? (
-                      <video
-                        className="adgen-source-video-player"
-                        controls
-                        preload="metadata"
-                        src={sourceObjectUrl}
-                      >
-                        Trình duyệt không hỗ trợ phát video.
-                      </video>
-                    ) : (
-                      <audio
-                        className="adgen-source-audio-player"
-                        controls
-                        preload="metadata"
-                        src={sourceObjectUrl}
-                      >
-                        Trình duyệt không hỗ trợ phát audio.
-                      </audio>
-                    ))}
-                </div>
-              )}
-
               {pendingTranscript && (
                 <div className="adgen-transcript-confirm">
                   <span>
                     Đã có nội dung lời thoại đã chỉnh sửa. Bạn có muốn thay bằng
-                    transcript mới không?
+kết quả nhận dạng mới không?
                   </span>
                   <div>
                     <button
@@ -848,7 +953,7 @@ export default function VoiceoverModal({
                       className="adgen-btn-link"
                       onClick={() => applyTranscript(pendingTranscript)}
                     >
-                      Dùng transcript mới
+Dùng lời thoại mới
                     </button>
                     <button
                       type="button"
@@ -879,9 +984,9 @@ export default function VoiceoverModal({
                 )}
               </button>
               <p className="adgen-audio-flow-note">
-                File được định tuyến theo loại media, rồi được backend kiểm tra
-                trước khi nhận dạng. Transcript có thể chỉnh sửa trước khi tạo
-                giọng đọc.
+                File sẽ được chuyển trực tiếp sang giọng đích, giữ nội dung và
+                nhịp nói. Không cần nhận dạng lời thoại để tạo; nút nhận dạng
+                chỉ dùng để xem hoặc chỉnh lời thoại tham khảo.
               </p>
             </div>
           )}
@@ -889,8 +994,8 @@ export default function VoiceoverModal({
           {activeMode === "text" && extractionMeta?.status === "success" && (
             <div className="adgen-cleaner-notice">
               <span className="adgen-cleaner-badge">
-                <FiCheck /> Đã trích xuất {extractionMeta.count} đoạn lời thoại
-                từ các phân cảnh (đã loại bỏ chỉ dẫn hình ảnh, camera, hiệu ứng)
+<FiCheck /> Đã tìm thấy {extractionMeta.count} đoạn lời thoại
+trong các phân cảnh (đã bỏ qua chỉ dẫn hình ảnh, camera và hiệu ứng)
               </span>
               <button
                 type="button"
@@ -945,8 +1050,8 @@ export default function VoiceoverModal({
             ) : (
               <span className="adgen-text-version">
                 {fileTranscriptBaseline && editorText !== fileTranscriptBaseline
-                  ? "Transcript đã được chỉnh sửa"
-                  : "Transcript có thể chỉnh sửa"}
+                  ? "Lời thoại đã được chỉnh sửa"
+                  : "Lời thoại có thể chỉnh sửa"}
               </span>
             )}{" "}
             <label className="adgen-label">
@@ -981,9 +1086,9 @@ export default function VoiceoverModal({
           >
             <div className="adgen-source-section__header">
               <div>
-                <p className="adgen-eyebrow">Nguồn giọng đọc</p>
+                <p className="adgen-eyebrow">Cách chọn giọng đọc</p>
                 <h4 id="voice-studio-voice-source">
-                  Chọn giọng sẽ được sử dụng
+Bạn muốn dùng giọng nào?
                 </h4>
               </div>
               <span className="adgen-source-section__hint">
@@ -994,7 +1099,7 @@ export default function VoiceoverModal({
             <div
               className="adgen-voice-source-tabs"
               role="tablist"
-              aria-label="Nguồn giọng đọc"
+              aria-label="Chọn cách dùng giọng đọc"
             >
               <button
                 type="button"
@@ -1008,7 +1113,7 @@ export default function VoiceoverModal({
                 }
                 onClick={() => changeVoiceSource("builtin")}
               >
-                Giọng có sẵn
+                Dùng giọng có sẵn
               </button>
               <button
                 type="button"
@@ -1022,37 +1127,42 @@ export default function VoiceoverModal({
                 }
                 onClick={() => changeVoiceSource("reference")}
               >
-                Giọng tham chiếu của tôi
+Dùng giọng từ file của tôi
               </button>
             </div>
 
             {voiceSource === "builtin" ? (
               <div className="adgen-voice-source-panel">
-                <strong>Giọng TTS có sẵn</strong>
-                <span>Tiếp tục dùng selector giọng và Edge TTS hiện tại.</span>
+<strong>Giọng đọc có sẵn</strong>
+<span>
+  {isDirectVoiceConversion
+    ? "Chọn mẫu giọng chuyển đổi trực tiếp trong danh sách bên dưới."
+    : "Chọn một giọng đọc phù hợp trong danh sách bên dưới."}
+</span>
               </div>
             ) : (
               <div className="adgen-reference-voice-panel">
                 <div className="adgen-reference-voice-panel__header">
                   <div>
-                    <strong>File giọng tham chiếu</strong>
+<strong>Giọng đọc từ file của bạn</strong>
                     <span>
-                      File audio hoặc video chỉ là nguồn giọng, không phải nội
-                      dung cần đọc.
+                      {isDirectVoiceConversion
+                        ? "File mẫu xác định giọng đích; nội dung lấy trực tiếp từ file nguồn."
+                        : "File này chỉ làm mẫu giọng; nội dung được đọc lấy từ phần văn bản bên trên."}
                     </span>
                   </div>
                   <span className="adgen-status-badge">Sẵn sàng</span>
                 </div>
                 <p className="adgen-reference-voice-panel__note">
-                  VieNeu-TTS local sẽ lấy giọng từ audio hoặc track âm thanh
-                  trong video. Video phải có audio, tối đa 50 MB và 60 giây;
-                  file không được lưu lại sau request.
+                  {isDirectVoiceConversion
+                    ? "Hệ thống sẽ chuyển trực tiếp âm thanh hoặc phần âm thanh của video sang giọng trong file mẫu, giữ nội dung và nhịp nói. File chỉ dùng cho lần tạo này và không được lưu lại."
+                    : "Hệ thống sẽ dùng giọng trong âm thanh hoặc phần âm thanh của video để đọc nội dung. Video cần có âm thanh, tối đa 50 MB và 60 giây. File chỉ dùng cho lần tạo này và không được lưu lại."}
                 </p>
                 <label
                   className="adgen-btn adgen-btn--secondary adgen-reference-audio-label"
                   htmlFor="voice-studio-reference-audio-input"
                 >
-                  <FiUploadCloud /> Chọn audio hoặc video tham chiếu
+<FiUploadCloud /> Tải file âm thanh hoặc video lên
                 </label>
                 <input
                   ref={referenceAudioInputRef}
@@ -1082,20 +1192,22 @@ export default function VoiceoverModal({
                         </span>
                       </div>
                     </div>
-                    <div className="adgen-selected-audio__actions">
+                    <div className="adgen-selected-audio__actions adgen-file-actions">
                       <button
                         type="button"
-                        className="adgen-btn-link"
+                        className="adgen-btn-link adgen-file-action adgen-file-action--replace"
                         onClick={() => referenceAudioInputRef.current?.click()}
                         disabled={isGenerating}
+                        aria-label="Thay file mẫu giọng"
                       >
-                        Thay file
+                        <FiUploadCloud /> Thay file
                       </button>
                       <button
                         type="button"
-                        className="adgen-btn-link adgen-btn-link--danger"
+                        className="adgen-btn-link adgen-btn-link--danger adgen-file-action adgen-file-action--remove"
                         onClick={() => replaceReferenceAudio(null)}
                         disabled={isGenerating}
+                        aria-label="Xóa file mẫu giọng"
                       >
                         <FiTrash2 /> Xóa file
                       </button>
@@ -1125,7 +1237,7 @@ export default function VoiceoverModal({
               </div>
             )}
           </section>
-          {/* Settings Grid */}
+          {/* Voice settings */}
           {voiceSource === "builtin" && (
             <div className="adgen-settings-grid">
               {/* Voice Select */}
@@ -1172,7 +1284,7 @@ export default function VoiceoverModal({
                     step="0.1"
                     value={speed}
                     onChange={handleSpeedChange}
-                    disabled={isGenerating}
+                    disabled={isGenerating || isDirectVoiceConversion}
                     className="adgen-slider"
                   />
                   <span className="adgen-slider-label">1.5x</span>
@@ -1180,6 +1292,33 @@ export default function VoiceoverModal({
               </div>
             </div>
           )}
+
+          <div className='adgen-emotion-control'>
+            <div className='adgen-form-group'>
+              <label className='adgen-label' htmlFor='voice-studio-emotion-cue'>
+                <FiSmile /> {'C\u00e1ch th\u1ec3 hi\u1ec7n khi \u0111\u1ecdc:'}
+              </label>
+              <select
+                id='voice-studio-emotion-cue'
+                className='adgen-select'
+                value={emotionCue}
+                onChange={handleEmotionCueChange}
+                disabled={isGenerating || !emotionCueAvailable}
+              >
+                <option value='none'>{'T\u1ef1 nhi\u00ean'}</option>
+                <option value='laugh'>{'C\u01b0\u1eddi nh\u1eb9'}</option>
+                <option value='sigh'>{'Th\u1edf d\u00e0i'}</option>
+                <option value='clear_throat'>{'H\u1eafng gi\u1ecdng'}</option>
+              </select>
+              <span className='adgen-field-help'>
+                {emotionCueAvailable
+? 'Ch\u1ecdn m\u1ed9t s\u1eafc th\u00e1i \u0111\u1ec3 gi\u1ecdng \u0111\u1ecdc t\u1ef1 nhi\u00ean v\u00e0 ph\u00f9 h\u1ee3p h\u01a1n v\u1edbi n\u1ed9i dung.'
+                  : isDirectVoiceConversion
+? '\u0110\u1ed5i gi\u1ecdng tr\u1ef1c ti\u1ebfp s\u1ebd gi\u1eef c\u00e1ch th\u1ec3 hi\u1ec7n c\u1ee7a file \u00e2m thanh g\u1ed1c.'
+: 'T\u00f9y ch\u1ecdn n\u00e0y ch\u1ec9 d\u00f9ng \u0111\u01b0\u1ee3c v\u1edbi nh\u1eefng gi\u1ecdng c\u00f3 h\u1ed7 tr\u1ee3 bi\u1ec3u c\u1ea3m.'}
+              </span>
+            </div>
+          </div>
 
           {/* Audio result preview if generated */}
           {audioResult && (

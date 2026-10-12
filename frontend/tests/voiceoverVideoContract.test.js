@@ -12,7 +12,7 @@ test("Voice Studio exposes text and unified voice-file content sources", () => {
   const source = fs.readFileSync(modalPath, "utf8");
 
   assert.match(source, /Văn bản quảng cáo/);
-  assert.match(source, /File giọng nói/);
+  assert.match(source, /Âm thanh \/ video/);
   assert.match(source, /contentModes = \["text", "file"\]/);
   assert.match(source, /id=\{sourceInputId\}/);
   assert.match(source, /VOICE_FILE_ACCEPT/);

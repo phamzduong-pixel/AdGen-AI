@@ -3,6 +3,7 @@ import {
   FiCheckCircle,
   FiCopy,
   FiDownload,
+  FiMic,
   FiRefreshCw,
   FiSave,
   FiShield,
@@ -24,6 +25,7 @@ function EditorToolbar({
   onCopy,
   onExport,
   onEvaluate,
+  onVoiceover,
   onBrandCheck,
   onAiRewrite,
   onCampaignChange,
@@ -49,6 +51,9 @@ function EditorToolbar({
         </button>
         <button type="button" onClick={onEvaluate} disabled={busy}>
           <FiBarChart2 /> Đánh giá
+        </button>
+        <button type="button" onClick={onVoiceover} disabled={busy || !onVoiceover} title="Tạo giọng đọc từ nội dung hiện tại">
+          <FiMic /> Tạo giọng đọc
         </button>
         {hasBrand && (
           <button type="button" onClick={onBrandCheck} disabled={busy}>

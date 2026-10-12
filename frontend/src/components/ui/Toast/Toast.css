@@ -1,4 +1,4 @@
-.toast-container { position: fixed; z-index: 2000; top: 18px; right: 18px; display: flex; width: min(380px, calc(100vw - 36px)); flex-direction: column; gap: 9px; pointer-events: none; }
+.toast-container { position: fixed; z-index: 12000; top: 18px; right: 18px; display: flex; width: min(380px, calc(100vw - 36px)); flex-direction: column; gap: 9px; pointer-events: none; }
 .toast { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 12px 13px; color: #334155; font-size: 13px; line-height: 1.4; background: rgb(255 255 255 / 98%); border: 1px solid #e2e8f0; border-left-width: 4px; border-radius: 12px; box-shadow: 0 14px 38px rgb(15 23 42 / 17%); pointer-events: auto; animation: toast-enter 180ms ease-out; }
 .toast--success { border-left-color: #16a34a; }.toast--success .toast__icon { color: #16a34a; }
 .toast--error { border-left-color: #dc2626; }.toast--error .toast__icon { color: #dc2626; }

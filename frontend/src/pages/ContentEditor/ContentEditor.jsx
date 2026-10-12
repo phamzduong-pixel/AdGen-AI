@@ -11,6 +11,7 @@ import VersionCompareModal from "../../components/editor/VersionCompareModal/Ver
 import VersionHistoryPanel from "../../components/editor/VersionHistoryPanel/VersionHistoryPanel";
 import BrandConsistencyPanel from "../../components/brand/BrandConsistencyPanel/BrandConsistencyPanel";
 import ContentScorePanel from "../../components/chat/ContentScorePanel";
+import VoiceoverModal from "../../components/chat/VoiceoverModal/VoiceoverModal";
 import Modal from "../../components/ui/Modal/Modal";
 import useToast from "../../components/ui/Toast/useToast";
 import useContentEditor from "../../hooks/useContentEditor";
@@ -54,6 +55,7 @@ function ContentEditor() {
     loading: false,
     result: null,
   });
+  const [voiceoverOpen, setVoiceoverOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([getCampaigns(), getBrands()])
@@ -179,6 +181,22 @@ function ContentEditor() {
     }
   };
 
+  const voiceoverText = useMemo(
+    () =>
+      [editor.draft.title, editor.draft.content, editor.draft.cta]
+        .filter((value) => typeof value === "string" && value.trim())
+        .join("\n\n"),
+    [editor.draft.content, editor.draft.cta, editor.draft.title],
+  );
+
+  const openVoiceover = () => {
+    if (!voiceoverText.trim()) {
+      toast.warning("Hãy nhập nội dung trước khi tạo giọng đọc.");
+      return;
+    }
+    setVoiceoverOpen(true);
+  };
+
   if (editor.loading) {
     return (
       <div className="content-editor-loading">
@@ -231,6 +249,7 @@ function ContentEditor() {
           ).catch((error) => toast.error(error.message))
         }
         onEvaluate={evaluate}
+        onVoiceover={openVoiceover}
         onBrandCheck={checkBrand}
         onAiRewrite={openAi}
         onCampaignChange={(value) => {
@@ -482,6 +501,12 @@ function ContentEditor() {
         result={brandCheck.result}
         brandName={selectedBrand?.name}
         onClose={() => setBrandCheck({ open: false, loading: false, result: null })}
+      />
+      <VoiceoverModal
+        isOpen={voiceoverOpen}
+        initialText={voiceoverText}
+        onClose={() => setVoiceoverOpen(false)}
+        onGenerated={() => toast.success("Đã tạo giọng đọc cho nội dung hiện tại.")}
       />
     </div>
   );

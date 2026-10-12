@@ -13,15 +13,23 @@ from app.schemas.voiceover import (
     VoiceoverGenerateRequest,
     VoiceoverGenerateResponse,
 )
-from app.services.voiceover.voiceover_service import voiceover_service
+from app.models.conversation import Conversation
+from app.models.message import Message
+from app.services.voiceover.voiceover_service import (
+    VoiceoverProviderTimeoutError,
+    voiceover_service,
+)
 from app.services.voiceover.providers.vieneu_reference_provider import ReferenceVoiceError
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.database.database import get_db
-from app.models.conversation import Conversation
-from app.models.message import Message
 from app.models.user import User
 from app.models.voiceover_audio import VoiceoverAudio
+from app.services.voiceover.audio_persistence import (
+    VoiceoverMessageLinkError,
+    persist_latest_voiceover_record,
+    resolve_owned_message_id,
+)
 
 router = APIRouter(prefix="/voiceover", tags=["voiceover"])
 
@@ -59,7 +67,14 @@ async def generate_voiceover(
     current_user: User = Depends(get_current_user),
 ):
     """Generate an audio file and persist its owner before returning its URL."""
-    linked_message_id = None
+    try:
+        linked_message_id = resolve_owned_message_id(
+            request.message_id,
+            db=db,
+            current_user=current_user,
+        )
+    except VoiceoverMessageLinkError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
     if request.message_id is not None:
         try:
             linked_message_id = int(request.message_id)
@@ -88,9 +103,14 @@ async def generate_voiceover(
             duration_seconds=response.duration_seconds,
             voice_id=response.voice_id,
         )
-        db.add(record)
-        db.commit()
+        persist_latest_voiceover_record(db=db, audio_dir=AUDIO_DIR, record=record)
         return response
+    except VoiceoverProviderTimeoutError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=504,
+            detail={'code': error.code, 'message': error.public_message},
+        ) from error
     except ReferenceVoiceError as error:
         db.rollback()
         raise HTTPException(
@@ -119,26 +139,34 @@ async def generate_voiceover(
 async def generate_reference_voiceover(
     text: str = Form(...),
     file: UploadFile = File(...),
+    emotion_cue: str = Form(default='none'),
+    message_id: str | None = Form(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Generate speech from text with a user-provided reference voice."""
 
     try:
+        linked_message_id = resolve_owned_message_id(message_id, db=db, current_user=current_user)
+    except VoiceoverMessageLinkError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+
+    try:
         response = await voiceover_service.generate_reference_voiceover(
             text=text,
             reference_audio=file,
+            emotion_cue=emotion_cue,
         )
         record = VoiceoverAudio(
             audio_id=response.audio_id,
             filename=f"{response.audio_id}.mp3",
             user_id=current_user.id,
+            message_id=linked_message_id,
             file_size_bytes=response.file_size_bytes,
             duration_seconds=response.duration_seconds,
             voice_id=response.voice_id,
         )
-        db.add(record)
-        db.commit()
+        persist_latest_voiceover_record(db=db, audio_dir=AUDIO_DIR, record=record)
         return response
     except ReferenceVoiceError as error:
         db.rollback()
@@ -178,7 +206,7 @@ async def get_audio_file(
     ownership is never inferred from a shared filesystem directory.
     """
     safe_filename = Path(filename).name
-    if safe_filename != filename or not safe_filename.endswith(".mp3"):
+    if safe_filename != filename or Path(safe_filename).suffix.lower() not in {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm"}:
         raise HTTPException(status_code=400, detail="Định dạng file không hợp lệ.")
 
     record = (
@@ -198,7 +226,19 @@ async def get_audio_file(
 
     disposition = "attachment" if download else "inline"
     headers = {"Content-Disposition": f'{disposition}; filename="{safe_filename}"'}
-    return FileResponse(path=str(file_path), media_type="audio/mpeg", headers=headers)
+    media_types = {
+        ".mp3": "audio/mpeg",
+        ".wav": "audio/wav",
+        ".m4a": "audio/mp4",
+        ".ogg": "audio/ogg",
+        ".flac": "audio/flac",
+        ".webm": "audio/webm",
+    }
+    return FileResponse(
+        path=str(file_path),
+        media_type=media_types[Path(safe_filename).suffix.lower()],
+        headers=headers,
+    )
 
 @router.head("/audio/{filename}", include_in_schema=False)
 async def head_audio_file(
@@ -209,3 +249,53 @@ async def head_audio_file(
 ):
     """Return the same ownership-checked headers as GET without an OpenAPI duplicate."""
     return await get_audio_file(filename, download, db, current_user)
+
+
+@router.get("/messages")
+async def list_message_voiceovers(
+    message_ids: str = Query(default=""),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return the latest persisted voiceover for each requested message."""
+
+    normalized_ids = []
+    for raw_id in message_ids.split(","):
+        raw_id = raw_id.strip()
+        if not raw_id:
+            continue
+        try:
+            message_id = int(raw_id)
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail="message_ids không hợp lệ.") from error
+        if message_id > 0 and message_id not in normalized_ids:
+            normalized_ids.append(message_id)
+
+    if not normalized_ids:
+        return []
+
+    records = (
+        db.query(VoiceoverAudio)
+        .filter(
+            VoiceoverAudio.user_id == current_user.id,
+            VoiceoverAudio.message_id.in_(normalized_ids),
+        )
+        .order_by(VoiceoverAudio.created_at.desc())
+        .all()
+    )
+    latest_by_message = {}
+    for record in records:
+        key = str(record.message_id)
+        if key in latest_by_message:
+            continue
+        latest_by_message[key] = {
+            "audio_id": record.audio_id,
+            "audio_url": f"/voiceover/audio/{record.filename}",
+            "download_url": f"/voiceover/audio/{record.filename}?download=true",
+            "duration_seconds": record.duration_seconds,
+            "file_size_bytes": record.file_size_bytes,
+            "voice_id": record.voice_id,
+            "voice_name": record.voice_id,
+            "message_id": record.message_id,
+        }
+    return list(latest_by_message.values())

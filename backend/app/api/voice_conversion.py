@@ -1,12 +1,25 @@
 ﻿from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
+from sqlalchemy.orm import Session
+from app.core.config import settings
+from app.database.database import get_db
+
+from pathlib import Path
+from uuid import uuid4
+
 from app.core.security import get_current_user
 from app.models.user import User
+from app.models.voiceover_audio import VoiceoverAudio
 from app.services.voice_conversion.models import VoiceConversionError
 from app.services.voice_conversion.service import voice_conversion_service
 from app.services.voice_conversion.reference_service import seed_vc_reference_service
 from app.services.voice_conversion.media_service import seed_vc_media_service
+from app.services.voiceover.audio_persistence import (
+    VoiceoverMessageLinkError,
+    persist_latest_voiceover_record,
+    resolve_owned_message_id,
+)
 
 
 router = APIRouter(prefix="/voice-conversion", tags=["voice-conversion"])
@@ -57,9 +70,16 @@ async def convert_voice_with_reference(
     file: UploadFile = File(...),
     reference_file: UploadFile | None = File(default=None),
     preset_voice_id: str | None = Form(default=None),
-    _current_user: User = Depends(get_current_user),
+    message_id: str | None = Form(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Seed-VC audio-to-audio conversion; source timing and delivery are retained."""
+    try:
+        linked_message_id = resolve_owned_message_id(message_id, db=db, current_user=current_user)
+    except VoiceoverMessageLinkError as error:
+        raise HTTPException(status_code=error.status_code, detail=error.detail) from error
+
     try:
         result = await seed_vc_reference_service.convert_upload(
             file,
@@ -71,6 +91,46 @@ async def convert_voice_with_reference(
             status_code=error.http_status,
             detail={"code": error.code, "message": error.public_message},
         ) from error
+
+    if linked_message_id is not None:
+        audio_id = str(uuid4())
+        extension = result.file_extension.lstrip(".") or "wav"
+        filename = audio_id + "." + extension
+        audio_dir = Path(settings.UPLOAD_DIR) / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        output_path = audio_dir / filename
+        output_path.write_bytes(result.audio_bytes)
+        record = VoiceoverAudio(
+            audio_id=audio_id,
+            filename=filename,
+            user_id=current_user.id,
+            message_id=linked_message_id,
+            file_size_bytes=len(result.audio_bytes),
+            duration_seconds=result.duration_seconds or 0.0,
+            voice_id=preset_voice_id or result.provider_id,
+        )
+        try:
+            persist_latest_voiceover_record(
+                db=db,
+                audio_dir=audio_dir,
+                record=record,
+            )
+        except Exception as error:
+            db.rollback()
+            output_path.unlink(missing_ok=True)
+            raise HTTPException(status_code=500, detail="Voiceover audio persistence failed.") from error
+        return {
+            "success": True,
+            "audio_id": audio_id,
+            "audio_url": f"/voiceover/audio/{filename}",
+            "download_url": f"/voiceover/audio/{filename}?download=true",
+            "duration_seconds": result.duration_seconds or 0.0,
+            "file_size_bytes": len(result.audio_bytes),
+            "voice_id": preset_voice_id or result.provider_id,
+            "voice_name": "Ngọc Huyền · Chuyển giọng trực tiếp" if preset_voice_id == "ngoc-huyen" else "Seed-VC · Giọng tham chiếu",
+            "speed": 1.0,
+            "cleaned_text": "",
+        }
 
     return Response(
         content=result.audio_bytes,

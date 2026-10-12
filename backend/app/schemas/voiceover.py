@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -26,6 +26,7 @@ class CleanScriptResponse(BaseModel):
 
 
 class VoiceoverGenerateRequest(BaseModel):
+    emotion_cue: Literal['none', 'laugh', 'sigh', 'clear_throat'] = Field(default='none')
     text: str = Field(..., min_length=1, max_length=20000, description="Dialogue text to synthesize")
     voice_id: str = Field(default="vi-VN-HoaiMyNeural", description="Voice ID from available voices")
     speed: float = Field(default=1.0, ge=0.5, le=2.0, description="Playback speed multiplier (0.5x to 2.0x)")

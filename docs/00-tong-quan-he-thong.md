@@ -1,8 +1,8 @@
 # AdGen AI — Báo cáo tổng hợp hệ thống
 
-> Cập nhật: 09/10/2026
+> Cập nhật: 12/10/2026
 > Phạm vi: source code và kết quả kiểm thử hiện có trong repository  
-> Trạng thái tổng thể: **Voice Studio đã có foundation cho text/file STT-TTS và reference-voice local; runtime provider thật vẫn cần xác minh riêng**. Alembic source head hiện tại: `20261006_0025`.
+> Trạng thái tổng thể: **Đã hoàn thành rà soát và dọn dẹp an toàn; pipeline hội thoại–AI–Voice Studio, persistence voiceover và cấu trúc tài liệu đã được đồng bộ theo source hiện tại**. Runtime/provider phụ thuộc môi trường ngoài repository vẫn được ghi rõ là cần xác minh riêng. Alembic source head hiện tại: `20261006_0025`.
 
 ## 1. Mục đích sản phẩm
 
@@ -368,7 +368,7 @@ Các kết quả đã xác minh gần nhất:
 - Plan 17 Trend Radar: Stage 1–4 đã hoàn thành; targeted/regression tests, schema validation và migration head đã được kiểm tra theo các checkpoint.
 - Frontend Voice Studio/Trend Radar hiện có lint, test và production build theo các checkpoint tương ứng.
 - Voice Studio targeted suites gồm `test_stt_api.py`, `test_video_to_stt.py`, `test_vosk_stt.py`, `test_vieneu_reference_api.py`, `test_voiceover_api.py`, cùng các contract test frontend cho audio/video/file input và modal.
-- Frontend Voice Studio gần nhất: **68/68 tests pass**, `npm run lint` PASS và `npm run build` PASS.
+- Frontend Voice Studio gần nhất: **69/69 tests pass**, `npm run lint` PASS và `npm run build` PASS.
 - Python compile check: PASS.
 - Frontend user message alignment: đã sửa và build PASS.
 
@@ -542,12 +542,12 @@ Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local
 
 ### Bằng chứng kiểm tra gần nhất
 
-- Frontend tests: **68/68 pass**.
+- Frontend tests: **69/69 pass**.
 - `npm run lint`: **PASS**.
 - `npm run build`: **PASS**.
 - `git diff --check`: **PASS**; các cảnh báo LF/CRLF là cảnh báo line ending của working tree, không phải lỗi whitespace nội dung.
 - Backend có targeted tests cho STT, video-to-STT, Vosk, reference voice, voice conversion và audio probe; kết quả runtime thật phải được báo cáo tách biệt với mock/unit tests.
-- Full backend suite: **495 passed**, 74 subtests passed; OpenAPI 97 paths, health check, CORS local, migration head, compileall và `pip check` PASS.
+- Full backend suite: **521 passed**; có 3 cảnh báo deprecation không làm thất bại kiểm thử. OpenAPI 98 paths, health check, CORS local, migration head, compile/import và `pip check` PASS.
 
 ### Giới hạn và bước tiếp theo
 
@@ -587,3 +587,61 @@ Các tài liệu chi tiết liên quan: [01-chuc-nang-he-thong.md](./01-chuc-nan
 - Frontend `npm run build` PASS sau thay đổi sidebar ngày 11/10/2026.
 
 Snapshot này là trạng thái audit mới nhất; các số liệu test/provider runtime ở các phần lịch sử phải được đọc theo thời điểm ghi nhận, không thay thế giới hạn trên.
+
+## 20. Đồng bộ sau rà soát hệ thống — 12/10/2026
+
+### 20.1. Pipeline xử lý input của cuộc hội thoại
+
+```text
+Người dùng nhập text/brief + platform + brand + template + attachment
+  → React Chat/ChatInput chuẩn hóa trạng thái giao diện
+  → Chat API gọi POST /messages hoặc POST /messages/stream
+  → JWT + ownership + request contract validation
+  → commit user message trước retrieval
+  → resolve intent/follow-up, prune history, đọc brief/brand/product context
+  → retrieval gate và evidence/Product Trust khi request cần dữ liệu ngoài
+  → build system prompt + platform prompt + context/reference data
+  → Gemini text provider sinh non-stream hoặc stream từng chunk
+  → output validation/sanitization + citation/evidence validation
+  → canonical final content
+  → persist assistant message, dataset record và trạng thái liên quan
+  → frontend render kết quả và mở các action: lưu, đánh giá, variant, editor, voiceover
+```
+
+Vai trò các lớp chính:
+
+- frontend/src/pages/Chat/Chat.jsx điều phối màn hình hội thoại; ChatInput thu nhận text, platform, brand, file và brief.
+- frontend/src/services/api/chatApi.js là client gọi API; backend/app/api/message.py là lớp HTTP/auth/ownership.
+- backend/app/services/message_service.py là orchestration của message, stream, retrieval gate, persistence và cancellation cục bộ.
+- backend/app/services/context_engine/ nhận diện follow-up, dựng context và giới hạn lịch sử; external_retrieval/ chỉ được dùng khi intent gate cho phép.
+- backend/app/services/prompt_service.py, platform_intelligence/, product_aware/, brand_prompt.py tạo prompt có cấu trúc.
+- backend/app/services/ai_service.py gọi provider text; output_validator/ và product_trust/ kiểm tra kết quả trước khi trả/lưu.
+
+### 20.2. Pipeline media và Voice Studio
+
+```text
+VoiceoverModal
+  ├─ Text source
+  │    → clean/extract dialogue → user review/edit → Edge TTS hoặc VieNeu-TTS reference voice
+  └─ Audio/video source
+       ├─ có nội dung cần đọc lại → transcript tùy chọn qua STT → user review/edit → TTS
+       └─ không nhập transcript → chuyển giọng trực tiếp audio/video qua Voice Conversion
+```
+
+- File audio/video được validate theo MIME, signature, codec, duration và size trước khi xử lý.
+- Nút nhận dạng lời thoại chỉ phục vụ xem/chỉnh sửa transcript; không phải bước bắt buộc trong nhánh chuyển giọng trực tiếp.
+- backend/app/services/voiceover/ xử lý script, Edge TTS, VieNeu-TTS, emotion cue và persistence audio.
+- backend/app/services/stt/ và backend/app/services/voice_studio/ xử lý STT audio/video và extraction audio từ video.
+- backend/app/services/voice_conversion/ xử lý probe, reference audio, Seed-VC adapter và fail-closed khi runtime chưa sẵn sàng.
+- backend/app/services/voiceover/audio_persistence.py lưu ownership/message link; khi tạo audio mới cho cùng message, audio cũ được thay thế an toàn.
+- File tạm/reference/PCM được cleanup ở cả success và failure; kết quả audio chỉ trả về sau khi file output hợp lệ.
+
+### 20.3. Hoàn thành trong section này
+
+- Đã xóa nhóm file frontend rỗng/legacy và thư mục component trùng sau khi xác minh không có import sử dụng.
+- Đã tách NAVIGATION_ITEMS khỏi component để xử lý lỗi react-refresh/only-export-components.
+- Đã thêm backend/requirements-dev.txt để pytest được quản lý như dependency phát triển, không làm phình runtime production.
+- Đã đồng bộ persistence voiceover, thay thế audio cũ theo message và các trạng thái lỗi/loading của Voice Studio.
+- Frontend: 69/69 tests, lint và production build đạt; backend: 521 tests đạt; pip check đạt.
+
+Các giới hạn runtime vẫn giữ nguyên: VieNeu-TTS, Vosk/FFmpeg và Seed-VC phụ thuộc model, binary, Python environment và quyền sử dụng reference asset ngoài repository; không được suy diễn test/mock thành provider production PASS.

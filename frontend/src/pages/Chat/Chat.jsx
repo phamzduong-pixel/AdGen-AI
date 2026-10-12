@@ -34,6 +34,7 @@ import { createContentDocument } from "../../services/api/contentEditorApi";
 import { getConversationDisplayTitle } from "../../utils/conversationTitle";
 import { exportConversation } from "../../utils/exportConversation";
 import { getPreferences } from "../../utils/settingsStorage";
+import { getVoiceoversForMessages } from "../../services/api/voiceoverApi";
 
 function Chat() {
   const toast = useToast();
@@ -127,6 +128,43 @@ function Chat() {
 
     fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    let isActive = true;
+    if (isLoadingMessages || isTyping) return undefined;
+    const messageIds = messages
+      .filter((message) => message.role === "assistant")
+      .map((message) => message.id)
+      .filter((messageId) => Number.isInteger(Number(messageId)));
+
+    if (!messageIds.length) {
+      // Clear results when switching to an empty/new conversation.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMessageAudios({});
+      return () => {
+        isActive = false;
+      };
+    }
+
+    getVoiceoversForMessages(messageIds)
+      .then((records) => {
+        if (!isActive) return;
+        const nextAudios = Object.fromEntries(
+          (Array.isArray(records) ? records : []).map((record) => [
+            record.message_id,
+            record,
+          ]),
+        );
+        setMessageAudios(nextAudios);
+      })
+      .catch((loadError) => {
+        if (isActive) console.warn("Không thể tải lại audio voiceover:", loadError);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [messages, selectedConversation, isLoadingMessages, isTyping]);
 
   useEffect(() => {
     if (!location.state?.adTemplate) return;

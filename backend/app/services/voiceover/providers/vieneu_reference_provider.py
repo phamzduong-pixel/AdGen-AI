@@ -7,10 +7,12 @@ worker in this package, so the existing Edge TTS environment stays unchanged.
 
 from __future__ import annotations
 
+import atexit
 import asyncio
 import json
 import os
 import subprocess
+import threading
 import wave
 from pathlib import Path
 
@@ -105,6 +107,9 @@ class VieNeuReferenceVoiceProvider:
 
     def __init__(self) -> None:
         self._slot = asyncio.Semaphore(1)
+        self._worker_lock = threading.Lock()
+        self._worker_process: subprocess.Popen[bytes] | None = None
+        atexit.register(self.close)
 
     @staticmethod
     def _latest_snapshot(cache_dir: Path, repository: str) -> Path | None:
@@ -164,6 +169,31 @@ class VieNeuReferenceVoiceProvider:
     def is_preset_voice(self, voice_id: str) -> bool:
         return any(voice["id"] == voice_id for voice in self.PRESET_VOICES)
 
+    async def warmup(self) -> bool:
+        try:
+            await asyncio.wait_for(self._slot.acquire(), timeout=0.1)
+        except asyncio.TimeoutError:
+            return False
+
+        try:
+            model_snapshot, codec_snapshot = self._resolve_assets()
+            payload = {
+                'warmup': True,
+                'model_snapshot': str(model_snapshot),
+                'codec_snapshot': str(codec_snapshot),
+                'threads': str(settings.VIENEU_THREADS),
+            }
+            await asyncio.wait_for(
+                asyncio.to_thread(self._run_worker, payload),
+                timeout=settings.VIENEU_PROVIDER_TIMEOUT_SECONDS,
+            )
+            return True
+        except (ReferenceVoiceError, asyncio.TimeoutError):
+            await asyncio.to_thread(self._stop_worker)
+            return False
+        finally:
+            self._slot.release()
+
     async def synthesize_preset(self, *, text: str, voice_id: str, output_audio_path: Path) -> tuple[bytes, float]:
         if not self.is_preset_voice(voice_id):
             raise ReferenceVoiceError
@@ -173,10 +203,11 @@ class VieNeuReferenceVoiceProvider:
             raise ReferenceVoiceProviderBusyError from error
         try:
             model_snapshot, codec_snapshot = self._resolve_assets()
-            payload = {"text": text, "voice": voice_id.removeprefix(self.preset_voice_prefix), "output_audio": str(output_audio_path), "model_snapshot": str(model_snapshot), "codec_snapshot": str(codec_snapshot)}
+            payload = {'text': text, 'voice': voice_id.removeprefix(self.preset_voice_prefix), 'output_audio': str(output_audio_path), 'model_snapshot': str(model_snapshot), 'codec_snapshot': str(codec_snapshot), 'threads': str(settings.VIENEU_THREADS)}
             try:
                 await asyncio.wait_for(asyncio.to_thread(self._run_worker, payload), timeout=settings.VIENEU_PROVIDER_TIMEOUT_SECONDS)
             except asyncio.TimeoutError as error:
+                await asyncio.to_thread(self._stop_worker)
                 raise ReferenceVoiceProviderTimeoutError from error
             if not output_audio_path.is_file() or output_audio_path.stat().st_size <= 0 or output_audio_path.stat().st_size > settings.VIENEU_OUTPUT_MAX_SIZE_BYTES:
                 raise ReferenceVoiceOutputInvalidError
@@ -215,6 +246,7 @@ class VieNeuReferenceVoiceProvider:
                 "output_audio": str(output_audio_path),
                 "model_snapshot": str(model_snapshot),
                 "codec_snapshot": str(codec_snapshot),
+                'threads': str(settings.VIENEU_THREADS),
             }
             try:
                 await asyncio.wait_for(
@@ -222,6 +254,7 @@ class VieNeuReferenceVoiceProvider:
                     timeout=settings.VIENEU_PROVIDER_TIMEOUT_SECONDS,
                 )
             except asyncio.TimeoutError as error:
+                await asyncio.to_thread(self._stop_worker)
                 raise ReferenceVoiceProviderTimeoutError from error
 
             if not output_audio_path.is_file() or output_audio_path.stat().st_size <= 0:
@@ -243,39 +276,79 @@ class VieNeuReferenceVoiceProvider:
         finally:
             self._slot.release()
 
-    @classmethod
-    def _run_worker(cls, payload: dict[str, str]) -> None:
-        worker_path = Path(__file__).with_name("vieneu_worker.py")
-        python_path = Path(settings.VIENEU_PYTHON)
-        try:
-            process = subprocess.Popen(
-                [str(python_path), str(worker_path)],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                shell=False,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-                env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
-            )
-        except (FileNotFoundError, OSError) as error:
-            raise ReferenceVoiceProviderNotConfiguredError from error
+    def close(self) -> None:
+        self._stop_worker()
+
+    def _stop_worker(self, expected: subprocess.Popen[bytes] | None = None) -> None:
+        with self._worker_lock:
+            process = self._worker_process
+            if process is None or (expected is not None and process is not expected):
+                return
+            self._worker_process = None
 
         try:
-            stdout, _ = process.communicate(
-                input=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-                timeout=settings.VIENEU_PROVIDER_TIMEOUT_SECONDS,
-            )
-        except subprocess.TimeoutExpired as error:
-            process.kill()
-            process.communicate()
-            raise ReferenceVoiceProviderTimeoutError from error
+            if process.stdin is not None:
+                process.stdin.close()
+            if process.poll() is None:
+                process.terminate()
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+        finally:
+            if process.stdout is not None:
+                process.stdout.close()
 
-        if len(stdout) > cls._worker_output_max_bytes or process.returncode != 0:
+    def _start_worker(self) -> subprocess.Popen[bytes]:
+        with self._worker_lock:
+            process = self._worker_process
+            if process is not None and process.poll() is None:
+                return process
+            if process is not None and process.stdout is not None:
+                process.stdout.close()
+
+            worker_path = Path(__file__).with_name('vieneu_worker.py')
+            python_path = Path(settings.VIENEU_PYTHON)
+            try:
+                process = subprocess.Popen(
+                    [str(python_path), str(worker_path)],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    shell=False,
+                    bufsize=0,
+                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+                    env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
+                )
+            except (FileNotFoundError, OSError) as error:
+                raise ReferenceVoiceProviderNotConfiguredError from error
+
+            self._worker_process = process
+            return process
+
+    def _run_worker(self, payload: dict[str, object]) -> None:
+        process = self._start_worker()
+        try:
+            if process.stdin is None or process.stdout is None:
+                raise OSError('worker pipes are unavailable')
+            raw_payload = json.dumps(payload, ensure_ascii=False).encode('utf-8') + b'\n'
+            process.stdin.write(raw_payload)
+            process.stdin.flush()
+            stdout = process.stdout.readline(self._worker_output_max_bytes + 1)
+        except (BrokenPipeError, OSError, ValueError) as error:
+            self._stop_worker(process)
+            raise ReferenceVoiceError from error
+
+        if len(stdout) > self._worker_output_max_bytes:
+            self._stop_worker(process)
             raise ReferenceVoiceError
         try:
-            result = json.loads(stdout.decode("utf-8"))
+            result = json.loads(stdout.decode('utf-8'))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            self._stop_worker(process)
             raise ReferenceVoiceError from error
-        if not isinstance(result, dict) or result.get("ok") is not True:
+        if not isinstance(result, dict) or result.get('ok') is not True:
+            self._stop_worker(process)
             raise ReferenceVoiceError
 

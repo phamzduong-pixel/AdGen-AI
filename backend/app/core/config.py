@@ -110,6 +110,12 @@ class Settings:
     STT_AUDIO_MAX_DURATION_SECONDS = float(
         os.getenv("STT_AUDIO_MAX_DURATION_SECONDS", "60")
     )
+    TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS = float(
+        os.getenv('TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS', '45')
+    )
+    TTS_PROVIDER_MAX_ATTEMPTS = int(
+        os.getenv('TTS_PROVIDER_MAX_ATTEMPTS', '2')
+    )
     STT_PROVIDER_TIMEOUT_SECONDS = float(
         os.getenv("STT_PROVIDER_TIMEOUT_SECONDS", "600")
     )
@@ -117,7 +123,7 @@ class Settings:
     VC_PROVIDER = os.getenv("VC_PROVIDER", "disabled").strip().lower()
     VC_MODEL = os.getenv("VC_MODEL", "").strip()
     VC_PROVIDER_TIMEOUT_SECONDS = float(
-        os.getenv("VC_PROVIDER_TIMEOUT_SECONDS", "120")
+        os.getenv("VC_PROVIDER_TIMEOUT_SECONDS", "900")
     )
     VC_AUDIO_MAX_SIZE_BYTES = int(
         os.getenv("VC_AUDIO_MAX_SIZE_BYTES", str(10 * 1024 * 1024))
@@ -140,7 +146,10 @@ class Settings:
         "SEED_VC_DIR",
         _default_vieneu_path("..", "seed-vc"),
     ).strip()
-    SEED_VC_DIFFUSION_STEPS = int(os.getenv("SEED_VC_DIFFUSION_STEPS", "20"))
+    # A balanced CPU setting for the synchronous Seed-VC runtime. The model is
+    # launched per request, so 20 steps can exceed a short request timeout even
+    # for a few seconds of source audio.
+    SEED_VC_DIFFUSION_STEPS = int(os.getenv("SEED_VC_DIFFUSION_STEPS", "12"))
     # Local reference-voice TTS runs in a separate CPU/ONNX environment.
     VIENEU_PYTHON = os.getenv(
         "VIENEU_PYTHON",
@@ -150,6 +159,7 @@ class Settings:
         "VIENEU_CACHE_DIR",
         _default_vieneu_path("hf-cache"),
     ).strip()
+    VIENEU_THREADS = int(os.getenv('VIENEU_THREADS', str(min(4, os.cpu_count() or 1))))
     VIENEU_PROVIDER_TIMEOUT_SECONDS = float(
         os.getenv("VIENEU_PROVIDER_TIMEOUT_SECONDS", "900")
     )
@@ -311,6 +321,12 @@ class Settings:
             raise RuntimeError("VC_OUTPUT_MAX_SIZE_BYTES must be greater than 0")
         if self.SEED_VC_DIFFUSION_STEPS <= 0:
             raise RuntimeError("SEED_VC_DIFFUSION_STEPS must be greater than 0")
+        if self.TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS <= 0:
+            raise RuntimeError('TTS_PROVIDER_ATTEMPT_TIMEOUT_SECONDS must be greater than 0')
+        if self.TTS_PROVIDER_MAX_ATTEMPTS <= 0:
+            raise RuntimeError('TTS_PROVIDER_MAX_ATTEMPTS must be greater than 0')
+        if self.VIENEU_THREADS <= 0:
+            raise RuntimeError('VIENEU_THREADS must be greater than 0')
         if self.VIENEU_PROVIDER_TIMEOUT_SECONDS <= 0:
             raise RuntimeError("VIENEU_PROVIDER_TIMEOUT_SECONDS must be greater than 0")
         if self.VIENEU_REFERENCE_MAX_SIZE_BYTES <= 0:

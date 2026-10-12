@@ -82,6 +82,10 @@ function BrandFormModal({ open, brand, pending, onClose, onSubmit }) {
       }
     >
       <form id="brand-profile-form" className="brand-form" onSubmit={submit}>
+        <p className="brand-form__intro">
+          Hồ sơ thương hiệu giúp AI viết nhất quán với tên thương hiệu, khách hàng,
+          giọng điệu và những từ ngữ bạn muốn dùng hoặc tránh.
+        </p>
         <fieldset>
           <legend>Thông tin cơ bản</legend>
           <div className="brand-form__grid">
@@ -131,16 +135,8 @@ function BrandFormModal({ open, brand, pending, onClose, onSubmit }) {
         </fieldset>
 
         <fieldset>
-          <legend>Nội dung và nhận diện</legend>
+          <legend>Nội dung hướng dẫn AI</legend>
           <div className="brand-form__grid">
-            <label>Màu chính
-              <input value={form.primary_color || ""} placeholder="#4F46E5" onChange={(e) => set("primary_color", e.target.value)} />
-              {errors.primary_color && <small className="is-error">{errors.primary_color}</small>}
-            </label>
-            <label>Màu phụ
-              <input value={form.secondary_color || ""} placeholder="#14B8A6" onChange={(e) => set("secondary_color", e.target.value)} />
-              {errors.secondary_color && <small className="is-error">{errors.secondary_color}</small>}
-            </label>
             <label className="is-wide">Từ khóa ưu tiên (phân cách bằng dấu phẩy)
               <input
                 value={listText(form.keywords)}

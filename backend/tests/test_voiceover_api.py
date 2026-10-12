@@ -15,6 +15,7 @@ from app.database.database import Base, get_db
 from app.models.user import User
 from app.models.voiceover_audio import VoiceoverAudio
 from app.schemas.voiceover import VoiceoverGenerateResponse
+from app.services.voiceover.voiceover_service import VoiceoverProviderTimeoutError
 
 
 class VoiceoverOwnershipApiTest(unittest.TestCase):
@@ -152,6 +153,22 @@ class VoiceoverOwnershipApiTest(unittest.TestCase):
             response = self.client.get("/voiceover/audio/legacy.mp3")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(self.db.query(VoiceoverAudio).count(), 0)
+
+
+    def test_tts_timeout_has_a_stable_public_code(self):
+        voiceover_module = __import__(
+            'app.api.voiceover',
+            fromlist=['voiceover_service'],
+        )
+        with patch.object(
+            voiceover_module.voiceover_service,
+            'generate_voiceover',
+            new=AsyncMock(side_effect=VoiceoverProviderTimeoutError),
+        ):
+            response = self.client.post('/voiceover/generate', json={'text': 'hello'})
+
+        self.assertEqual(response.status_code, 504)
+        self.assertEqual(response.json()['detail']['code'], 'VOICEOVER_PROVIDER_TIMEOUT')
 
 
 if __name__ == "__main__":

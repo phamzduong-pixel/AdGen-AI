@@ -1,7 +1,7 @@
 # AdGen AI — Capstone Project Final Report
 
 > Mẫu tham chiếu: `main.pdf` — Samsung Innovation Campus, AI Course, Capstone Project Final Report
-> Ngày cập nhật: 09/10/2026
+> Ngày cập nhật: 12/10/2026
 > Trạng thái: Báo cáo được điền theo source code, tài liệu và kết quả kiểm thử hiện có; các runtime/provider chưa xác minh được ghi rõ.
 
 ## Thông tin dự án
@@ -245,12 +245,12 @@ Voice Studio hiện có:
 
 Bằng chứng kiểm tra frontend gần nhất:
 
-- `npm test`: **68/68 pass**;
+- `npm test`: **69/69 pass**;
 - `npm run lint`: **PASS**;
 - `npm run build`: **PASS**;
 - `git diff --check`: **PASS**; cảnh báo LF/CRLF là line-ending warning của working tree.
 
-Backend có targeted suites cho audio probe, STT API/service, Google adapter, Vosk, video-to-STT, reference voice và voice conversion. Full suite gần nhất: **495 tests PASS** và 74 subtests PASS; OpenAPI 97 paths, health, CORS local, migration head, compileall và dependency integrity PASS. Mock/unit tests không thay thế runtime provider thật.
+Backend có targeted suites cho audio probe, STT API/service, Google adapter, Vosk, video-to-STT, reference voice, emotion và voice conversion. Full suite gần nhất: **521 tests PASS**, kèm 3 cảnh báo deprecation không làm thất bại kiểm thử; OpenAPI 98 paths, health, CORS local, migration head, compile/import và dependency integrity PASS. Mock/unit tests không thay thế runtime provider thật.
 
 ## 4. Projected Impact
 
@@ -380,3 +380,30 @@ Bản báo cáo đã điền theo cấu trúc của `main.pdf`, nhưng chưa th�
 ## Addendum — Chat lifecycle audit (11/10/2026)
 
 Audit CP-1 đến CP-12 xác minh commit user trước retrieval, validation evidence, canonical final content và edit consistency bằng source/test offline. Chưa có bằng chứng cho full backend discovery, FFmpeg/FFprobe/provider integration thật hoặc remote provider cancellation; các mục này không được coi là PASS.
+
+## Addendum — System synchronization and cleanup (12/10/2026)
+
+### Completed in this section
+
+- Audited repository structure and removed only frontend files/components that were empty, legacy or duplicated and had no active imports.
+- Kept model caches, reference voice asset, package markers and runtime-dependent files that may still be required.
+- Fixed the navigation export boundary by moving NAVIGATION_ITEMS to a dedicated module.
+- Added backend/requirements-dev.txt so pytest is reproducible as a development dependency without changing production runtime requirements.
+- Documented the conversation input pipeline, evidence/retrieval gate, prompt composition, provider call, output validation and canonical persistence.
+- Documented the separation between STT, TTS, reference-voice synthesis and direct Voice Conversion.
+- Documented Voice Studio latest-audio persistence and message ownership behavior.
+
+### Current verification evidence
+
+| Check | Result |
+| --- | --- |
+| Frontend tests | 69/69 passed |
+| Frontend lint | Passed |
+| Frontend production build | Passed |
+| Backend pytest suite | 521 passed |
+| Dependency integrity | pip check passed |
+| Remaining warnings | 3 deprecation warnings; no test failure |
+
+### System boundary
+
+The application is complete at the source-code and contract level for the implemented workflows. Production readiness is still conditional for external runtime components: VieNeu-TTS worker/model cache, Vosk model, FFmpeg/FFprobe and Seed-VC environment/checkpoints. These components are intentionally fail-closed when unavailable; passing unit/API tests does not claim that every external provider has been validated in the current machine.
