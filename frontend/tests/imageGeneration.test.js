@@ -29,7 +29,11 @@ test("uses create label without a reference and edit label with a source", () =>
 });
 
 test("maps stable provider error codes to distinct messages", () => {
-  assert.match(getImageGenerationErrorMessage(providerError("RESOURCE_EXHAUSTED", 429)), /quota|rate limit/i);
+  assert.match(getImageGenerationErrorMessage(providerError("QUOTA_EXCEEDED", 429)), /quota/i);
+  assert.match(getImageGenerationErrorMessage(providerError("RESOURCE_EXHAUSTED", 429)), /chưa nêu rõ/i);
+  assert.match(getImageGenerationErrorMessage(providerError("RATE_LIMITED", 429)), /tốc độ/i);
+  assert.match(getImageGenerationErrorMessage(providerError("BILLING_REQUIRED", 403)), /billing/i);
+  assert.match(getImageGenerationErrorMessage(providerError("INVALID_API_KEY", 401)), /API key.*không hợp lệ/i);
   assert.match(getImageGenerationErrorMessage(providerError("INVALID_ARGUMENT", 400)), /tham số|không hợp lệ/i);
   assert.match(getImageGenerationErrorMessage(providerError("MODEL_NOT_FOUND")), /model/i);
   assert.match(getImageGenerationErrorMessage(providerError("PERMISSION_DENIED")), /quyền/i);
@@ -43,7 +47,7 @@ test("keeps bare 429 neutral instead of claiming quota exhaustion", () => {
   const message = getImageGenerationErrorMessage({
     response: { status: 429, data: { detail: { code: "PROVIDER_ERROR", message: "limited" } } },
   });
-  assert.match(message, /giới hạn yêu cầu hoặc tài nguyên/i);
+  assert.match(message, /giới hạn yêu cầu/i);
   assert.doesNotMatch(message, /quota|rate limit/i);
 });
 
@@ -54,12 +58,12 @@ test("keeps legacy explicit quota responses compatible", () => {
       data: { detail: "Image generation is temporarily limited by provider quota or rate limit" },
     },
   });
-  assert.match(legacyQuota, /quota|rate limit/i);
+  assert.match(legacyQuota, /quota/i);
 
   const legacyUnknown = getImageGenerationErrorMessage({
     response: { status: 429, data: { detail: "provider rejected request" } },
   });
-  assert.match(legacyUnknown, /giới hạn yêu cầu hoặc tài nguyên/i);
+  assert.match(legacyUnknown, /giới hạn yêu cầu/i);
   assert.doesNotMatch(legacyUnknown, /quota|rate limit/i);
 });
 

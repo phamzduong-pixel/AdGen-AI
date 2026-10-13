@@ -146,6 +146,14 @@ def _enum_value(value: object) -> str:
     return str(getattr(value, "value", value))
 
 
+_PRODUCT_TRUST_CLAIM_TYPES = {
+    "evidence_backed",
+    "product_fact",
+    "ai_inference",
+    "insufficient_evidence",
+}
+
+
 def _assessment_record(
     claim: ProductClaim,
     assessment: ClaimAssessment,
@@ -182,8 +190,12 @@ def evaluate_report_trust_details(
     excluded_evidence_ids: list[str] = []
     trusted_source_hosts: set[str] = set()
 
+    product_claims = [
+        claim for claim in report.claims
+        if _enum_value(claim.claim_type) in _PRODUCT_TRUST_CLAIM_TYPES
+    ]
     claim_links_by_evidence: dict[int, list[str]] = {}
-    for claim in report.claims:
+    for claim in product_claims:
         for link in claim.evidence_links:
             claim_links_by_evidence.setdefault(link.evidence_id, []).append(
                 claim.claim_key
@@ -209,7 +221,7 @@ def evaluate_report_trust_details(
         evidences.append(evidence)
 
     claims: list[ProductClaim] = []
-    for stored_claim in report.claims:
+    for stored_claim in product_claims:
         origin = (
             ClaimOrigin.EXTERNAL_EVIDENCE
             if stored_claim.claim_type in {"evidence_backed", "product_fact"}

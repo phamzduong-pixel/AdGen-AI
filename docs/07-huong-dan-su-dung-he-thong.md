@@ -79,6 +79,8 @@ Trong Chat:
 
 Tiêu đề cuộc hội thoại có thể được hệ thống tạo tự động từ nội dung trao đổi. Bản nháp đang nhập được lưu cục bộ theo từng cuộc hội thoại để hạn chế mất dữ liệu khi tải lại trang.
 
+Các hội thoại đã ghim luôn nằm đầu danh sách lịch sử, phía trên hội thoại mới tạo. Tải lại trang sẽ mở lại hội thoại đang dùng nếu hội thoại đó vẫn còn.
+
 ### 4.2. Nhập yêu cầu tự nhiên
 
 Nhập yêu cầu vào ô soạn thảo, ví dụ:
@@ -192,28 +194,6 @@ Voice Studio ưu tiên nhận diện các marker lời thoại như **VO**, **L�
 - Nếu nhận diện không chắc chắn, hãy đọc lại và chỉnh sửa trực tiếp trước khi chọn **Tạo Voiceover**.
 
 Các tiêu đề, metadata, hướng dẫn và chỉ dẫn sản xuất như Visual, Camera, Nhạc, SFX hoặc Caption không được xem là lời thoại trừ khi người dùng giữ/chỉnh sửa chúng trong văn bản đang chọn.
-
-## 6.2. Trend Radar và Báo cáo xu hướng
-
-Mở **Báo cáo xu hướng** từ khu vực Chat để theo dõi một chủ đề và xem dữ liệu xu hướng có nguồn. Quy trình sử dụng:
-
-```text
-Nhập chủ đề cần theo dõi
-  → Thu thập
-  → tạo Trend Report / Snapshot
-  → kiểm tra claim, evidence, nguồn và Độ tin cậy sản phẩm
-  → nếu đủ điều kiện: Advertising Angle → Brief → Campaign → Metrics
-```
-
-- **Tất cả bằng chứng**: dùng mọi evidence hợp lệ theo đánh giá trust của backend.
-- **Chỉ bằng chứng đã xác minh**: chỉ dùng evidence có verification basis hợp lệ; không phải điểm tự tin của AI.
-- Ô URL và **Tin cậy** dùng để cấu hình source policy cho tài khoản hiện tại.
-- **Loại trừ** loại nguồn khỏi trust assessment; source mặc định/chưa cấu hình không tự động được xem là trusted.
-- Đây là chính sách nguồn, không phải ô nhập sản phẩm để tìm trend.
-
-Trend Report có thể hiển thị trạng thái verified, partial, unverified, contradicted hoặc insufficient cùng evidence, source, freshness, conflict, risk/action và warning. EMPTY/ERROR hoặc dữ liệu không đủ không được trình bày như bằng chứng mới.
-
-Trong quy trình theo dõi, Snapshot SUCCESS hợp lệ mới có thể tạo/cập nhật Alert. Alert hỗ trợ xu hướng mới/tăng đột biến và lifecycle **Mới → Đang hoạt động → Đã xử lý**. Người dùng có thể xóa một bản ghi lịch sử Trend Report; thao tác này chỉ ẩn bản ghi bằng soft-delete, không xóa campaign, metric hoặc provenance downstream.
 
 ## 7. Media Studio: ảnh và video
 

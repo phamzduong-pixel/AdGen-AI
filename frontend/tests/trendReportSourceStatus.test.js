@@ -51,9 +51,48 @@ test("keeps successful sources visible when provider status is partial", () => {
     ],
   });
 
-  assert.equal(getProviderStatusPresentation({ provider_status: "partial", evidences: [{}, {}] }).tone, "failure");
+  assert.equal(getProviderStatusPresentation({ provider_status: "partial", evidences: [{}, {}] }).tone, "warning");
   assert.equal(cards.find((card) => card.source === "healthy").tone, "success");
   assert.equal(cards.find((card) => card.source === "failed").tone, "failure");
+});
+
+test("maps CP-10A RSS result states without guessing legacy empty reasons", () => {
+  const states = [
+    ["no_valid_entries", "Nguồn chưa có bài viết hợp lệ"],
+    ["no_topic_matches", "Có bài viết nhưng không khớp chủ đề"],
+    ["success", "Đã tìm thấy bài phù hợp"],
+    ["timeout", "Nguồn hết thời gian chờ"],
+    ["invalid_response", "Không thể đọc dữ liệu nguồn"],
+    ["unknown", "Chưa xác định được nguyên nhân"],
+  ];
+  for (const [result_state, label] of states) {
+    const status = result_state === "no_valid_entries" || result_state === "no_topic_matches" || result_state === "unknown" ? "empty" : result_state;
+    const [card] = buildSourceStatusCards({ source_statuses: [{ source: "Báo Thanh Niên", status, result_state }] });
+    assert.equal(card.label, label);
+    assert.equal(card.source, "Báo Thanh Niên");
+  }
+  const [legacy] = buildSourceStatusCards({ source_statuses: [{ source: "Old RSS", status: "empty" }] });
+  assert.equal(legacy.resultState, "unknown");
+  assert.equal(legacy.label, "Chưa xác định được nguyên nhân");
+  assert.equal(legacy.entriesChecked, null);
+});
+
+test("keeps measured counts separate from persisted evidence count", () => {
+  const [card] = buildSourceStatusCards({ source_statuses: [{
+    source: "RSS", status: "success", result_state: "success",
+    entries_checked: 8, valid_entries: 6, matched_entries: 3, evidence_count: 2,
+  }] });
+  assert.equal(card.entriesChecked, 8);
+  assert.equal(card.validEntries, 6);
+  assert.equal(card.matchedEntries, 3);
+  assert.equal(card.evidenceCount, 2);
+});
+
+test("renders mixed all-source failure status as a provider failure", () => {
+  assert.equal(
+    getProviderStatusPresentation({ provider_status: "failed", evidences: [] }).tone,
+    "failure",
+  );
 });
 
 test("renders stale and conflicting evidence as distinct statuses", () => {
@@ -75,7 +114,7 @@ test("renders empty and not-configured responses without inventing sources", () 
   assert.deepEqual(buildSourceStatusCards({ source_statuses: [] }), []);
   assert.deepEqual(
     getProviderStatusPresentation({ provider_status: "success", evidences: [] }),
-    { tone: "empty", label: "Không có bằng chứng" },
+    { tone: "empty", label: "Chưa có kết quả RSS phù hợp" },
   );
   assert.deepEqual(
     getSourceStatusPresentation({ status: "not_configured", evidenceCount: 0 }),

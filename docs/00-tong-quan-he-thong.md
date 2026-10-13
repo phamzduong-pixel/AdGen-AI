@@ -123,15 +123,6 @@ Các nhóm source quan trọng:
 | Text + reference audio/video → VieNeu-TTS | Có endpoint/provider worker/validation foundation; phụ thuộc môi trường model riêng, chưa mặc định production-ready |
 | Direct Voice Conversion | Seed-VC source/API/UI integration đã có; runtime thật chưa PASS do thiếu cấu hình môi trường/model/reference đầy đủ |
 
-### Trend Radar và Insight-to-Campaign
-
-- Thu thập Trend Report có evidence/provenance, source status, stale/conflict metadata và Product Trust.
-- Source policy theo user hỗ trợ `trusted`/`excluded`; `verified_only` chỉ dùng evidence đạt verification contract, không dựa trên LLM confidence.
-- Trend Monitor lưu query, cadence, timezone, next run và Trend Snapshot; luồng manual/due run giữ idempotency theo `run_key`.
-- Alert Engine xử lý `TREND_NEW` và `TREND_SPIKE` theo lifecycle `NEW → ACTIVE → RESOLVED`; chỉ SUCCESS hợp lệ được đánh giá, EMPTY/ERROR không tạo hoặc resolve alert.
-- Advertising Angle được tạo từ claim/evidence đủ điều kiện; Brief quảng cáo, Campaign và Campaign Metric Snapshot giữ provenance và ownership.
-- Lịch sử Trend Report hỗ trợ xóa an toàn bằng soft-delete `deleted_at`; evidence và downstream artifacts không bị cascade-delete.
-
 ## 4. Generative AI và provider
 
 ### Text generation
@@ -278,7 +269,7 @@ Chuỗi lịch sử từ `20260727_0001` đến `20261001_0016` còn vấn đề
 - SQLite disposable đã tái hiện lỗi từ database rỗng tại `0008`.
 - Không rewrite migration history vì chưa xác định được database nào đã dùng revision.
 
-Các migration sau đó đã được nối tuần tự từ `20261003_0017` đến `20261006_0025`, gồm ownership audio Voice Studio, Trend Report evidence/source status, Product Trust, Monitor/Snapshot, Alert, Advertising Angle, Brief/Metric và soft-delete lịch sử Trend Report.
+Các migration sau đó đã được nối tuần tự từ `20261003_0017` đến `20261006_0025`; trong đó có ownership audio Voice Studio. Danh sách revision đầy đủ nằm ở `backend/alembic/versions/`.
 
 Đường hỗ trợ local hiện tại là bootstrap explicit. PostgreSQL disposable và chiến
 lược migration legacy production vẫn cần checkpoint riêng.
@@ -365,8 +356,6 @@ Các kết quả đã xác minh gần nhất:
 - Demo login qua API: HTTP 200 và token được cấp; token không in vào log.
 - TTS focused tests: PASS; real Edge TTS ngắn đã từng thành công.
 - Frontend `npm run build`: PASS.
-- Plan 17 Trend Radar: Stage 1–4 đã hoàn thành; targeted/regression tests, schema validation và migration head đã được kiểm tra theo các checkpoint.
-- Frontend Voice Studio/Trend Radar hiện có lint, test và production build theo các checkpoint tương ứng.
 - Voice Studio targeted suites gồm `test_stt_api.py`, `test_video_to_stt.py`, `test_vosk_stt.py`, `test_vieneu_reference_api.py`, `test_voiceover_api.py`, cùng các contract test frontend cho audio/video/file input và modal.
 - Frontend Voice Studio gần nhất: **69/69 tests pass**, `npm run lint` PASS và `npm run build` PASS.
 - Python compile check: PASS.
@@ -415,11 +404,8 @@ database, cần đăng ký lại tài khoản demo.
 - Voiceover: `backend/app/api/voiceover.py`, `backend/app/services/voiceover/`, `backend/app/services/voiceover/providers/vieneu_reference_provider.py`, `backend/app/services/voiceover/providers/vieneu_worker.py`
 - STT/audio/video: `backend/app/api/stt.py`, `backend/app/api/video_stt.py`, `backend/app/services/stt/`, `backend/app/services/voice_studio/`
 - Voice conversion foundation: `backend/app/api/voice_conversion.py`, `backend/app/services/voice_conversion/`
-- Trend Radar: `backend/app/api/trend_report.py`, `backend/app/api/insight_campaign.py`, `backend/app/services/trend_report_service.py`, `backend/app/services/trend_monitor_service.py`, `backend/app/services/trend_alert_service.py`, `backend/app/services/advertising_angle_service.py`, `backend/app/services/insight_campaign_service.py`
-- Trend Radar models: `backend/app/models/trend_report.py`, `trend_monitor.py`, `trend_alert.py`, `advertising_angle.py`, `advertising_brief.py`, `evidence_source_policy.py`
 - Frontend chat bubble: `frontend/src/components/chat/MessageBubble/`
 - Frontend API clients: `frontend/src/services/api/`
-- Trend Radar UI: `frontend/src/components/chat/TrendReportPanel/`, `frontend/src/services/api/trendReportApi.js`, `frontend/src/utils/trendReport*.js`
 - Tests: `backend/tests/`, `frontend/tests/`
 - Deployment: `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`,
   `render.yaml`

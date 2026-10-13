@@ -23,6 +23,58 @@ from app.services.product_trust.models import ClaimAssessment, ProductClaim
 logger = logging.getLogger(__name__)
 MODEL_NAME = "gemini-2.5-flash"
 
+_EXPLICIT_URL = re.compile(r"(?<![\w@])(?:https?://|www\.)[^\s<>()\[\]{}\"']+", re.IGNORECASE)
+_MARKDOWN_URL = re.compile(r"\[([^\]\n]+)\]\(((?:https?://|www\.)[^)\s]+)\)", re.IGNORECASE)
+_UNVERIFIED_URL_NOTICE = (
+    "Lưu ý: Tôi chưa xác minh được website chính thức; đường dẫn không có nguồn đã được ẩn."
+)
+
+
+def _url_key(value: str) -> str:
+    return value.rstrip("/.,;:!?").lower()
+
+
+def _guard_knowledge_answer(
+    content: str,
+    result: SearchProviderResult | None,
+    history: list[dict],
+) -> str:
+    if (
+        result is None
+        or not (
+            result.metadata.get("entity_lookup") is True
+            or result.metadata.get("prior_knowledge_fallback") is True
+        )
+    ):
+        return content
+    allowed_urls = {
+        _url_key(match.group())
+        for item in history
+        if item.get("role") == "user"
+        for match in _EXPLICIT_URL.finditer(str(item.get("content", "")))
+    }
+    allowed_urls.update(_url_key(item.source_url) for item in result.evidences)
+    removed = False
+
+    def guard_markdown(match: re.Match) -> str:
+        nonlocal removed
+        if _url_key(match.group(2)) in allowed_urls:
+            return match.group()
+        removed = True
+        return f"{match.group(1)} [đường dẫn chưa được xác minh]"
+
+    def guard_match(match: re.Match) -> str:
+        nonlocal removed
+        token = match.group()
+        url = token.rstrip(".,;:!?")
+        if _url_key(url) in allowed_urls:
+            return token
+        removed = True
+        return "[đường dẫn chưa được xác minh]" + token[len(url):]
+
+    guarded = _EXPLICIT_URL.sub(guard_match, _MARKDOWN_URL.sub(guard_markdown, content))
+    return f"{_UNVERIFIED_URL_NOTICE}\n\n{guarded}" if removed else guarded
+
 client = genai.Client(api_key=settings.GEMINI_API_KEY) if settings.GEMINI_API_KEY else None
 
 
@@ -288,7 +340,7 @@ def ask_ai(
             allowed_citation_ids=evidence_context.citation_ids if evidence_context else None,
         )
         enforcement = enforce_product_trust(final_content, product_claim_assessments)
-        final_content = enforcement.content
+        final_content = _guard_knowledge_answer(enforcement.content, external_retrieval_result, history)
         _log_generation(
             prompt_type=prompt_type,
             custom_platform_name=custom_platform_name,
@@ -386,8 +438,14 @@ def stream_ai(
         evidence_context = build_evidence_prompt_context(external_retrieval_result) if external_retrieval_requested else None
         allowed_citation_ids = evidence_context.citation_ids if evidence_context else None
         pending_citation = ""
-        if product_claim_assessments:
-            # Buffer only assessed outputs so a blocked claim is never released.
+        if product_claim_assessments or (
+            external_retrieval_result is not None
+            and (
+                external_retrieval_result.metadata.get("entity_lookup") is True
+                or external_retrieval_result.metadata.get("prior_knowledge_fallback") is True
+            )
+        ):
+            # Buffer assessed or unsourced-URL answers before releasing any text.
             for chunk in response_stream:
                 chunk_text = getattr(chunk, "text", "") or ""
                 if chunk_text:
@@ -397,7 +455,7 @@ def stream_ai(
                 allowed_citation_ids=allowed_citation_ids,
             )
             enforcement = enforce_product_trust(final_content, product_claim_assessments)
-            final_content = enforcement.content
+            final_content = _guard_knowledge_answer(enforcement.content, external_retrieval_result, history)
             _validate_citation_ids(final_content, allowed_citation_ids)
             _log_generation(
                 prompt_type=prompt_type,

@@ -280,10 +280,14 @@ class MediaService:
             safe_status, failure_message, client_message, error_code = self._classify_provider_error(error)
             self._mark_failed(db, asset, failure_message)
             logger.warning(
-                "Image provider request failed: type=%s status=%s code=%s",
+                "Image provider request failed: type=%s status=%s code=%s provider_status=%s model=%s request_id=%s provider_message=%s",
                 type(error).__name__,
                 safe_status,
                 error_code,
+                getattr(error, "provider_status", None),
+                self.provider.model_name,
+                getattr(error, "request_id", None),
+                getattr(error, "provider_message", None),
             )
             raise HTTPException(
                 status_code=safe_status,
@@ -297,16 +301,24 @@ class MediaService:
         code = failure.code
         provider_status = failure.provider_status
         status_by_code = {
+            "QUOTA_EXCEEDED": status.HTTP_429_TOO_MANY_REQUESTS,
             "RESOURCE_EXHAUSTED": status.HTTP_429_TOO_MANY_REQUESTS,
+            "RATE_LIMITED": status.HTTP_429_TOO_MANY_REQUESTS,
             "INVALID_ARGUMENT": status.HTTP_400_BAD_REQUEST,
             "PROVIDER_TIMEOUT": status.HTTP_504_GATEWAY_TIMEOUT,
+            "BILLING_REQUIRED": status.HTTP_403_FORBIDDEN,
+            "INVALID_API_KEY": status.HTTP_401_UNAUTHORIZED,
         }
         safe_status = status_by_code.get(code, status.HTTP_502_BAD_GATEWAY)
         if code == "PROVIDER_ERROR" and provider_status == 429:
             safe_status = status.HTTP_429_TOO_MANY_REQUESTS
 
         internal_messages = {
-            "RESOURCE_EXHAUSTED": "Image provider quota exceeded",
+            "QUOTA_EXCEEDED": "Image provider quota exceeded",
+            "RESOURCE_EXHAUSTED": "Image provider reported resource exhaustion",
+            "RATE_LIMITED": "Image provider rate limited the request",
+            "BILLING_REQUIRED": "Image provider billing is not enabled for this project",
+            "INVALID_API_KEY": "Image provider API key is invalid",
             "INVALID_ARGUMENT": "Image provider rejected the request",
             "MODEL_NOT_FOUND": "Image provider model was not found",
             "PERMISSION_DENIED": "Image provider permission denied",
@@ -316,7 +328,11 @@ class MediaService:
             "PROVIDER_ERROR": "Image provider failed",
         }
         client_messages = {
-            "RESOURCE_EXHAUSTED": "Image generation is temporarily limited by verified provider quota or rate limit",
+            "QUOTA_EXCEEDED": "Image provider quota is exhausted or unavailable for this request.",
+            "RESOURCE_EXHAUSTED": "Image provider reported resource exhaustion; its response did not identify the specific limit.",
+            "RATE_LIMITED": "Image provider rate limit reached. Wait before trying again.",
+            "BILLING_REQUIRED": "Image provider requires billing to be enabled for this project.",
+            "INVALID_API_KEY": "The configured image provider API key is invalid.",
             "INVALID_ARGUMENT": "Image generation request or parameters are invalid",
             "MODEL_NOT_FOUND": "The configured image model is unavailable or not recognized by the provider",
             "PERMISSION_DENIED": "The image provider denied access to this request",

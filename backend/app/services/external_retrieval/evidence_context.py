@@ -128,11 +128,20 @@ def build_evidence_prompt_context(
         provider_result.status,
         "External retrieval did not produce usable evidence. Do not imply that a search completed.",
     )
+    knowledge_note = (
+        "This is a general factual question. Answer it directly from prior knowledge "
+        "only if you are confident; otherwise say you do not know. Do not redirect "
+        "to marketing features. No website URL or source is available from retrieval, "
+        "so do not provide or claim an official URL."
+        if provider_result.metadata.get("prior_knowledge_fallback") is True
+        else ""
+    )
     return EvidencePromptContext(
         text=(
             "<external_retrieval_status>\n"
             f"Status: {provider_result.status.value}\n"
             f"{status_message}\n"
+            f"{knowledge_note}\n"
             "</external_retrieval_status>"
         ),
         retrieval_status=provider_result.status,
@@ -150,6 +159,8 @@ def build_retrieval_fallback_response(
         )
 
     status = provider_result.status
+    if provider_result.metadata.get("prior_knowledge_fallback") is True and status is not SearchProviderStatus.SUCCESS:
+        return None
     if status is SearchProviderStatus.SUCCESS and provider_result.evidences:
         evidence_statuses = {
             str(getattr(item.verification_status, "value", item.verification_status)).lower()

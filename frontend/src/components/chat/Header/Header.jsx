@@ -12,7 +12,6 @@ function Header({
   exportDisabled = false,
   onOpenConversationMenu,
   onOpenSavedContents,
-  onOpenTrendReports,
   onOpenMedia,
 }) {
   return (
@@ -29,7 +28,6 @@ function Header({
         exportDisabled={exportDisabled}
         onOpenConversationMenu={onOpenConversationMenu}
         onOpenSavedContents={onOpenSavedContents}
-        onOpenTrendReports={onOpenTrendReports}
         onOpenMedia={onOpenMedia}
       />
     </header>

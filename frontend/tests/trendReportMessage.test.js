@@ -1,23 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { presentTrendMessage, presentTrustRationale } from "../src/utils/trendReportMessage.js";
+import { presentTrendMessage } from "../src/utils/trendReportMessage.js";
 
-test("translates persisted Trend Radar retrieval caveats into user-facing Vietnamese", () => {
+test("describes an unconfigured collector as missing RSS sources", () => {
   assert.equal(
-    presentTrendMessage("No retrieval collectors are configured; insufficient evidence/data."),
-    "Chưa cấu hình nguồn thu thập dữ liệu xu hướng, nên hệ thống chưa thể thu thập dữ liệu mới cho chủ đề này.",
-  );
-  assert.equal(
-    presentTrendMessage("External retrieval was not usable (status: not_configured). No fresh source-backed fact or statistic is available."),
-    "Không thể sử dụng nguồn dữ liệu xu hướng bên ngoài. Hiện chưa có dữ liệu mới từ nguồn đáng tin cậy để hiển thị.",
+    presentTrendMessage("No retrieval collectors are configured"),
+    "Chưa cấu hình nguồn RSS, nên chưa thể tìm bài báo mới cho chủ đề này.",
   );
 });
 
-test("translates trust rationales without changing the trust action or status", () => {
+test("keeps generic external errors neutral about trends", () => {
   assert.equal(
-    presentTrustRationale("only stale evidence was explicitly related to this claim"),
-    "Chỉ có bằng chứng đã cũ liên quan đến claim này.",
+    presentTrendMessage("External service failed"),
+    "Nguồn dữ liệu bên ngoài không trả về thông tin có thể sử dụng. Vui lòng thử lại hoặc kiểm tra cấu hình nguồn.",
   );
-  assert.equal(presentTrustRationale("Thông điệp đã Việt hóa."), "Thông điệp đã Việt hóa.");
+});
+
+test("presents monitoring alerts without claiming a social trend", () => {
+  assert.equal(
+    presentTrendMessage("Trend snack food detected."),
+    "Đã ghi nhận tín hiệu theo dõi: snack food.",
+  );
 });

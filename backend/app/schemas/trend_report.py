@@ -9,6 +9,9 @@ ReportClaimType = Literal[
     "product_fact",
     "ai_inference",
     "insufficient_evidence",
+    "report_statistic",
+    "topic_observation",
+    "analysis_status",
 ]
 
 
@@ -41,11 +44,13 @@ class TrendReportClaimCreate(BaseModel):
 
     @model_validator(mode="after")
     def require_explicit_support(self):
-        if self.claim_type in {"evidence_backed", "product_fact"} and not self.evidence_ids:
+        if self.claim_type in {
+            "evidence_backed", "product_fact", "report_statistic", "topic_observation"
+        } and not self.evidence_ids:
             raise ValueError(
                 "Evidence-backed/product-fact claim pháº£i tham chiáº¿u evidence_ids rÃµ rÃ ng"
             )
-        if self.claim_type in {"ai_inference", "insufficient_evidence"} and self.evidence_ids:
+        if self.claim_type in {"ai_inference", "insufficient_evidence", "analysis_status"} and self.evidence_ids:
             raise ValueError(
                 "AI inference/insufficient evidence claim khÃ´ng Ä‘Æ°á»£c gáº¯n evidence nhÆ° factual support"
             )
@@ -119,6 +124,13 @@ class TrendReportClaimResponse(BaseModel):
     evidence: list[TrendReportEvidenceResponse]
 
 
+class TrendTopicClusterResponse(BaseModel):
+    phrase: str
+    article_count: int
+    publisher_count: int
+    evidence_ids: list[str]
+
+
 class TrendReportResponse(BaseModel):
     product_trust: dict | None = None
     report_id: str
@@ -136,6 +148,10 @@ class TrendReportResponse(BaseModel):
     source_statuses: list[dict]
     evidences: list[TrendReportEvidenceResponse]
     claims: list[TrendReportClaimResponse]
+    article_count: int
+    publisher_count: int
+    newest_article_at: datetime | None
+    topic_clusters: list[TrendTopicClusterResponse]
 
 
 class TrendReportListResponse(BaseModel):

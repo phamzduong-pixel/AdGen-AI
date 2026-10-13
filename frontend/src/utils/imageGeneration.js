@@ -5,7 +5,11 @@ export const getImageActionLabel = ({ referenceFile, sourceAsset }) => (
 );
 
 const CODE_MESSAGES = {
-  RESOURCE_EXHAUSTED: "Dịch vụ tạo ảnh đang bị giới hạn quota hoặc rate limit. Hãy kiểm tra usage tier/billing rồi thử lại sau.",
+  QUOTA_EXCEEDED: "Quota của provider tạo ảnh đã đạt giới hạn. Kiểm tra hạn mức miễn phí hoặc chờ quota được làm mới.",
+  RESOURCE_EXHAUSTED: "Provider báo cạn tài nguyên nhưng chưa nêu rõ quota hay giới hạn khác. Xem log backend để biết chi tiết.",
+  RATE_LIMITED: "Dịch vụ tạo ảnh đang giới hạn tốc độ yêu cầu. Hãy chờ trước khi thử lại.",
+  BILLING_REQUIRED: "Provider yêu cầu bật billing cho dự án này. Kiểm tra cấu hình tài khoản trước khi tiếp tục.",
+  INVALID_API_KEY: "API key tạo ảnh không hợp lệ. Kiểm tra cấu hình key ở backend.",
   INVALID_ARGUMENT: "Yêu cầu hoặc tham số tạo ảnh không hợp lệ. Vui lòng kiểm tra prompt, tỷ lệ hoặc ảnh tham chiếu.",
   MODEL_NOT_FOUND: "Model tạo ảnh không khả dụng hoặc không được provider nhận diện. Vui lòng kiểm tra cấu hình model.",
   PERMISSION_DENIED: "Provider không cấp quyền cho yêu cầu tạo ảnh. Vui lòng kiểm tra quyền của API key.",
@@ -24,7 +28,7 @@ export const getImageGenerationErrorMessage = (error) => {
 
   if (code && CODE_MESSAGES[code]) {
     if (code === "PROVIDER_ERROR" && status === 429) {
-      return "Dịch vụ tạo ảnh đang bị giới hạn yêu cầu hoặc tài nguyên. Vui lòng thử lại sau.";
+      return "Provider đã giới hạn yêu cầu tạo ảnh. Kiểm tra Response của request để xác định loại giới hạn.";
     }
     return CODE_MESSAGES[code];
   }
@@ -36,7 +40,7 @@ export const getImageGenerationErrorMessage = (error) => {
     if (/quota|rate limit|resource_exhausted/i.test(legacyDetail)) {
       return CODE_MESSAGES.RESOURCE_EXHAUSTED;
     }
-    return "Dịch vụ tạo ảnh đang bị giới hạn yêu cầu hoặc tài nguyên. Vui lòng thử lại sau.";
+    return "Provider đã giới hạn yêu cầu tạo ảnh. Kiểm tra Response của request để xác định loại giới hạn.";
   }
   if (status === 400 || status === 422) return CODE_MESSAGES.INVALID_ARGUMENT;
   if (status === 401) return CODE_MESSAGES.UNAUTHENTICATED;

@@ -1,5 +1,6 @@
 const FAILURE_STATUSES = new Set([
   "authentication_error",
+  "failed",
   "invalid_request",
   "invalid_response",
   "http_error",
@@ -9,6 +10,18 @@ const FAILURE_STATUSES = new Set([
 ]);
 
 const normalizeStatus = (value) => String(value || "unknown").trim().toLowerCase();
+
+const RESULT_LABELS = {
+  no_valid_entries: { tone: "empty", label: "Nguồn chưa có bài viết hợp lệ" },
+  no_topic_matches: { tone: "empty", label: "Có bài viết nhưng không khớp chủ đề" },
+  success: { tone: "success", label: "Đã tìm thấy bài phù hợp" },
+  timeout: { tone: "failure", label: "Nguồn hết thời gian chờ" },
+  invalid_response: { tone: "failure", label: "Không thể đọc dữ liệu nguồn" },
+  network_error: { tone: "failure", label: "Không thể kết nối nguồn" },
+  unknown: { tone: "neutral", label: "Chưa xác định được nguyên nhân" },
+};
+
+const optionalCount = (value) => Number.isInteger(value) && value >= 0 ? value : null;
 
 export const getSourceStatusPresentation = ({ status, evidenceCount = 0, isProviderStatus = false } = {}) => {
   const normalized = normalizeStatus(status);
@@ -23,17 +36,17 @@ export const getSourceStatusPresentation = ({ status, evidenceCount = 0, isProvi
   if (normalized === "success") {
     return count > 0
       ? { tone: "success", label: "Thành công" }
-      : { tone: "empty", label: "Không có bằng chứng" };
+      : { tone: "empty", label: "Chưa có kết quả RSS phù hợp" };
   }
   if (normalized === "empty") {
-    return { tone: "empty", label: "Không có bằng chứng" };
+    return { tone: "empty", label: "Chưa có kết quả RSS phù hợp" };
   }
   if (normalized === "not_configured") {
     return { tone: "empty", label: "Chưa cấu hình" };
   }
   if (normalized === "partial") {
     return isProviderStatus
-      ? { tone: "failure", label: "Một phần / nguồn gặp lỗi" }
+      ? { tone: "warning", label: count > 0 ? "Có bài từ một phần nguồn" : "Chưa có bài · nguồn gặp lỗi" }
       : { tone: "warning", label: "Bằng chứng một phần" };
   }
   if (FAILURE_STATUSES.has(normalized)) {
@@ -59,27 +72,31 @@ export const buildSourceStatusCards = (report) => {
   return sourceStatuses.map((item, index) => {
     const source = item?.source || item?.platform || "Nguồn không xác định";
     const platform = item?.platform || item?.source || "Nền tảng không xác định";
-    const evidenceCount = Number.isFinite(Number(item?.evidence_count))
-      ? Number(item.evidence_count)
-      : 0;
+    const evidenceCount = optionalCount(item?.evidence_count);
     const presentation = getSourceStatusPresentation({
       status: item?.status,
-      evidenceCount,
+      evidenceCount: evidenceCount ?? 0,
       isProviderStatus: true,
     });
+    const resultState = normalizeStatus(item?.result_state || (item?.status === "empty" ? "unknown" : item?.status));
+    const resultPresentation = RESULT_LABELS[resultState] || (item?.status === "empty" ? RESULT_LABELS.unknown : presentation);
 
     return {
       key: item?.source || item?.platform || String(index),
       source,
       platform,
       status: normalizeStatus(item?.status),
+      resultState,
       message: item?.message || "",
       evidenceCount,
+      entriesChecked: optionalCount(item?.entries_checked),
+      validEntries: optionalCount(item?.valid_entries),
+      matchedEntries: optionalCount(item?.matched_entries),
       fromCache: item?.from_cache === true,
       deduplicatedEvidenceIds: Array.isArray(item?.deduplicated_evidence_ids)
         ? item.deduplicated_evidence_ids
         : [],
-      ...presentation,
+      ...resultPresentation,
     };
   });
 };

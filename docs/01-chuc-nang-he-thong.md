@@ -5,7 +5,7 @@
 | Nhóm | Chức năng đang có | Backend chính | Frontend chính |
 | --- | --- | --- | --- |
 | Tài khoản | Đăng ký, login local, Google Login tùy chọn, email verification, quên/reset password OTP, logout phiên | `auth.py`, `auth_service.py`, token services | Login, Register, VerifyEmail, ForgotPassword, ResetPassword, ActiveSessions |
-| Chat AI | CRUD hội thoại, ghim, đổi tên, gửi message, stream, sửa và sinh lại phản hồi | `conversation.py`, `message.py`, `message_service.py` | Chat, nhóm `chat/*`, `useChat`, `useConversation` |
+| Chat AI | CRUD hội thoại, ghim, đổi tên, gửi message, stream, sửa và sinh lại phản hồi | `conversation.py`, `message.py`, `message_service.py` | Chat, nhóm `chat/*`, `useChat` |
 | Thông tin quảng cáo | Nhập sản phẩm, đối tượng, mục tiêu, platform, tone, ngôn ngữ, độ dài | `schemas/message.py`, `prompts/ad_brief.py` | `AdBriefForm` |
 | Nền tảng nội dung | Facebook, TikTok, Instagram, Shopee, Google Ads và Khác; mục Khác bắt buộc tên nơi đăng | `platforms.py`, `prompt_service.py`, `message_service.py` | PromptSelector, AdBriefForm, Campaign và Template |
 | Thương hiệu | CRUD brand, chọn brand, asset, consistency check, thống kê | `brand.py`, `brand_service.py`, `brand_prompt.py` | Brands, BrandSelector, BrandConsistencyPanel |
@@ -18,7 +18,6 @@
 | Media Studio | Tạo ảnh/video, upload, chỉnh sửa media, version, preview và download | `media.py`, `media_service.py`, `video_service.py` | MediaStudio |
 | Dashboard | Summary, activity theo ngày, platform usage | `dashboard.py`, `dashboard_service.py` | Dashboard, ActivityChart, PlatformChart |
 | Voice Studio | Text → TTS, audio/video → STT → TTS, reference-voice TTS và Direct Voice Conversion Seed-VC có điều kiện | `voiceover.py`, `stt.py`, `video_stt.py`, `voice_conversion.py`, các voice services | VoiceoverModal, AudioPlayer |
-| Trend Radar | Trend Report, Product Trust, monitor/snapshot, alert, angle, brief, campaign metric và lịch sử | `trend_report.py`, `insight_campaign.py`, trend services | TrendReportPanel, Stage4WorkflowPanel |
 | User settings | Profile, đổi password, AI defaults, theme, export defaults | `user.py`, `user_service.py` | Profile, Settings, ThemeContext |
 
 ## 2.2. Chat và tạo nội dung
@@ -82,22 +81,10 @@ Từ một assistant message, người dùng chọn **Voiceover** để mở Voi
 
 Việc nhận diện và làm sạch là deterministic; nếu fallback chưa chắc chắn, UI hiển thị cảnh báo nhẹ để người dùng kiểm tra trước khi tạo audio. Nhánh Direct Voice Conversion không cần chuyển lời nói thành text và giữ timing/prosody của source theo khả năng của Seed-VC. Integration đã có trong source nhưng fail-closed nếu thiếu Python 3.10 riêng, checkout/model Seed-VC hoặc reference WAV; vì vậy chưa được xem là runtime production đã PASS.
 
-## 2.8. Trend Radar và quy trình insight-to-campaign
-
-Trend Radar hiện được mở trong Chat, không phải một công cụ tìm kiếm độc lập. Người dùng có thể:
-
-- nhập chủ đề và thu thập Trend Report từ collector đã cấu hình;
-- xem claim, evidence, source, freshness, conflict và Product Trust;
-- chọn `all_evidence` hoặc `verified_only`; backend quyết định evidence hợp lệ;
-- cấu hình source policy theo owner với **Tin cậy** hoặc **Loại trừ**;
-- theo dõi chủ đề bằng Monitor, lưu Snapshot và đánh giá Alert khi có SUCCESS hợp lệ;
-- chuyển insight đủ điều kiện thành Advertising Angle → Brief quảng cáo → Campaign → Metric Snapshot;
-- xóa bản ghi lịch sử Trend Report bằng soft-delete mà không xóa artifact downstream.
-
-EMPTY/ERROR snapshot không tạo hoặc resolve alert. Alert lifecycle hiện hỗ trợ TREND_NEW và TREND_SPIKE; Product Trust không đồng nghĩa với độ tự tin của LLM.
-
-## 2.9. Contract chat lifecycle và sidebar
+## 2.8. Contract chat lifecycle và sidebar
 
 User message được commit trước retrieval. Stream hoàn tất chỉ lưu canonical content sau validation/sanitization; lỗi provider không tạo assistant completed. Evidence phải normalize/validate trước khi dùng làm citation. Edit stream chỉ thay assistant cũ khi completion hợp lệ; cancellation/disconnect là cleanup local, không phải bằng chứng remote provider cancel.
 
 Desktop ChatLayout có sidebar resize 220–480px, pointer/keyboard/localStorage. Brand/New Chat/Chat/Dashboard cố định; điều hướng còn lại và history cuộn; account card cố định đáy. Mobile tiếp tục dùng `MobileSidebar`.
+
+Trong lịch sử hội thoại, mục đã ghim đứng trước mục chưa ghim; hội thoại vừa tạo nằm dưới nhóm đã ghim. Khi tải lại trang, Chat mở lại hội thoại đang chọn nếu bản ghi còn tồn tại.

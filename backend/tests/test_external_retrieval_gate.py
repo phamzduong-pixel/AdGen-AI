@@ -33,6 +33,19 @@ class ExternalRetrievalIntentGateTest(unittest.TestCase):
             ("Tìm xu hướng mới nhất để viết quảng cáo và dẫn nguồn", True),
             ("Kiểm chứng công dụng sản phẩm bằng nguồn đáng tin cậy", True),
             ("Viết quảng cáo thông thường, không yêu cầu dữ liệu mới", False),
+            ("Bạn có biết website của Bà Tuyết không?", True),
+            ("Trang web của thương hiệu X là gì?", True),
+            ("Bạn có biết sản phẩm X được bán ở đâu không?", True),
+            ("Viết quảng cáo cho website của thương hiệu X", False),
+            ("Tạo caption cho website của thương hiệu X", False),
+            ("Soạn kịch bản video cho website của thương hiệu X", False),
+            ("Bạn hãy viết quảng cáo cho website của thương hiệu X", False),
+            ("Mô tả sản phẩm X được bán ở đâu.", False),
+            ("Cho tôi một caption về website của X.", False),
+            ("Viết email marketing cho website của X", False),
+            ("Làm nội dung SEO cho website của X", False),
+            ("Kịch bản video giới thiệu website của X", False),
+            ("Giúp mình soạn quảng cáo cho sản phẩm X được bán ở đâu", False),
         ]
 
         for user_text, expected in cases:

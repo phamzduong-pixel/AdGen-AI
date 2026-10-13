@@ -5,6 +5,7 @@ from app.core.security import get_current_user
 from app.database.database import get_db
 from app.models.user import User
 from app.services.external_retrieval.multi_platform import MultiPlatformRetrievalService
+from app.services.external_retrieval.rss_feed import build_trend_radar_rss_collectors
 from app.schemas.trend_report import (
     TrendReportCreate,
     TrendReportResponse,
@@ -32,9 +33,10 @@ from app.services.product_trust.report_service import (
 
 router = APIRouter(prefix="/trend-reports", tags=["Trend Radar"])
 
+
 def get_multi_platform_retrieval_service() -> MultiPlatformRetrievalService:
-    """Return the safe default; deployments inject configured collectors."""
-    return MultiPlatformRetrievalService([])
+    """Use publisher-documented RSS feeds without requiring a paid API key."""
+    return MultiPlatformRetrievalService(build_trend_radar_rss_collectors())
 
 
 @router.post("/retrieve", response_model=TrendReportResponse, status_code=201)

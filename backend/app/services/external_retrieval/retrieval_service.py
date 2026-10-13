@@ -61,9 +61,31 @@ class ExternalRetrievalService:
                 status=SearchProviderStatus.NETWORK_ERROR,
                 message="Nguồn tìm kiếm dữ liệu xu hướng đang tạm thời không khả dụng.",
             )
+        sanitized = self._sanitize_provider_result(provider_result)
+        knowledge_only = (
+            "entity_lookup" in intent.reason_codes
+            and not set(intent.reason_codes) & {
+                "source_request", "verification_request", "freshness_request",
+                "trend_request", "market_analysis",
+            }
+        )
+        if knowledge_only:
+            sanitized = SearchProviderResult(
+                status=sanitized.status,
+                evidences=sanitized.evidences,
+                message=sanitized.message,
+                metadata={
+                    **sanitized.metadata,
+                    "entity_lookup": True,
+                    **(
+                        {"prior_knowledge_fallback": True}
+                        if sanitized.status is not SearchProviderStatus.SUCCESS else {}
+                    ),
+                },
+            )
         return ExternalRetrievalResult(
             intent=intent,
-            provider_result=self._sanitize_provider_result(provider_result),
+            provider_result=sanitized,
         )
 
     @staticmethod

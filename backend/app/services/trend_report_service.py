@@ -31,6 +31,7 @@ from app.services.external_retrieval.evidence import (
 )
 from app.services.external_retrieval.provider import SearchProviderResult
 from app.services.external_retrieval.multi_platform import MultiPlatformRetrievalResult
+from app.services.trend_report_analysis import analyze_trend_report
 
 
 def _now() -> datetime:
@@ -190,6 +191,30 @@ def _serialize_evidence(item: TrendReportEvidence) -> TrendReportEvidenceRespons
 
 def serialize_trend_report(report: TrendReport) -> TrendReportResponse:
     evidences = [_serialize_evidence(item) for item in report.evidences]
+    analysis_evidence = tuple(
+        Evidence(
+            evidence_id=item.evidence_id,
+            title=item.title,
+            source_url=item.source_url,
+            publisher=item.publisher,
+            retrieved_at=item.retrieved_at,
+            published_at=item.published_at,
+            excerpt=item.excerpt,
+            source_type=item.source_type,
+            verification_status=item.verification_status,
+            confidence=item.confidence,
+            content_hash=item.content_hash,
+            metadata=evidences[index].metadata,
+        )
+        for index, item in enumerate(report.evidences)
+    )
+    try:
+        source_statuses = json.loads(report.source_statuses_json or "[]")
+    except (TypeError, ValueError):
+        source_statuses = []
+    if not isinstance(source_statuses, list):
+        source_statuses = []
+    analysis = analyze_trend_report(analysis_evidence, source_statuses)
     by_id = {item.evidence_id: item for item in evidences}
     claims = []
     for claim in report.claims:
@@ -227,9 +252,21 @@ def serialize_trend_report(report: TrendReport) -> TrendReportResponse:
         retrieved_at=report.retrieved_at,
         provider_status=report.provider_status,
         caveat=report.caveat,
-        source_statuses=json.loads(report.source_statuses_json or "[]"),
+        source_statuses=source_statuses,
         evidences=evidences,
         claims=claims,
+        article_count=analysis.article_count,
+        publisher_count=analysis.publisher_count,
+        newest_article_at=analysis.newest_article_at,
+        topic_clusters=[
+            {
+                "phrase": item.phrase,
+                "article_count": item.article_count,
+                "publisher_count": item.publisher_count,
+                "evidence_ids": list(item.evidence_ids),
+            }
+            for item in analysis.topic_clusters
+        ],
     )
 
 
@@ -501,29 +538,42 @@ def persist_retrieval_report(
     )
 
 
-def _multi_platform_provider_status(result: MultiPlatformRetrievalResult) -> str:
+def _multi_platform_provider_status(
+    result: MultiPlatformRetrievalResult,
+    *,
+    evidence_count: int | None = None,
+) -> str:
     statuses = [_value(item.status) for item in result.sources]
     if not statuses:
         return "not_configured"
-    if all(item == "success" for item in statuses):
-        return "success" if result.evidences else "empty"
-    if any(item == "success" for item in statuses):
+    completed = {"success", "empty"}
+    if all(item in completed for item in statuses):
+        return "success" if (len(result.evidences) if evidence_count is None else evidence_count) else "empty"
+    if any(item in completed for item in statuses):
         return "partial"
     if len(set(statuses)) == 1:
         return statuses[0]
     return "failed"
 
 
-def _multi_platform_source_statuses(result: MultiPlatformRetrievalResult) -> list[dict]:
+def _multi_platform_source_statuses(
+    result: MultiPlatformRetrievalResult,
+    *,
+    evidences: tuple[Evidence, ...] | list[Evidence] | None = None,
+    duplicate_ids: dict[str, str] | None = None,
+) -> list[dict]:
     evidence_counts: dict[str, int] = {}
     platform_by_evidence_id: dict[str, str] = {}
-    for item in result.evidences:
+    for item in (result.evidences if evidences is None else evidences):
         platform = str((item.metadata or {}).get("platform", "unknown"))
         evidence_counts[platform] = evidence_counts.get(platform, 0) + 1
         platform_by_evidence_id[item.evidence_id] = platform
 
     duplicates_by_platform: dict[str, list[str]] = {}
-    for duplicate_id, canonical_id in result.duplicate_ids.items():
+    aliases = dict(result.duplicate_ids)
+    if duplicate_ids:
+        aliases.update(duplicate_ids)
+    for duplicate_id, canonical_id in aliases.items():
         platform = platform_by_evidence_id.get(canonical_id, "unknown")
         duplicates_by_platform.setdefault(platform, []).append(duplicate_id)
 
@@ -538,6 +588,26 @@ def _multi_platform_source_statuses(result: MultiPlatformRetrievalResult) -> lis
             "evidence_count": evidence_counts.get(platform, 0),
             "from_cache": result.from_cache,
         }
+        metadata = item.metadata if isinstance(item.metadata, dict) else {}
+        for key in ("entries_checked", "valid_entries", "matched_entries"):
+            value = metadata.get(key)
+            if type(value) is int and value >= 0:
+                status[key] = value
+        if _value(item.status) == "empty":
+            reason = metadata.get("result_state")
+            status["result_state"] = (
+                reason if reason in {"no_valid_entries", "no_topic_matches"}
+                else "unknown"
+            )
+        else:
+            status["result_state"] = _value(item.status)
+        if item.collected_at is not None:
+            collected_at = item.collected_at
+            if collected_at.tzinfo is None or collected_at.utcoffset() is None:
+                collected_at = collected_at.replace(tzinfo=timezone.utc)
+            status["collected_at"] = collected_at.isoformat()
+            if result.from_cache:
+                status["original_collected_at"] = collected_at.isoformat()
         duplicate_ids = duplicates_by_platform.get(platform, [])
         if duplicate_ids:
             status["deduplicated_evidence_ids"] = sorted(duplicate_ids)
@@ -562,6 +632,18 @@ def persist_multi_platform_report(
         refresh=refresh,
         max_age_days=max_age_days,
     )
+    raw_source_statuses = _multi_platform_source_statuses(result)
+    analysis = analyze_trend_report(result.evidences, raw_source_statuses)
+    duplicate_ids = dict(result.duplicate_ids)
+    duplicate_ids.update(analysis.duplicate_ids)
+    source_statuses = _multi_platform_source_statuses(
+        result,
+        evidences=analysis.evidences,
+        duplicate_ids=duplicate_ids,
+    )
+    # Recompute the narrative against the canonical persisted corpus and the
+    # final per-source status counts; all other derived values are identical.
+    analysis = analyze_trend_report(analysis.evidences, source_statuses)
     evidence_inputs = [
         TrendReportEvidenceCreate(
             evidence_id=item.evidence_id,
@@ -577,33 +659,90 @@ def persist_multi_platform_report(
             content_hash=item.content_hash,
             metadata=item.metadata,
         )
-        for item in result.evidences
+        for item in analysis.evidences
     ]
-    source_statuses = _multi_platform_source_statuses(result)
-    provider_status = _multi_platform_provider_status(result)
+    provider_status = _multi_platform_provider_status(
+        result,
+        evidence_count=analysis.article_count,
+    )
     failed_sources = [
         f"{item['platform']}: {item['status']}"
         for item in source_statuses
-        if item["status"] != "success"
+        if item["status"] not in {"success", "empty"}
     ]
     caveat = None
     if not source_statuses:
-        caveat = "Chưa cấu hình nguồn thu thập dữ liệu xu hướng, nên hệ thống chưa thể thu thập dữ liệu mới cho chủ đề này."
+        caveat = "Chưa cấu hình nguồn RSS, nên hệ thống chưa thể tìm bài báo mới cho chủ đề này."
     elif failed_sources:
-        caveat = (
-            "Partial retrieval; successful sources were retained. "
-            "Unsuccessful sources: " + ", ".join(failed_sources)
+        if any(item["status"] == "success" for item in source_statuses):
+            caveat = (
+                "Partial retrieval; successful sources were retained. "
+                "Unsuccessful sources: " + ", ".join(failed_sources)
+            )
+        elif any(item["status"] == "empty" for item in source_statuses):
+            caveat = (
+                "Một số nguồn đã phản hồi nhưng không có bài phù hợp; các nguồn khác lỗi: "
+                + ", ".join(failed_sources)
+            )
+        else:
+            caveat = (
+                "Không thể thu thập dữ liệu từ nguồn bên ngoài. Trạng thái nguồn: "
+                + ", ".join(failed_sources)
+            )
+    if source_statuses and not failed_sources and not analysis.evidences:
+        caveat = "Không thu được bài báo phù hợp trong các feed RSS hiện cấu hình; xem trạng thái từng nguồn để biết feed rỗng, không khớp chủ đề hay chưa rõ nguyên nhân."
+    if source_statuses:
+        rss_caveat = (
+            "Kết quả là bài viết từ các feed RSS công khai đã cấu hình; chúng không đo lượt xem, "
+            "doanh số, độ viral hay thứ hạng trên TikTok, Facebook, Instagram hoặc nền tảng khác."
         )
+        caveat = _merge_caveats(caveat, rss_caveat)
+    if result.from_cache:
+        caveat = _merge_caveats(
+            caveat,
+            "Kết quả được dùng lại từ bộ nhớ đệm, không phải lần thu thập mới; thời điểm thu thập ban đầu nằm trong trạng thái từng nguồn.",
+        )
+    collection_times = [
+        item.collected_at
+        for item in result.sources
+        if isinstance(item.collected_at, datetime)
+    ]
+    if not collection_times:
+        collection_times = [
+            item.retrieved_at
+            for item in analysis.evidences
+            if isinstance(item.retrieved_at, datetime)
+        ]
+    normalized_collection_times = [
+        value.replace(tzinfo=timezone.utc)
+        if value.tzinfo is None or value.utcoffset() is None
+        else value.astimezone(timezone.utc)
+        for value in collection_times
+    ]
+    retrieved_at = max(normalized_collection_times) if normalized_collection_times else None
     return create_trend_report_service(
         TrendReportCreate(
             request_id=request_id,
             query=query,
             conversation_id=conversation_id,
             source_message_id=source_message_id,
+            retrieved_at=retrieved_at,
             provider_status=provider_status,
             caveat=caveat,
             source_statuses=source_statuses,
             evidences=evidence_inputs,
+            summary=analysis.summary,
+            summary_claim_ids=[claim.claim_id for claim in analysis.claims],
+            claims=[
+                TrendReportClaimCreate(
+                    claim_id=claim.claim_id,
+                    claim_text=claim.claim_text,
+                    claim_type=claim.claim_type,
+                    evidence_ids=list(claim.evidence_ids),
+                    caveat=claim.caveat,
+                )
+                for claim in analysis.claims
+            ],
         ),
         db,
         current_user,

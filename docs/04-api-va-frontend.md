@@ -22,8 +22,6 @@ Tất cả endpoint ngoài `/` và `/health` cần JWT theo `get_current_user`, 
 | `/voiceover` | voices, clean script, system/reference TTS và protected audio | `GET /voices`, `POST /clean-script`, `/generate`, `/generate-reference`, `GET/HEAD /audio/{filename}` |
 | `/stt` | nhận dạng lời nói từ audio/video | `POST /transcribe`, `POST /transcribe-video` |
 | `/voice-conversion` | Direct Voice Conversion và video remux | `POST /convert`, `/convert-reference`, `/convert-reference-video` |
-| `/trend-reports` | retrieve/list/get/delete Trend Report, trust summary, source policy | `POST /retrieve`, `POST`, `GET`, `DELETE /{report_key}`, `GET /{report_key}/trust`, `GET/PUT /source-policies` |
-| `/insight-campaign` | Trend Monitor/Snapshot/Alert overview, Brief, Campaign và metric snapshot | `GET /overview`, `POST /advertising-angles/{id}/brief`, `POST /briefs/{id}/campaign`, `GET/POST /campaigns/{id}/metric-snapshots` |
 
 Danh sách chi tiết nên kiểm tra trực tiếp trong `backend/app/api/`; bảng trên là bản đồ nghiệp vụ, không thay thế OpenAPI.
 
@@ -50,7 +48,7 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 
 | Hook/UI | API module | Backend domain |
 | --- | --- | --- |
-| `useChat`, `useConversation` | `chatApi`, `conversationApi`, `messageApi` | conversations/messages |
+| `useChat` | `chatApi`, `conversationApi`, `messageApi` | conversations/messages |
 | `useBrands` / Brand selector | `brandApi` | brands |
 | Campaign pages | `campaignApi` | campaigns |
 | Library/Saved content | `savedContentApi` | saved-contents |
@@ -60,7 +58,6 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 | Dashboard | `dashboardApi` | dashboard |
 | Attachments | `uploadApi` | uploads |
 | Voiceover modal | `voiceoverApi` | voiceover, stt, voice-conversion |
-| Trend Report panel | `trendReportApi`, `trendReportMessage`, `trendReportTrust`, `trendReportSourceStatus` | trend-reports, insight-campaign |
 
 ## 5.5. Bảo mật tích hợp
 
@@ -68,8 +65,6 @@ Route workspace được bảo vệ bởi `ProtectedRoute`. `MainLayout`, `Works
 - Google credential chỉ gửi backend để verify; không lưu credential Google trong local storage.
 - File download phải đi qua endpoint protected.
 - Backend luôn lọc dữ liệu theo `current_user.id`; frontend không được xem ID là quyền truy cập.
-- Trend Report delete là soft-delete theo owner; downstream evidence, angle, brief, campaign và metric snapshot không bị xóa theo lịch sử hiển thị.
-- Trend Report panel nằm trong Chat, không phải một search engine độc lập; Product Trust/backend là nguồn sự thật cho status, evidence, policy và action.
 
 ## 5.6. Contract nền tảng
 

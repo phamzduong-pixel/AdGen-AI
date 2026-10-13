@@ -30,6 +30,24 @@ class RetrievalIntent:
 class ExternalRetrievalIntentGate:
     """Classify retrieval intent without treating platform names as triggers."""
 
+    _ENTITY_LOOKUP_PATTERNS = (
+        r"\b(?:website|web\s*site|trang\s+(?:web|wed))\s+(?:chính\s+(?:chủ|thức)\s+)?của\b",
+        r"\b(?:sản\s+phẩm|mặt\s+hàng)\b.{0,100}\b(?:được\s+)?bán\s+ở\s+đâu\b",
+    )
+    _MARKETING_DELIVERABLE = (
+        r"(?:quảng\s+cáo|caption|mô\s+tả\s+sản\s+phẩm|email(?:\s+marketing)?|"
+        r"seo|kịch\s+bản(?:\s+video)?|slogan|cta|content)"
+    )
+    _CREATIVE_REQUEST_PATTERNS = (
+        re.compile(
+            rf"\b(?:viết|tạo|soạn|lên|làm|biên\s+tập|chỉnh\s+sửa)\b"
+            rf".{{0,120}}\b{_MARKETING_DELIVERABLE}\b"
+        ),
+        re.compile(r"\bmô\s+tả\s+sản\s+phẩm\b"),
+        re.compile(rf"\b(?:cho|giúp)\s+(?:tôi|mình)\b.{{0,60}}\b{_MARKETING_DELIVERABLE}\b"),
+        re.compile(rf"^\s*(?:một|bài|mẫu)?\s*{_MARKETING_DELIVERABLE}\b"),
+    )
+
     _SIGNAL_GROUPS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
         (
             "explicit_lookup",
@@ -119,11 +137,18 @@ class ExternalRetrievalIntentGate:
                 matched_groups.append(group)
                 matched_signals.extend(group_matches)
 
+        creative_request = any(pattern.search(text) for pattern in cls._CREATIVE_REQUEST_PATTERNS)
+        if not creative_request and any(
+            re.search(pattern, text) for pattern in cls._ENTITY_LOOKUP_PATTERNS
+        ):
+            matched_groups.append("entity_lookup")
+
         retrieval_groups = {
             "explicit_lookup",
             "source_request",
             "verification_request",
             "market_analysis",
+            "entity_lookup",
         }
         matched_group_set = set(matched_groups)
         trend_requires_current_data = (

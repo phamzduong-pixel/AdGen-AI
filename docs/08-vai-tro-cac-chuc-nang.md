@@ -17,12 +17,6 @@ Hồ sơ thương hiệu → Mẫu quảng cáo / Chat → Thư viện → Chi�
 - Lưu kết quả tốt vào **Thư viện** để tái sử dụng.
 - Gom các nội dung phục vụ cùng một mục tiêu vào **Chiến dịch**.
 
-Khi cần dùng dữ liệu xu hướng, quy trình mở rộng là:
-
-```text
-Báo cáo xu hướng → Độ tin cậy sản phẩm → Góc quảng cáo → Brief → Chiến dịch → Số liệu
-```
-
 ## New Chat và Chat
 
 ### New Chat
@@ -92,16 +86,6 @@ Báo cáo xu hướng → Độ tin cậy sản phẩm → Góc quảng cáo →
 
 **Nên dùng khi:** Lần đầu thiết lập tài khoản, khi đổi nhu cầu làm việc hoặc khi cần quản lý bảo mật.
 
-## Báo cáo xu hướng / Trend Radar
-
-**Dùng để làm gì:** Theo dõi một chủ đề, thu thập Trend Report có nguồn, xem evidence và đánh giá mức độ đủ tin cậy trước khi chuyển insight thành nội dung quảng cáo.
-
-**Vai trò với người dùng:** Giúp phân biệt claim có bằng chứng với suy luận, cảnh báo dữ liệu stale/conflicting/insufficient và giữ provenance khi insight đi tiếp qua góc quảng cáo, brief, campaign và metric.
-
-**Nên dùng khi:** Bạn muốn tham khảo tín hiệu xu hướng trước khi xây dựng hoặc điều chỉnh một chiến dịch. Hãy đọc evidence và risk/action thay vì xem `verified` như “AI chắc chắn đúng”.
-
-**Quản lý lịch sử:** Có thể xóa từng Trend Report khỏi danh sách. Hệ thống dùng soft-delete để giữ downstream artifacts và provenance.
-
 ## Tính năng hỗ trợ trong luồng tạo nội dung
 
 Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp các công cụ hỗ trợ ngay trong Chat hoặc nội dung đã tạo:
@@ -112,7 +96,6 @@ Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp cá
 | **Chỉnh sửa hội thoại** | Cho phép yêu cầu sửa một phần cụ thể thay vì phải tạo lại toàn bộ. |
 | **Đánh giá / kiểm tra thương hiệu** | Hỗ trợ phát hiện nội dung chưa phù hợp với mục tiêu hoặc quy tắc thương hiệu. |
 | **Biến thể A/B** | Tạo nhiều hướng diễn đạt để so sánh trước khi chọn phương án sử dụng. |
-| **Trend Report / Product Trust** | Cho biết claim, evidence, nguồn và mức độ rủi ro khi nội dung có dùng dữ liệu xu hướng; đây không phải là “độ tự tin” của AI. |
 | **Media và voiceover** | Bổ sung tài sản nghe nhìn khi chiến dịch cần nhiều hơn phần chữ. |
 
 ## Chọn đúng chức năng theo nhu cầu
@@ -131,6 +114,5 @@ Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp cá
 
 - AI hỗ trợ tạo và phát triển nội dung; người dùng vẫn chịu trách nhiệm rà soát tính chính xác, pháp lý và phù hợp thương hiệu trước khi xuất bản.
 - Lưu nội dung tốt vào Thư viện và gắn vào Chiến dịch khi phù hợp để công việc dễ tìm, dễ bàn giao và dễ tái sử dụng hơn.
-- Khi dùng dữ liệu Trend Radar, hãy đọc evidence, warning và risk/action trước khi dùng claim trong quảng cáo.
 
 Xem hướng dẫn thao tác từng bước tại [01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md).

@@ -139,6 +139,7 @@ function useChat() {
       if (conversationList.length === 0) {
         setSelectedConversation(null);
         setMessages([]);
+        localStorage.removeItem("currentConversationId");
         return;
       }
 
@@ -149,6 +150,14 @@ function useChat() {
 
         if (currentStillExists) {
           return currentId;
+        }
+
+        const savedId = localStorage.getItem("currentConversationId");
+        const savedConversation = conversationList.find(
+          (conversation) => String(conversation.id) === savedId,
+        );
+        if (savedConversation) {
+          return savedConversation.id;
         }
 
         if (!getPreferences().openLatestConversation) {
@@ -209,14 +218,15 @@ function useChat() {
         throw new Error("Backend không trả về ID hội thoại.");
       }
 
-      setConversations((previous) => [
+      setConversations((previous) => sortConversations([
         newConversation,
         ...previous.filter(
           (conversation) => conversation.id !== newConversation.id,
         ),
-      ]);
+      ]));
 
       setSelectedConversation(newConversation.id);
+      localStorage.setItem("currentConversationId", String(newConversation.id));
 
       setMessages([]);
 
@@ -361,9 +371,10 @@ function useChat() {
 
         conversationId = newConversation.id;
 
-        setConversations((previous) => [newConversation, ...previous]);
+        setConversations((previous) => sortConversations([newConversation, ...previous]));
 
         setSelectedConversation(conversationId);
+        localStorage.setItem("currentConversationId", String(conversationId));
       }
 
       setIsTyping(true);

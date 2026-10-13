@@ -26,7 +26,6 @@ Prompt service
     ├─ specialized prompt theo platform
     ├─ platform intelligence
     ├─ knowledge base
-    ├─ trend intelligence
     └─ ad brief/brand rules
              │
              ▼
@@ -73,7 +72,7 @@ Engine tìm brief gần nhất, lấy câu trả lời assistant gần nhất v�
 2. Thêm `SYSTEM_PROMPT` và prompt chuyên biệt từ `backend/app/prompts/`.
 3. Thêm platform specification: mục tiêu, hành vi, cấu trúc, hook, CTA, giới hạn, best practice và policy.
 4. Thêm knowledge context dựa trên platform, product và brand.
-5. Thêm trend context đã được service cung cấp; không có dữ liệu thì yêu cầu AI không bịa trend.
+5. Chỉ dùng dữ liệu ngoài khi service cung cấp bằng chứng hợp lệ; nếu không có thì yêu cầu AI không bịa nguồn hoặc số liệu.
 6. Thêm ad brief rules và brand rules.
 
 Các nền tảng tạo mới được map: `facebook`, `tiktok`, `instagram`, `shopee`, `google_ads`, `other`. Các map legacy như `youtube`, `email`, `landing_page`, `seo`, `slogan`, `rewrite`, `summarize` chỉ giữ để đọc/xử lý dữ liệu cũ, không xuất hiện trong selector tạo mới.
@@ -146,28 +145,6 @@ file + transcript trống → /voice-conversion/convert-reference[-video]
 
 Nhánh thứ hai là Speech-to-Speech/Direct Voice Conversion, không dùng STT và không sinh thêm nội dung chữ. Adapter gọi Seed-VC bằng subprocess với CUDA bị vô hiệu hóa, giữ dependency ML ngoài môi trường API chính và fail-closed khi runtime/model/reference audio chưa sẵn sàng.
 
-## 3.8.1. Trend Radar và Insight-to-Campaign
-
-Luồng Trend Radar tách retrieval/evidence khỏi luồng tạo quảng cáo thông thường:
-
-```text
-Chủ đề người dùng nhập
-  → retrieval collector / multi-platform orchestration
-  → chuẩn hóa evidence + source status + provenance
-  → Trend Report
-  → Product Trust: claim → evidence → trust status → risk/action
-  → Monitor/Snapshot (nếu theo dõi)
-  → Alert NEW → ACTIVE → RESOLVED (chỉ SUCCESS hợp lệ)
-  → Advertising Angle đủ điều kiện
-  → Advertising Brief
-  → Campaign
-  → Campaign Metric Snapshot
-```
-
-`verified_only` được enforce ở backend và không dựa trên LLM confidence. Source `excluded`, evidence thiếu verification basis, stale/conflicting/insufficient evidence và high-risk contradiction không được tự động coi là verified. Khi không dùng Trend Radar, generation flow hiện hữu không gọi retrieval ngoài ý muốn.
-
-Lịch sử Trend Report bị người dùng xóa được đánh dấu `deleted_at`; service ẩn report khỏi danh sách hiện hành nhưng giữ provenance và downstream artifacts.
-
 ## 3.9. Nền tảng và custom platform
 
 `prompt_type` được chuẩn hóa theo sáu nền tảng hiện hành: `facebook`, `tiktok`, `instagram`, `shopee`, `google_ads`, `other`. Với `other`, `platform_name` được chuẩn hóa và đặt trong khối dữ liệu tham khảo của prompt. Nội dung này không phải chỉ dẫn, không thay thế system prompt và chỉ dùng để tạo quảng cáo chung phù hợp brief khi thiếu thông tin đặc thù.
@@ -220,7 +197,7 @@ Normal và stream dùng chung quy trình chuẩn hóa request, context và promp
 6. Dựng prompt và gọi provider
    ├─ build_system_prompt(): system rule an toàn
    ├─ ghép prompt chuyên biệt theo platform
-   ├─ ghép platform intelligence, knowledge/trend context,
+   ├─ ghép platform intelligence, knowledge context,
    │  ad brief rules và brand rules
    └─ gọi Gemini 2.5 Flash:
       ├─ generate_content() cho non-stream
@@ -275,7 +252,7 @@ User input
     │                       follow-up intent, context pruning
     │
     ├─ [Prompt engineering + grounding] system rules + platform prompt
-    │                                  + knowledge/trend/brand context
+    │                                  + knowledge/brand context
     │
     ├─ [LLM inference] Gemini 2.5 Flash
     │       ├─ generate_content()          → non-stream text
@@ -298,7 +275,7 @@ User input
 | Quản lý context | Context pruning, lấy product context và assistant gần nhất, giới hạn lịch sử | Không trực tiếp | `context_engine` |
 | Đa phương thức | Chuyển image/video/audio thành bytes và text/document thành text parts | Không trực tiếp; chuẩn bị dữ liệu cho model | `StandardMultimodalProcessor`, `format_history()` |
 | Dựng instruction | Prompt engineering: system prompt, prompt theo platform, brief rules, brand rules | Không; đây là bước tạo instruction | `build_system_prompt()`, `backend/app/prompts/` |
-| Grounding | Đưa platform intelligence, knowledge/trend context và dữ liệu brand/product vào context | Không tự truy xuất bằng LLM | `prompt_service.py`, brand/knowledge/trend services |
+| Grounding | Đưa platform intelligence, knowledge context và dữ liệu brand/product vào context | Không tự truy xuất bằng LLM | `prompt_service.py`, brand/knowledge services |
 | Sinh nội dung | Text generation dựa trên toàn bộ `contents` và `system_instruction` | Có | Gemini 2.5 Flash trong `ai_service.py` |
 | Sinh streaming | Gọi model và chuyển từng chunk về frontend | Có | `stream_ai()` → `generate_content_stream()` |
 | Sinh structured | Yêu cầu JSON, parse schema bằng Pydantic cho evaluation/variants | Có | `generate_structured_content()`, `request_structured_ai()` |
@@ -342,7 +319,7 @@ Với input: “Viết quảng cáo sản phẩm này cho TikTok, giọng trẻ 
 
 Luồng chat hiện giới hạn lịch sử còn khoảng sáu cặp user/assistant bằng `context_engine`, vẫn giữ brief/attachment/referential context và chèn yêu cầu follow-up hiện tại. `product_aware` tạo product/audience context khi brief trích xuất được; brand context và product context đi vào vùng reference data của user, không trộn trực tiếp vào system instruction. Gemini vẫn là bước LLM inference duy nhất của luồng text và được gọi qua API.
 
-Non-stream và stream dùng cùng output validator và generation logging sau khi có kết quả hoàn chỉnh. Output rỗng hoặc ERROR/CRITICAL bị từ chối; WARNING được log nhưng không tự biến thành lỗi chặn. Stream lỗi trả marker lỗi, không lưu kết quả chưa hoàn tất; client hủy sau khi đã nhận một phần thì phần đã nhận được lưu để có thể khôi phục. Validator regex/heuristic chỉ kiểm tra cấu trúc/rủi ro, không bảo đảm claim đúng sự thật. Learning dataset là dữ liệu ghi nhận cho đánh giá/quy trình huấn luyện riêng, không phải cơ chế tự training/fine-tuning; trend registry không tự thu thập trend trực tuyến.
+Non-stream và stream dùng cùng output validator và generation logging sau khi có kết quả hoàn chỉnh. Output rỗng hoặc ERROR/CRITICAL bị từ chối; WARNING được log nhưng không tự biến thành lỗi chặn. Stream lỗi trả marker lỗi, không lưu kết quả chưa hoàn tất; client hủy sau khi đã nhận một phần thì phần đã nhận được lưu để có thể khôi phục. Validator regex/heuristic chỉ kiểm tra cấu trúc/rủi ro, không bảo đảm claim đúng sự thật. Learning dataset là dữ liệu ghi nhận cho đánh giá/quy trình huấn luyện riêng, không phải cơ chế tự training/fine-tuning.
 
 ## 3.12. Lifecycle stream đã đồng bộ
 

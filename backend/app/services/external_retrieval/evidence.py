@@ -419,8 +419,7 @@ class EvidenceDeduplicator:
             keys = [f"id:{evidence.evidence_id}"]
             if evidence.content_hash:
                 keys.append(f"content:{evidence.content_hash.lower()}")
-            else:
-                keys.append(f"url:{evidence.source_url}")
+            keys.append(f"url:{evidence.source_url}")
             for key in keys:
                 previous = key_owner.get(key)
                 if previous is None:

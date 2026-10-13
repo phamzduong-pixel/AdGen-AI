@@ -1,7 +1,7 @@
 # Tài liệu hệ thống AdGen AI
 
-> Phiên bản tài liệu: 11/10/2026
-> Phạm vi: mã nguồn hiện tại trong repository `AdGenAI`
+> Phiên bản tài liệu: 14/10/2026
+> Phạm vi: các chức năng sản phẩm đang được trình bày trong repository `AdGenAI`
 
 Thư mục này là bộ tài liệu kỹ thuật đồng bộ với hệ thống đang có. Mỗi tài liệu trỏ về module hoặc file nguồn liên quan để dễ kiểm tra khi mã nguồn thay đổi.
 
@@ -45,8 +45,7 @@ README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập 
 - Voice Studio hỗ trợ Text → Edge TTS, File audio/video → STT → TTS, reference-voice TTS và nhánh Direct Voice Conversion qua Seed-VC khi file source không có transcript. Xem `01-chuc-nang-he-thong.md` và `09-voice-studio-audio-transform-plan.md`.
 - Seed-VC đã có API/service/UI integration chạy CPU và fail-closed. Runtime local hiện chưa được xác nhận vì còn thiếu `SEED_VC_PYTHON`, `SEED_VC_DIR` và đầy đủ reference WAV.
 - Các nhãn hiển thị cho người dùng dùng thương hiệu AdGen AI; tên provider/model kỹ thuật chỉ được giữ trong cấu hình hoặc thông báo kỹ thuật khi cần chẩn đoán.
-- Canonical schema hiện có 34 bảng ứng dụng; migration head `20261006_0025_trend_report_history_soft_delete`.
-- Trend Radar hiện bao gồm Trend Report, Product Trust, Monitor/Snapshot, Alert, Advertising Angle, Brief, Campaign Metric Snapshot và xóa lịch sử bằng soft-delete.
+- Canonical schema hiện có 34 bảng ứng dụng; migration head `20261006_0025`.
 
 ## Cập nhật vận hành gần nhất
 

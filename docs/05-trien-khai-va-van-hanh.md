@@ -131,4 +131,4 @@ toàn cho mọi database đã phát hành.
 
 Frontend dùng Node 22 và npm 10.9.2 để tạo lockfile ổn định. Render giữ `npm ci && npm run build`; chạy clean install/test/lint/build như hướng dẫn ở `docs/01-chuc-nang-he-thong.md`.
 
-Canonical migration head hiện tại là `20261006_0025_trend_report_history_soft_delete`. Trước deploy cần kiểm tra `alembic current`, `alembic heads`, `alembic check` và bảo đảm database đã ở đúng head; không stamp để che stale schema.
+Canonical migration head hiện tại là revision `20261006_0025`. Trước deploy cần kiểm tra `alembic current`, `alembic heads`, `alembic check` và bảo đảm database đã ở đúng head; không stamp để che stale schema.

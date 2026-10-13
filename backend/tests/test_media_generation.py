@@ -118,6 +118,45 @@ class MediaGenerationTest(unittest.TestCase):
                 provider.generate(prompt="test", aspect_ratio="1:1")
             )
         self.assertEqual(raised.exception.code, "IMAGE_OUTPUT_MISSING")
+
+    def test_gemini_error_classification_preserves_safe_diagnostics(self):
+        from app.services.media.providers.gemini_provider import classify_image_provider_error
+
+        class Response:
+            headers = {"x-goog-request-id": "req-123"}
+
+        cases = [
+            ("429 RESOURCE_EXHAUSTED quota exceeded", 429, "QUOTA_EXCEEDED"),
+            ("429 RESOURCE_EXHAUSTED", 429, "RESOURCE_EXHAUSTED"),
+            ("429 rate limit exceeded", 429, "RATE_LIMITED"),
+            ("403 billing not enabled", 403, "BILLING_REQUIRED"),
+            ("API key not valid", 401, "INVALID_API_KEY"),
+            ("upstream unavailable", 503, "PROVIDER_ERROR"),
+        ]
+        for message, status_code, expected_code in cases:
+            error = RuntimeError(
+                f'{message}; api_key=SECRET authorization: Bearer PRIVATE '
+                '{"api_key":"JSONSECRET","authorization":"Bearer JSONPRIVATE"}'
+            )
+            error.status_code = status_code
+            error.response = Response()
+            classified = classify_image_provider_error(error)
+            self.assertEqual(classified.code, expected_code)
+            self.assertEqual(classified.provider_status, status_code)
+            self.assertEqual(classified.request_id, "req-123")
+            self.assertNotIn("SECRET", classified.provider_message)
+            self.assertNotIn("PRIVATE", classified.provider_message)
+            self.assertNotIn("JSONSECRET", classified.provider_message)
+            self.assertNotIn("JSONPRIVATE", classified.provider_message)
+
+    def test_generic_gemini_429_is_not_mislabeled_as_quota(self):
+        from app.services.media.providers.gemini_provider import classify_image_provider_error
+
+        error = RuntimeError("429 temporarily unavailable")
+        error.status_code = 429
+        classified = classify_image_provider_error(error)
+        self.assertEqual(classified.code, "PROVIDER_ERROR")
+        self.assertEqual(classified.provider_status, 429)
     def test_gemini_provider_requests_image_modality(self):
         client = _Client()
         provider = GeminiImageProvider(client=client, model_name="image-test")

@@ -50,9 +50,8 @@ Sau đó chạy các lệnh trong [05-trien-khai-va-van-hanh.md](./05-trien-khai
 ## 7.7. Snapshot đồng bộ hiện tại — 10/10/2026
 
 - Canonical application schema: 34 bảng, Alembic head `20261006_0025`.
-- Plan 17 Trend Radar: Stage 1–4 hoàn thành trong phạm vi implementation hiện tại; provider thật, production scheduler và notification provider vẫn là giới hạn nếu chưa có bằng chứng runtime riêng.
 - Voice Studio: Text → TTS, STT → TTS, reference-voice TTS và Seed-VC Direct Voice Conversion integration đã có; provider runtime thật vẫn phải được báo cáo tách khỏi mock/unit tests.
-- Khi cập nhật Trend Radar hoặc Voice Studio, xem đồng thời `00`–`09` và tài liệu chức năng/API/vận hành tương ứng.
+- Khi cập nhật Voice Studio, xem đồng thời tài liệu chức năng/API/vận hành tương ứng.
 ## 7.6. Cleanup filesystem — 30/09/2026
 
 Đã rà soát reference trong toàn workspace và thực hiện cleanup an toàn, không refactor code, không thay đổi API, AI pipeline, migration hoặc dữ liệu người dùng.
@@ -70,7 +69,7 @@ Giữ nguyên:
 
 - `backend/chatbot.db`, `backend/adgen.db`, `backend/uploads/`, `backend/.env`, `frontend/.env`;
 - toàn bộ scaffold/utility frontend đã được đánh dấu giữ lại;
-- prompts, context engine, knowledge base, learning dataset, output validator, platform intelligence, product aware, trend intelligence, voiceover, Alembic và tests.
+- prompts, context engine, knowledge base, learning dataset, output validator, platform intelligence, product aware, voiceover, Alembic và tests.
 
 Build/test không chạy lại sau cleanup vì dependency local đã bị xóa theo yêu cầu; không tự cài lại dependency. Không commit và không push.
 

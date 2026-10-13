@@ -381,15 +381,19 @@ class MediaApiIntegrationTest(unittest.TestCase):
         self.assertEqual(response.status_code, 429)
         detail = response.json()["detail"]
         self.assertEqual(detail["code"], "RESOURCE_EXHAUSTED")
-        self.assertIn("verified provider quota", detail["message"])
+        self.assertIn("did not identify the specific limit", detail["message"])
         self.assertNotIn("SECRET", response.text)
         asset = self.db.query(MediaAsset).order_by(MediaAsset.id.desc()).first()
         self.assertEqual(asset.status, "failed")
-        self.assertEqual(asset.error_message, "Image provider quota exceeded")
+        self.assertEqual(asset.error_message, "Image provider reported resource exhaustion")
 
     def test_structured_provider_codes_are_preserved(self):
         cases = [
+            ("QUOTA_EXCEEDED", 429),
             ("RESOURCE_EXHAUSTED", 429),
+            ("RATE_LIMITED", 429),
+            ("BILLING_REQUIRED", 403),
+            ("INVALID_API_KEY", 401),
             ("INVALID_ARGUMENT", 400),
             ("MODEL_NOT_FOUND", 502),
             ("PERMISSION_DENIED", 502),
