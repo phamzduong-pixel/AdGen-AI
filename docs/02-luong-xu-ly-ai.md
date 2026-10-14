@@ -297,8 +297,8 @@ Vì vậy, LLM không chịu trách nhiệm cho các bước xác thực JWT, ki
 | Tác vụ | Phương pháp/provider | Vai trò trong luồng |
 | --- | --- | --- |
 | Chat và copywriting | LLM Gemini 2.5 Flash | Hiểu context và sinh text/JSON |
-| Image generation/edit | Gemini Image hoặc OpenAI Image adapter | Gọi riêng từ Media Studio, không đi qua `ask_ai()` |
-| Video generation | Gemini Veo adapter | Submit → poll → download → validate → tạo `MediaAsset` |
+| Image generation/edit | Gemini Image hoặc OpenAI Image adapter | Media Studio đang phát triển; luồng tạo ảnh hiện bị khóa, adapter còn trong mã nguồn |
+| Video generation | Gemini Veo adapter | Media Studio đang phát triển; không nhận job tạo video mới, adapter và lịch sử còn được giữ |
 | Voiceover | Edge TTS hoặc mock provider | Chuyển script đã làm sạch thành audio; đây là TTS, không phải LLM text generation |
 | Output safety/format | Rule-based validator | Kiểm tra và sửa nhẹ output sau khi provider trả kết quả |
 

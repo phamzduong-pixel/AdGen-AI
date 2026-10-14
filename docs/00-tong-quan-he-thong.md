@@ -90,10 +90,11 @@ Các nhóm source quan trọng:
 
 ### Upload và media
 
+- Media Studio tạo ảnh/video **đang phát triển — chưa sẵn sàng sử dụng**. Giao diện được giữ để trình bày và xem lịch sử; API tạo mới/chỉnh sửa bị khóa. Các dòng bên dưới mô tả contract và mã nguồn còn lưu, không phải chức năng đã hoàn thiện.
 - Upload image, video, PDF và text có kiểm tra MIME, kích thước, quyền sở hữu.
 - MediaAsset lưu loại media, trạng thái, metadata, owner, conversation và file path.
 - Image generation/edit hỗ trợ reference image, tạo asset mới và giữ source cũ.
-- Media Studio có preview, polling trạng thái, retry theo contract, download output.
+- Media Studio còn preview/download asset cũ; mã nguồn polling/retry được giữ nhưng giao diện không tiếp tục poll job đang chờ khi chức năng tạm khóa.
 - Video editing có trim, crop/aspect, text/CTA overlay, subtitle, volume/mute và merge.
 - Conversational video edit dùng parser deterministic, structured plan, allowlist và
   preflight toàn bộ plan trước khi thực thi.
@@ -133,6 +134,8 @@ không được tự bịa khi brief không cung cấp.
 
 ### Image generation
 
+Trạng thái hiện tại: **Đang phát triển — chưa sẵn sàng sử dụng**; backend không nhận yêu cầu tạo ảnh mới từ Media Studio.
+
 Provider được chọn bằng `IMAGE_PROVIDER`:
 
 ```dotenv
@@ -150,6 +153,8 @@ Frontend ánh xạ theo error code; HTTP 429 không có provider evidence không
 Real Gemini/OpenAI image call chưa được coi là PASS chỉ dựa trên mock tests.
 
 ### Video generation
+
+Trạng thái hiện tại: **Đang phát triển — chưa sẵn sàng sử dụng**; backend không nhận job tạo video hoặc tác vụ tạo version mới từ Media Studio.
 
 Gemini Veo dùng `MediaJob` và flow submit → poll → download → validate → tạo
 `MediaAsset`. Provider test dùng mock operation. Real Veo smoke test trước đó gặp
@@ -453,6 +458,7 @@ Frontend quản lý giao diện, trạng thái hội thoại, form, preview, upl
 
 ### 14.1. Media runtime
 
+- Các luồng tạo ảnh/video và chỉnh sửa tạo version mới đã có implementation nhưng hiện bị vô hiệu hóa ở frontend và backend; không tính là chức năng hoàn thiện trong báo cáo hiện trạng. Lịch sử asset/job và các route đọc được giữ lại.
 - `MediaAsset` lưu image/video, metadata, trạng thái, ownership, conversation và lineage (`parent_asset_id`, `root_asset_id`, `version_number`).
 - Image flow hỗ trợ provider adapter, ảnh tham chiếu, preview/download và tạo asset mới khi chỉnh sửa.
 - Video flow hỗ trợ upload/register, trim, aspect/crop, text/CTA overlay, subtitle, volume/mute và merge qua controlled processor.
@@ -501,7 +507,7 @@ Upload hỗ trợ tài liệu DOCX/PDF/TXT, ảnh JPEG/JPG/PNG/WEBP và video MP
 
 ## 17. Trạng thái implementation và giới hạn
 
-Các phase Image, Technical Video Editing, AI Video Generation foundation và Conversational Video Editing đã có contract, backend/frontend implementation và targeted tests. Việc gọi chúng là hoàn tất production vẫn cần bằng chứng runtime thật cho FFmpeg/FFprobe, Gemini provider, storage persistent và PostgreSQL concurrency.
+Các phase Image, Technical Video Editing, AI Video Generation foundation và Conversational Video Editing đã có contract, backend/frontend implementation và targeted tests, nhưng Media Studio **đang phát triển — chưa sẵn sàng sử dụng** và các thao tác tạo mới hiện bị khóa. Chưa có đủ bằng chứng runtime thật cho FFmpeg/FFprobe, Gemini provider, storage persistent và PostgreSQL concurrency để tính đây là chức năng hoàn thiện.
 
 Các giới hạn chính: chưa có refresh token; SQLite chỉ phù hợp local/demo một instance; upload production cần persistent disk hoặc object storage; stream chưa đồng nhất hoàn toàn với non-stream; quota/rate limit Gemini và media cần được cấu hình khi triển khai rộng.
 

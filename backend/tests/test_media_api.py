@@ -125,6 +125,7 @@ class MediaApiIntegrationTest(unittest.TestCase):
 
         app.dependency_overrides[get_db] = override_db
         app.dependency_overrides[get_current_user] = lambda: self.current_user
+        app.dependency_overrides[media_api._require_media_studio_ready] = lambda: None
         self.client = TestClient(app)
 
     def tearDown(self):
@@ -150,6 +151,33 @@ class MediaApiIntegrationTest(unittest.TestCase):
 
     def _asset(self, asset_id):
         return self.db.get(MediaAsset, asset_id)
+
+    def test_media_studio_create_routes_are_disabled_without_running_provider(self):
+        app = FastAPI()
+        app.include_router(media_api.router)
+        app.dependency_overrides[get_current_user] = lambda: self.current_user
+        app.dependency_overrides[get_db] = lambda: self.db
+        client = TestClient(app)
+        base = f"/media/conversations/{self.owner_conversation.id}"
+        requests = [
+            (f"{base}/images", {"prompt": "Tạo ảnh quảng cáo"}),
+            (f"{base}/video-jobs", {"prompt": "Tạo video quảng cáo"}),
+            (f"{base}/videos/from-upload", {"source_file_id": 1}),
+            (f"{base}/videos/1/edits", {"operation": "trim", "start": 0, "end": 1}),
+            (f"{base}/videos/1/conversational-edit-plan", {"instruction": "Cắt video"}),
+            (f"{base}/videos/1/conversational-edits", {
+                "plan": {"source_asset_id": 1, "operations": [{"operation": "trim", "start": 0, "end": 1}]},
+                "confirm": True,
+            }),
+        ]
+        for url, payload in requests:
+            with self.subTest(url=url):
+                response = client.post(url, json=payload)
+                self.assertEqual(response.status_code, 503)
+                self.assertEqual(response.json()["detail"]["code"], "MEDIA_STUDIO_IN_DEVELOPMENT")
+        self.assertEqual(self.provider.calls, [])
+        self.assertEqual(client.get(f"{base}/assets").status_code, 200)
+        self.assertEqual(client.get(f"{base}/video-jobs").status_code, 200)
 
     def test_generate_success_persists_resolvable_asset_and_downloads(self):
         response = self._generate()

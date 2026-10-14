@@ -96,7 +96,7 @@ Ngoài các mục chính trên thanh điều hướng, bạn có thể gặp cá
 | **Chỉnh sửa hội thoại** | Cho phép yêu cầu sửa một phần cụ thể thay vì phải tạo lại toàn bộ. |
 | **Đánh giá / kiểm tra thương hiệu** | Hỗ trợ phát hiện nội dung chưa phù hợp với mục tiêu hoặc quy tắc thương hiệu. |
 | **Biến thể A/B** | Tạo nhiều hướng diễn đạt để so sánh trước khi chọn phương án sử dụng. |
-| **Media và voiceover** | Bổ sung tài sản nghe nhìn khi chiến dịch cần nhiều hơn phần chữ. |
+| **Voiceover; Media Studio đang phát triển** | Voiceover bổ sung âm thanh cho nội dung. Media Studio tạo ảnh/video chưa sẵn sàng sử dụng và không được tính là chức năng hoàn thiện. |
 
 ## Chọn đúng chức năng theo nhu cầu
 

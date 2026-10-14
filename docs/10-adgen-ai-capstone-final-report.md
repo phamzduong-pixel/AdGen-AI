@@ -39,7 +39,7 @@
 
 ### 1.1. Background Information
 
-AdGen AI là nền tảng hỗ trợ tạo, chỉnh sửa, đánh giá và quản lý nội dung quảng cáo bằng AI. Hệ thống cung cấp Chat, brief, brand context, template, campaign, thư viện nội dung, Media Studio và Voice Studio trên cùng một ứng dụng web.
+AdGen AI là nền tảng hỗ trợ tạo, chỉnh sửa, đánh giá và quản lý nội dung quảng cáo bằng AI. Hệ thống cung cấp Chat, brief, brand context, template, campaign, thư viện nội dung và Voice Studio. Media Studio còn giao diện để trình bày nhưng **đang phát triển — chưa sẵn sàng sử dụng**: tạo ảnh/video và các tác vụ tạo version mới bị vô hiệu hóa, không được tính là chức năng hoàn thiện trong báo cáo hiện trạng.
 
 Voice Studio là module chuyển nội dung quảng cáo thành audio. Luồng ban đầu là **Text → Edge TTS**. Plan 18 mở rộng module để người dùng có thể chọn nội dung từ văn bản hoặc file audio/video, nhận dạng lời thoại, chỉnh sửa transcript và tạo audio bằng giọng có sẵn hoặc reference voice khi provider local sẵn sàng.
 

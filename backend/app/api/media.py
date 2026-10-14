@@ -31,6 +31,16 @@ from app.services.media.video_generation_service import video_generation_service
 router = APIRouter(prefix="/media", tags=["Media"])
 
 
+def _require_media_studio_ready(current_user: User = Depends(get_current_user)):
+    raise HTTPException(
+        status_code=503,
+        detail={
+            "code": "MEDIA_STUDIO_IN_DEVELOPMENT",
+            "message": "Media Studio đang phát triển, chưa sẵn sàng sử dụng.",
+        },
+    )
+
+
 def _serialize_asset(asset: MediaAsset) -> MediaAssetResponse:
     return MediaAssetResponse(
         id=asset.id,
@@ -76,6 +86,7 @@ def _serialize_execution_record(db: Session, request_record, source_asset_id: in
     "/conversations/{conversation_id}/images",
     response_model=MediaAssetResponse,
     status_code=201,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 async def generate_image(
     conversation_id: int,
@@ -96,6 +107,7 @@ async def generate_image(
     "/conversations/{conversation_id}/videos/from-upload",
     response_model=MediaAssetResponse,
     status_code=201,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 def register_video_upload(
     conversation_id: int,
@@ -113,6 +125,7 @@ def register_video_upload(
     "/conversations/{conversation_id}/videos/{source_asset_id}/edits",
     response_model=MediaAssetResponse,
     status_code=201,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 def edit_video(
     conversation_id: int,
@@ -157,6 +170,7 @@ def edit_video(
 @router.post(
     "/conversations/{conversation_id}/videos/{source_asset_id}/conversational-edit-plan",
     response_model=ConversationalEditPlanResponse,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 def create_conversational_edit_plan(
     conversation_id: int,
@@ -192,6 +206,7 @@ def create_conversational_edit_plan(
     "/conversations/{conversation_id}/videos/{source_asset_id}/conversational-edits",
     response_model=ConversationalEditExecutionResponse,
     status_code=201,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 def execute_conversational_edit_plan(
     conversation_id: int,
@@ -337,6 +352,7 @@ def _serialize_job(db: Session, job) -> MediaJobResponse:
     "/conversations/{conversation_id}/video-jobs",
     response_model=MediaJobResponse,
     status_code=202,
+    dependencies=[Depends(_require_media_studio_ready)],
 )
 async def create_video_generation_job(
     conversation_id: int,

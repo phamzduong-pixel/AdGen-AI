@@ -15,7 +15,7 @@
 | Content editor | Document, version history, compare, restore, AI rewrite | `content_document.py`, `content_document_service.py` | ContentEditor, Version panels |
 | Chất lượng nội dung | Điểm theo 9 tiêu chí, tạo 3 biến thể A/B/C, activity | `content.py`, evaluation/variant services | ContentScorePanel, VariantGeneratorModal |
 | Upload | Đính kèm image/video/PDF/text, kiểm tra MIME/kích thước/quyền | `upload.py`, `upload_service.py` | ChatInput, AttachmentPreview |
-| Media Studio | Tạo ảnh/video, upload, chỉnh sửa media, version, preview và download | `media.py`, `media_service.py`, `video_service.py` | MediaStudio |
+| Media Studio | **Đang phát triển — chưa sẵn sàng sử dụng**. Giao diện còn để trình bày và xem asset cũ; tạo ảnh/video, upload vào Media Studio và tạo version mới đang bị khóa | `media.py`, `media_service.py`, `video_service.py` | MediaStudio |
 | Dashboard | Summary, activity theo ngày, platform usage | `dashboard.py`, `dashboard_service.py` | Dashboard, ActivityChart, PlatformChart |
 | Voice Studio | Text → TTS, audio/video → STT → TTS, reference-voice TTS và Direct Voice Conversion Seed-VC có điều kiện | `voiceover.py`, `stt.py`, `video_stt.py`, `voice_conversion.py`, các voice services | VoiceoverModal, AudioPlayer |
 | User settings | Profile, đổi password, AI defaults, theme, export defaults | `user.py`, `user_service.py` | Profile, Settings, ThemeContext |

@@ -39,6 +39,7 @@ const IMAGE_RATIOS = [["1:1", "Vuông 1:1"], ["4:5", "Bài đăng 4:5"], ["9:16"
 const VIDEO_RATIOS = [["16:9", "Ngang 16:9"], ["9:16", "Dọc 9:16"], ["1:1", "Vuông 1:1"], ["4:5", "Dọc 4:5"]];
 const AI_VIDEO_RATIOS = [["16:9", "Ngang 16:9"], ["9:16", "Dọc 9:16"]];
 const VIDEO_OPERATIONS = [["trim", "Cắt video"], ["aspect_crop", "Đổi tỷ lệ / crop"], ["text_overlay", "Thêm text"], ["cta_overlay", "Thêm CTA"], ["subtitle", "Phụ đề"], ["volume", "Âm lượng"], ["mute", "Tắt tiếng"], ["merge", "Ghép video"]];
+const MEDIA_STUDIO_IN_DEVELOPMENT = true;
 
 const numberValue = (value, fallback) => {
   const parsed = value === "" ? fallback : Number(value);
@@ -156,7 +157,9 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
       const jobs = await listVideoGenerationJobs(id);
       setVideoGenerationJobs(jobs);
       setVideoGenerationJob((current) => current || jobs[0] || null);
-      jobs.filter(isVideoJobPending).forEach((job) => { void startVideoJobPolling(job, id); });
+      if (!MEDIA_STUDIO_IN_DEVELOPMENT) {
+        jobs.filter(isVideoJobPending).forEach((job) => { void startVideoJobPolling(job, id); });
+      }
     } catch (error) {
       toast.error(getUserErrorMessage(error, "Không thể khôi phục trạng thái video AI."));
     }
@@ -200,7 +203,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
   const ensureConversation = async () => conversationId || (await onEnsureConversation())?.id;
 
   const handleGenerateImage = async () => {
-    if (!prompt.trim() || isBusy) return;
+    if (MEDIA_STUDIO_IN_DEVELOPMENT || !prompt.trim() || isBusy) return;
     setIsBusy(true);
     setImageGenerationState("processing");
     setImageGenerationError("");
@@ -235,7 +238,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
   };
 
   const handleVideoEdit = async () => {
-    if (isBusy) return;
+    if (MEDIA_STUDIO_IN_DEVELOPMENT || isBusy) return;
     setIsBusy(true);
     try {
       const activeId = await ensureConversation();
@@ -265,7 +268,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
   };
 
   const handleCreateVideoEditPlan = async () => {
-    if (!videoSourceAssetId || !conversationalInstruction.trim() || isBusy) return;
+    if (MEDIA_STUDIO_IN_DEVELOPMENT || !videoSourceAssetId || !conversationalInstruction.trim() || isBusy) return;
     setIsBusy(true);
     try {
       const activeId = await ensureConversation();
@@ -280,7 +283,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
   };
 
   const handleExecuteVideoEditPlan = async () => {
-    if (!videoSourceAssetId || !conversationalPlan || isBusy) return;
+    if (MEDIA_STUDIO_IN_DEVELOPMENT || !videoSourceAssetId || !conversationalPlan || isBusy) return;
     setIsBusy(true);
     const requestKey = reuseIdempotencyKey(conversationalRequestKey);
     setConversationalRequestKey(requestKey);
@@ -307,7 +310,7 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
     finally { setIsBusy(false); }
   };
   const handleGenerateVideo = async () => {
-    if (!videoGenerationPrompt.trim() || isBusy) return;
+    if (MEDIA_STUDIO_IN_DEVELOPMENT || !videoGenerationPrompt.trim() || isBusy) return;
     setIsBusy(true);
     try {
       const activeId = await ensureConversation();
@@ -390,12 +393,16 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
             <button type="button" className={mode === "image" ? "is-active" : ""} onClick={() => setMode("image")}><FiImage /> Ảnh</button>
             <button type="button" className={mode === "video" ? "is-active" : ""} onClick={() => setMode("video")}><FiVideo /> Video</button>
           </div>
+          <div className="media-studio__development" role="status">
+            <strong>Đang phát triển</strong>
+            <span>Tạo ảnh và video chưa sẵn sàng sử dụng.</span>
+          </div>
           {mode === "image" ? <>
             <div className="media-studio__eyebrow"><FiImage /> Tạo ảnh quảng cáo</div>
             <p className="media-studio__hint">Mô tả sản phẩm, bối cảnh, phong cách và thông điệp cần xuất hiện trong ảnh.</p>
-            <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Mô tả ảnh quảng cáo..." rows={5} maxLength={10000} disabled={isBusy} />
-            <div className="media-studio__controls"><label>Tỷ lệ<select value={imageRatio} onChange={(event) => setImageRatio(event.target.value)} disabled={isBusy}>{IMAGE_RATIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="media-studio__upload"><span><FiUpload /> {referenceFile ? referenceFile.name : "Ảnh tham chiếu"}</span><input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { setReferenceFile(event.target.files?.[0] || null); setSourceAssetId(null); }} disabled={isBusy} /></label></div>
-                        <button type="button" className="media-studio__generate" onClick={handleGenerateImage} disabled={!prompt.trim() || isBusy}>
+            <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Mô tả ảnh quảng cáo..." rows={5} maxLength={10000} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy} />
+            <div className="media-studio__controls"><label>Tỷ lệ<select value={imageRatio} onChange={(event) => setImageRatio(event.target.value)} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy}>{IMAGE_RATIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="media-studio__upload"><span><FiUpload /> {referenceFile ? referenceFile.name : "Ảnh tham chiếu"}</span><input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => { setReferenceFile(event.target.files?.[0] || null); setSourceAssetId(null); }} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy} /></label></div>
+                        <button type="button" className="media-studio__generate" onClick={handleGenerateImage} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || !prompt.trim() || isBusy}>
               {isBusy ? <FiLoader className="spin" /> : <FiImage />}
               {isBusy ? "Đang tạo ảnh..." : imageActionLabel}
             </button>
@@ -407,20 +414,20 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
             <div className="media-studio__ai-generation">
               <div className="media-studio__eyebrow"><FiVideo /> Tạo video bằng AI</div>
               <p className="media-studio__hint">Provider video thật sẽ quyết định trạng thái và thời gian xử lý; hệ thống không giả lập output.</p>
-              <textarea value={videoGenerationPrompt} onChange={(event) => setVideoGenerationPrompt(event.target.value)} placeholder="Mô tả video cần tạo..." rows={3} maxLength={10000} disabled={isBusy} />
+              <textarea value={videoGenerationPrompt} onChange={(event) => setVideoGenerationPrompt(event.target.value)} placeholder="Mô tả video cần tạo..." rows={3} maxLength={10000} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy} />
               <div className="media-studio__controls">
-                <label>Tỷ lệ<select value={videoGenerationRatio} onChange={(event) => setVideoGenerationRatio(event.target.value)} disabled={isBusy}>{AI_VIDEO_RATIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+                <label>Tỷ lệ<select value={videoGenerationRatio} onChange={(event) => setVideoGenerationRatio(event.target.value)} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy}>{AI_VIDEO_RATIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
                 <label>Thời lượng<select value={videoGenerationDuration} disabled><option value="8">8 giây</option></select></label>
-                <label>Ảnh tham chiếu<select value={videoGenerationReferenceId} onChange={(event) => setVideoGenerationReferenceId(event.target.value)} disabled={isBusy}><option value="">Không dùng</option>{imageAssets.filter((asset) => asset.status === "completed").map((asset) => <option key={asset.id} value={asset.id}>V{asset.version_number} · {asset.filename || "Ảnh"}</option>)}</select></label>
+                <label>Ảnh tham chiếu<select value={videoGenerationReferenceId} onChange={(event) => setVideoGenerationReferenceId(event.target.value)} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || isBusy}><option value="">Không dùng</option>{imageAssets.filter((asset) => asset.status === "completed").map((asset) => <option key={asset.id} value={asset.id}>V{asset.version_number} · {asset.filename || "Ảnh"}</option>)}</select></label>
               </div>
-              <button type="button" className="media-studio__generate" onClick={handleGenerateVideo} disabled={!videoGenerationPrompt.trim() || isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {isBusy ? "Đang tạo video..." : "Tạo video AI"}</button>
+              <button type="button" className="media-studio__generate" onClick={handleGenerateVideo} disabled={MEDIA_STUDIO_IN_DEVELOPMENT || !videoGenerationPrompt.trim() || isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {isBusy ? "Đang tạo video..." : "Tạo video AI"}</button>
               {videoGenerationJobs.slice(0, 3).map((job) => <div className="media-studio__status" key={job.id}>Job #{job.id}: {job.status}{job.status === "failed" ? ` · ${getVideoJobErrorMessage(job)}` : ""}</div>)}
             </div>
             
  <div className="media-studio__technical-editor">
- <VideoEditorForm isBusy={isBusy} videoFile={videoFile} setVideoFile={setVideoFile} videoInputRef={videoInputRef} operation={videoOperation} setOperation={setVideoOperation} ratio={videoRatio} setRatio={setVideoRatio} start={start} setStart={setStart} end={end} setEnd={setEnd} text={overlayText} setText={setOverlayText} position={position} setPosition={setPosition} fontSize={fontSize} setFontSize={setFontSize} textColor={textColor} setTextColor={setTextColor} volume={volume} setVolume={setVolume} entries={subtitleEntries} setEntries={setSubtitleEntries} selectedVideo={selectedVideo} videoAssets={videoAssets} sourceAssetId={videoSourceAssetId} mergeSelection={mergeSelection} setMergeSelection={setMergeSelection} onExecute={handleVideoEdit} />
+  <VideoEditorForm isBusy={isBusy} isUnavailable={MEDIA_STUDIO_IN_DEVELOPMENT} videoFile={videoFile} setVideoFile={setVideoFile} videoInputRef={videoInputRef} operation={videoOperation} setOperation={setVideoOperation} ratio={videoRatio} setRatio={setVideoRatio} start={start} setStart={setStart} end={end} setEnd={setEnd} text={overlayText} setText={setOverlayText} position={position} setPosition={setPosition} fontSize={fontSize} setFontSize={setFontSize} textColor={textColor} setTextColor={setTextColor} volume={volume} setVolume={setVolume} entries={subtitleEntries} setEntries={setSubtitleEntries} selectedVideo={selectedVideo} videoAssets={videoAssets} sourceAssetId={videoSourceAssetId} mergeSelection={mergeSelection} setMergeSelection={setMergeSelection} onExecute={handleVideoEdit} />
  </div>
-             <ConversationalEditor isBusy={isBusy} selectedVideo={selectedVideo} instruction={conversationalInstruction} setInstruction={setConversationalInstruction} plan={conversationalPlan} execution={conversationalExecution} onPlan={handleCreateVideoEditPlan} onExecute={handleExecuteVideoEditPlan} onPreviewAsset={handlePreviewAsset} onDownloadAsset={handleDownload} />
+             <ConversationalEditor isBusy={isBusy} isUnavailable={MEDIA_STUDIO_IN_DEVELOPMENT} selectedVideo={selectedVideo} instruction={conversationalInstruction} setInstruction={setConversationalInstruction} plan={conversationalPlan} execution={conversationalExecution} onPlan={handleCreateVideoEditPlan} onExecute={handleExecuteVideoEditPlan} onPreviewAsset={handlePreviewAsset} onDownloadAsset={handleDownload} />
            </>}
         </section>
         <section className="media-studio__library">
@@ -472,33 +479,33 @@ function MediaStudio({ open, onClose, conversationId, onEnsureConversation }) {
     </>  );
 }
 
-function VideoEditorForm({ isBusy, videoFile, setVideoFile, videoInputRef, operation, setOperation, ratio, setRatio, start, setStart, end, setEnd, text, setText, position, setPosition, fontSize, setFontSize, textColor, setTextColor, volume, setVolume, entries, setEntries, selectedVideo, videoAssets, sourceAssetId, mergeSelection, setMergeSelection, onExecute }) {
+function VideoEditorForm({ isBusy, isUnavailable, videoFile, setVideoFile, videoInputRef, operation, setOperation, ratio, setRatio, start, setStart, end, setEnd, text, setText, position, setPosition, fontSize, setFontSize, textColor, setTextColor, volume, setVolume, entries, setEntries, selectedVideo, videoAssets, sourceAssetId, mergeSelection, setMergeSelection, onExecute }) {
   const needsTiming = ["trim", "text_overlay", "cta_overlay"].includes(operation);
   const addEntry = () => setEntries([...entries, { text: "", start: "0", end: "3" }]);
   return <>
     <div className="media-studio__eyebrow"><FiVideo /> Chỉnh sửa video kỹ thuật</div>
     <p className="media-studio__hint">Chọn video trong thư viện hoặc tải video mới lên, rồi chọn operation có kiểm soát.</p>
-    <label className="media-studio__upload"><span><FiUpload /> {videoFile ? videoFile.name : selectedVideo ? `Đang chọn V${selectedVideo.version_number}` : "Tải video lên"}</span><input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" onChange={(event) => { setVideoFile(event.target.files?.[0] || null); }} disabled={isBusy} /></label>
+    <label className="media-studio__upload"><span><FiUpload /> {videoFile ? videoFile.name : selectedVideo ? `Đang chọn V${selectedVideo.version_number}` : "Tải video lên"}</span><input ref={videoInputRef} type="file" accept="video/mp4,video/quicktime,video/webm" onChange={(event) => { setVideoFile(event.target.files?.[0] || null); }} disabled={isUnavailable || isBusy} /></label>
     <label className="media-studio__field">Operation<select value={operation} onChange={(event) => setOperation(event.target.value)} disabled={isBusy}>{VIDEO_OPERATIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     {needsTiming && <div className="media-studio__inline-fields"><label>Start<input type="number" min="0" step="0.1" value={start} onChange={(event) => setStart(event.target.value)} /></label><label>End<input type="number" min="0.1" step="0.1" value={end} onChange={(event) => setEnd(event.target.value)} /></label></div>}
     {operation === "aspect_crop" && <label className="media-studio__field">Tỷ lệ<select value={ratio} onChange={(event) => setRatio(event.target.value)}>{VIDEO_RATIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>}
     {["text_overlay", "cta_overlay"].includes(operation) && <><label className="media-studio__field">Text<textarea value={text} onChange={(event) => setText(event.target.value)} rows={3} maxLength={500} /></label><div className="media-studio__inline-fields"><label>Vị trí<select value={position} onChange={(event) => setPosition(event.target.value)}><option value="top">Trên</option><option value="center">Giữa</option><option value="bottom">Dưới</option></select></label><label>Cỡ chữ<input type="number" min="12" max="160" value={fontSize} onChange={(event) => setFontSize(event.target.value)} /></label><label>Màu<select value={textColor} onChange={(event) => setTextColor(event.target.value)}><option value="white">Trắng</option><option value="black">Đen</option><option value="yellow">Vàng</option></select></label></div></>}
     {operation === "subtitle" && <div className="media-studio__subtitle-list">{entries.map((entry, index) => <div className="media-studio__subtitle-row" key={`${index}-${entry.start}`}><textarea placeholder="Nội dung subtitle" value={entry.text} onChange={(event) => setEntries(entries.map((item, itemIndex) => itemIndex === index ? { ...item, text: event.target.value } : item))} /><input type="number" min="0" step="0.1" value={entry.start} onChange={(event) => setEntries(entries.map((item, itemIndex) => itemIndex === index ? { ...item, start: event.target.value } : item))} /><input type="number" min="0.1" step="0.1" value={entry.end} onChange={(event) => setEntries(entries.map((item, itemIndex) => itemIndex === index ? { ...item, end: event.target.value } : item))} />{entries.length > 1 && <button type="button" onClick={() => setEntries(entries.filter((_, itemIndex) => itemIndex !== index))}><FiTrash2 /></button>}</div>)}<button type="button" className="media-studio__secondary" onClick={addEntry}><FiPlus /> Thêm subtitle</button></div>}
     {operation === "merge" && <div className="media-studio__merge-list"><span>Chọn video để ghép cùng source:</span>{videoAssets.filter((asset) => asset.status === "completed" && asset.id !== sourceAssetId).map((asset) => <label key={asset.id}><input type="checkbox" checked={mergeSelection.includes(asset.id)} onChange={(event) => setMergeSelection(event.target.checked ? [...mergeSelection, asset.id] : mergeSelection.filter((id) => id !== asset.id))} /> V{asset.version_number} · {asset.filename}</label>)}</div>}    {operation === "volume" && <label className="media-studio__field">Âm lượng (0–4)<input type="number" min="0" max="4" step="0.1" value={volume} onChange={(event) => setVolume(event.target.value)} /></label>}
-    <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isBusy || (!videoFile && !selectedVideo)}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {isBusy ? "Đang xử lý video..." : "Tạo version video"}</button>
+    <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isUnavailable || isBusy || (!videoFile && !selectedVideo)}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {isBusy ? "Đang xử lý video..." : "Tạo version video"}</button>
   </>;
 }
 
-function ConversationalEditor({ isBusy, selectedVideo, instruction, setInstruction, plan, execution, onPlan, onExecute, onPreviewAsset, onDownloadAsset }) {
+function ConversationalEditor({ isBusy, isUnavailable, selectedVideo, instruction, setInstruction, plan, execution, onPlan, onExecute, onPreviewAsset, onDownloadAsset }) {
   return <div className="media-studio__ai-generation media-studio__conversation-editor">
     <div className="media-studio__eyebrow"><FiEdit3 /> Chỉnh sửa video bằng hội thoại</div>
     <p className="media-studio__hint">Chọn source trong thư viện, mô tả yêu cầu, xem kế hoạch có cấu trúc rồi mới thực thi.</p>
     <textarea value={instruction} onChange={(event) => setInstruction(event.target.value)} placeholder="Ví dụ: cắt video còn 15 giây, đổi sang 9:16, thêm CTA..." rows={4} maxLength={2000} disabled={isBusy} />
-    <button type="button" className="media-studio__secondary" onClick={onPlan} disabled={!selectedVideo || !instruction.trim() || isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiEdit3 />} Phân tích kế hoạch</button>
+    <button type="button" className="media-studio__secondary" onClick={onPlan} disabled={isUnavailable || !selectedVideo || !instruction.trim() || isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiEdit3 />} Phân tích kế hoạch</button>
     {plan && <div className="media-studio__status">
       <strong>Kế hoạch cho V{selectedVideo?.version_number}:</strong>
       <ol>{getConversationalOperationNames(plan).map((operation, index) => <li key={`${operation}-${index}`}>{operation}</li>)}</ol>
-      <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {execution?.status === "processing" ? "Kiểm tra trạng thái" : "Thực thi kế hoạch"}</button>
+      <button type="button" className="media-studio__generate" onClick={onExecute} disabled={isUnavailable || isBusy}>{isBusy ? <FiLoader className="spin" /> : <FiVideo />} {execution?.status === "processing" ? "Kiểm tra trạng thái" : "Thực thi kế hoạch"}</button>
     </div>}
     {execution && <div className="media-studio__status">
       <strong>{execution.status === "completed" ? "Hoàn tất" : execution.status === "partial" ? "Hoàn tất một phần" : "Thất bại"}</strong>

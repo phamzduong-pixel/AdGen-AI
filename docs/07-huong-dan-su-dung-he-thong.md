@@ -3,7 +3,7 @@
 > Phiên bản tài liệu: 07/10/2026
 > Phạm vi: các chức năng đang có trong frontend/backend của repository hiện tại.
 
-AdGen AI là trợ lý tạo và quản lý nội dung quảng cáo bằng AI. Người dùng có thể tạo nội dung theo hội thoại hoặc brief có cấu trúc, áp dụng quy chuẩn thương hiệu, đánh giá chất lượng, tạo biến thể, lưu thành thư viện, gom vào chiến dịch và tạo các tài sản media như ảnh, video hoặc voiceover.
+AdGen AI là trợ lý tạo và quản lý nội dung quảng cáo bằng AI. Người dùng có thể tạo nội dung theo hội thoại hoặc brief có cấu trúc, áp dụng quy chuẩn thương hiệu, đánh giá chất lượng, tạo biến thể, lưu thành thư viện, gom vào chiến dịch và tạo voiceover. Media Studio tạo ảnh/video đang phát triển và chưa sẵn sàng sử dụng.
 
 ## 1. Bắt đầu nhanh
 
@@ -197,55 +197,9 @@ Các tiêu đề, metadata, hướng dẫn và chỉ dẫn sản xuất như Vis
 
 ## 7. Media Studio: ảnh và video
 
-Mở **Media Studio** từ tiêu đề Chat. Asset được gắn với conversation hiện tại; mỗi lần chỉnh sửa tạo version mới và không ghi đè bản gốc.
+**Đang phát triển — chưa sẵn sàng sử dụng.** Giao diện ảnh/video vẫn hiển thị để trình bày, nhưng nút tạo ảnh, tạo video, upload vào Media Studio và thực thi chỉnh sửa/tạo version mới bị vô hiệu hóa. Backend cũng từ chối các yêu cầu tạo mới trong phạm vi `/media`. Đây chưa phải chức năng hoàn thiện của sản phẩm.
 
-### 7.1. Tạo ảnh quảng cáo
-
-1. Chọn tab **Ảnh**.
-2. Nhập mô tả sản phẩm, bối cảnh, phong cách và thông điệp.
-3. Chọn tỷ lệ: 1:1, 4:5, 9:16, 16:9, 3:2 hoặc 2:3.
-4. Có thể tải ảnh tham chiếu PNG/JPG/WEBP.
-5. Chọn **Tạo ảnh**.
-6. Xem preview, chọn asset làm nguồn cho lần chỉnh sửa tiếp theo hoặc tải xuống.
-
-Ảnh đã tạo được hiển thị trong thư viện ảnh của conversation. Có thể xóa asset ảnh sau khi xác nhận; thao tác xóa không thể khôi phục từ giao diện.
-
-### 7.2. Tạo video bằng AI
-
-1. Chọn tab **Video** và khu vực **Tạo video bằng AI**.
-2. Nhập prompt video.
-3. Chọn tỷ lệ ngang 16:9 hoặc dọc 9:16.
-4. Chọn ảnh tham chiếu nếu muốn.
-5. Thời lượng giao diện hiện hỗ trợ 8 giây.
-6. Chọn **Tạo video AI** và theo dõi trạng thái job.
-
-> Tạo video AI phụ thuộc provider, API key, quota và quyền truy cập của môi trường triển khai. Trạng thái có thể là đang xử lý, hoàn tất hoặc thất bại; không coi một job mock/test là bằng chứng provider thật đã sẵn sàng.
-
-### 7.3. Chỉnh sửa video kỹ thuật
-
-Tải video MP4/MOV/WEBM lên hoặc chọn video đã có trong conversation. Các operation hiện có:
-
-- Cắt video theo thời điểm bắt đầu/kết thúc.
-- Đổi tỷ lệ hoặc crop: 16:9, 9:16, 1:1, 4:5.
-- Thêm text overlay.
-- Thêm CTA overlay.
-- Thêm phụ đề theo từng đoạn thời gian.
-- Điều chỉnh âm lượng từ 0 đến 4.
-- Tắt tiếng.
-- Ghép từ hai video trở lên.
-
-Chọn **Tạo version video** để tạo bản mới. Việc xử lý thực tế còn phụ thuộc FFmpeg/FFprobe và cấu hình runtime.
-
-### 7.4. Chỉnh sửa video bằng hội thoại
-
-1. Chọn một video hoàn tất trong thư viện.
-2. Nhập yêu cầu tự nhiên, ví dụ: “Cắt 5 giây đầu, đổi sang 9:16 và thêm CTA ở cuối”.
-3. Chọn **Phân tích kế hoạch**.
-4. Kiểm tra danh sách operation mà hệ thống đề xuất.
-5. Chọn **Thực thi kế hoạch**.
-6. Xem trạng thái, preview hoặc tải các version đã tạo.
-
-AI chỉ chuyển yêu cầu thành kế hoạch operation được cho phép; không nhập lệnh hệ điều hành hoặc đường dẫn filesystem tùy ý vào yêu cầu.
+Asset và job đã lưu trước đó vẫn được giữ. Người dùng có thể mở Media Studio để xem lịch sử, preview hoặc tải asset đã hoàn tất; việc xóa ảnh cũ theo quyền sở hữu vẫn có thể thực hiện. Việc upload tệp đính kèm trong Chat là chức năng riêng và không bị khóa.
 
 ## 8. Thư viện nội dung
 
@@ -449,7 +403,7 @@ Trong phần phiên hoạt động, xem các thiết bị/phiên đang đăng nh
 | Brief | Sản phẩm, mô tả, khách hàng, mục tiêu, nền tảng, tone, ngôn ngữ, độ dài, từ khóa, CTA |
 | Nội dung | Sao chép, lưu, đánh giá, cải thiện, tạo A/B/C, kiểm tra thương hiệu, voiceover, xuất |
 | Tệp | Đính kèm ảnh/video/PDF/DOCX/TXT, kiểm tra loại/kích thước/quyền sở hữu |
-| Media | Tạo ảnh, ảnh tham chiếu, tạo video AI, upload video, chỉnh video kỹ thuật, chỉnh bằng hội thoại, version, preview, download |
+| Media | Đang phát triển — chưa sẵn sàng sử dụng; chỉ giữ giao diện trình bày và xem/tải lịch sử, các tác vụ tạo mới bị khóa |
 | Thư viện | Tìm kiếm, xem, sao chép, sửa, xóa nội dung đã lưu |
 | Editor | Markdown, CTA, hashtag, ghi chú, status, platform, brand, campaign, AI rewrite, lưu version, so sánh, khôi phục, xuất |
 | Mẫu | Lọc, yêu thích, dùng mẫu, tạo/sửa/xóa mẫu cá nhân, clone mẫu |
@@ -466,8 +420,7 @@ Tài liệu này mô tả cách dùng giao diện và hành vi theo source hiệ
 - Google Login phụ thuộc Google OAuth.
 - OTP phụ thuộc SMTP.
 - Voiceover phụ thuộc provider TTS.
-- Tạo ảnh/video phụ thuộc provider media, quota và storage.
-- Chỉnh sửa video thực tế phụ thuộc FFmpeg/FFprobe.
+- Media Studio tạo ảnh/video đang bị khóa; provider media, quota, storage và FFmpeg/FFprobe chưa được xác minh đủ để tuyên bố sẵn sàng sử dụng.
 - File upload cần persistent disk hoặc object storage khi triển khai lâu dài.
 
 Khi thay đổi route, label, giới hạn file, provider hoặc nghiệp vụ, cần cập nhật tài liệu này cùng với [docs/01-chuc-nang-he-thong.md](./01-chuc-nang-he-thong.md).

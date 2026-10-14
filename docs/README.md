@@ -37,6 +37,7 @@ README ở thư mục gốc là hướng dẫn chạy nhanh; bộ `docs/` tập 
 
 ## Trạng thái cần biết
 
+- Media Studio (tạo ảnh/video) **đang phát triển — chưa sẵn sàng sử dụng**; giao diện trình bày và dữ liệu lịch sử còn giữ, các thao tác tạo mới bị khóa. Không tính tính năng này là hoàn thiện trong báo cáo hiện trạng.
 - Backend dùng FastAPI, SQLAlchemy, Alembic, JWT và Gemini `gemini-2.5-flash`.
 - Frontend dùng React/Vite, Axios; realtime dùng Fetch API stream.
 - SQLite hỗ trợ local/test; PostgreSQL là lựa chọn production.

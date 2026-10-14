@@ -27,6 +27,28 @@
   line-height: 1.5;
 }
 
+.media-studio__development {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+:root[data-theme="dark"] .media-studio__development,
+html.dark .media-studio__development {
+  color: #fcd34d;
+  background: #422006;
+  border-color: #92400e;
+}
+
 .media-studio textarea {
   width: 100%;
   resize: vertical;

@@ -11,7 +11,7 @@ Tất cả endpoint ngoài `/` và `/health` cần JWT theo `get_current_user`, 
 | `/conversations` | CRUD, pin, title, brand | `POST`, `GET`, `PUT`, `DELETE`, các `PATCH` |
 | `/messages` | message, history, stream, regenerate | `POST`, `GET /{conversation_id}`, `POST /stream`, `PUT /{message_id}/stream` |
 | `/uploads` | upload/list/download/delete | `POST /{conversation_id}`, `GET /file/{id}/download` |
-| `/media` | media asset/job, generation, edit, versions và download | create/edit/status/download/delete asset theo contract Media Studio |
+| `/media` | Media Studio **đang phát triển — chưa sẵn sàng sử dụng** | Các POST tạo ảnh/video, upload asset và chỉnh sửa/tạo version trả 503; route đọc lịch sử, xem/tải và xóa asset cũ còn được giữ |
 | `/brands` | brand profile, asset, consistency | CRUD, check, upload/download asset |
 | `/templates` | system/custom template, favorite | CRUD custom, favorite/unfavorite |
 | `/saved-contents` | lưu, đọc, xóa content | create/list/delete |

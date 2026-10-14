@@ -136,6 +136,7 @@ class VideoEditApiIntegrationTest(unittest.TestCase):
         app.include_router(media_api.router)
         app.dependency_overrides[get_db] = lambda: self.db
         app.dependency_overrides[get_current_user] = lambda: self.current_user
+        app.dependency_overrides[media_api._require_media_studio_ready] = lambda: None
         self.client = TestClient(app)
 
     def tearDown(self):
