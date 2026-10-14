@@ -314,9 +314,9 @@ html.dark .sidebar-brand__logo {
 
 .sidebar-header::after {
   position: absolute;
-  right: 12px;
+  right: 0;
   bottom: -5px;
-  left: 12px;
+  left: 0;
   height: 10px;
   background: linear-gradient(
     to bottom,

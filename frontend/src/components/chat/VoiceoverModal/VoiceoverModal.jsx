@@ -34,6 +34,8 @@ import {
 import AudioPlayer from "./AudioPlayer";
 import "./VoiceoverModal.css";
 
+const SCRIPT_WARNING_LENGTH = 10_000;
+
 // Seed-VC uses reference-audio preset IDs, while the voice list uses TTS IDs.
 // Keep this mapping local to the audio/video conversion flow; text mode keeps
 // using the selected TTS voice ID unchanged.
@@ -729,6 +731,7 @@ export default function VoiceoverModal({
   const isFileMode = activeMode === "file";
   const sourceInputId = "voice-studio-file-input";
   const editorText = activeMode === "text" ? textToRead : fileTranscript;
+  const editorCharacterCount = Array.from(editorText).length;
   const canGenerate =
     activeMode === "text"
       ? Boolean(editorText.trim())
@@ -779,14 +782,9 @@ export default function VoiceoverModal({
             aria-labelledby="voice-studio-content-source"
           >
             <div className="adgen-source-section__header">
-              <div>
-                <p className="adgen-eyebrow">Nguồn nội dung</p>
-                <h4 id="voice-studio-content-source">
-                  Chọn nội dung sẽ được đọc
-                </h4>
-              </div>
+              <h4 id="voice-studio-content-source">Nguồn nội dung</h4>
               <span className="adgen-source-section__hint">
-                Có thể chọn riêng nội dung và giọng đọc
+                Chọn văn bản hoặc âm thanh / video
               </span>
             </div>
             <div
@@ -1074,10 +1072,16 @@ trong các phân cảnh (đã bỏ qua chỉ dẫn hình ảnh, camera và hiệ
                 placeholder="Nhập hoặc dán lời thoại quảng cáo cần đọc vào đây..."
                 disabled={isCleaning || isGenerating || isTranscribing}
               />
-              <span className="adgen-char-count">
-                {editorText.length} / 10000 ký tự
-              </span>
             </div>
+            {editorCharacterCount > SCRIPT_WARNING_LENGTH && (
+              <div className="adgen-alert adgen-alert--warning adgen-length-warning" role="alert">
+                <FiAlertCircle aria-hidden="true" />
+                <span>
+                  Lời thoại đã vượt 10.000 ký tự (hiện {editorCharacterCount.toLocaleString("vi-VN")}).
+                  Nội dung vẫn được giữ nguyên; một số thao tác có thể từ chối văn bản quá dài.
+                </span>
+              </div>
+            )}
           </div>
 
           <section
@@ -1085,14 +1089,11 @@ trong các phân cảnh (đã bỏ qua chỉ dẫn hình ảnh, camera và hiệ
             aria-labelledby="voice-studio-voice-source"
           >
             <div className="adgen-source-section__header">
-              <div>
-                <p className="adgen-eyebrow">Cách chọn giọng đọc</p>
-                <h4 id="voice-studio-voice-source">
-Bạn muốn dùng giọng nào?
-                </h4>
-              </div>
+              <h4 id="voice-studio-voice-source">Cách chọn giọng đọc</h4>
               <span className="adgen-source-section__hint">
-                Không đổi nội dung đã chọn
+                {isDirectVoiceConversion
+                  ? "Chuyển giọng trực tiếp từ file nguồn"
+                  : "Không đổi nội dung đã chọn"}
               </span>
             </div>
 
@@ -1131,16 +1132,7 @@ Dùng giọng từ file của tôi
               </button>
             </div>
 
-            {voiceSource === "builtin" ? (
-              <div className="adgen-voice-source-panel">
-<strong>Giọng đọc có sẵn</strong>
-<span>
-  {isDirectVoiceConversion
-    ? "Chọn mẫu giọng chuyển đổi trực tiếp trong danh sách bên dưới."
-    : "Chọn một giọng đọc phù hợp trong danh sách bên dưới."}
-</span>
-              </div>
-            ) : (
+            {voiceSource === "reference" && (
               <div className="adgen-reference-voice-panel">
                 <div className="adgen-reference-voice-panel__header">
                   <div>
