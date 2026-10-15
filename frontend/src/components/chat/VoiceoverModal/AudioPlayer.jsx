@@ -11,6 +11,27 @@ import {
 import { fetchVoiceoverAudio } from "../../../services/api/voiceoverApi";
 import "./VoiceoverModal.css";
 
+const FRIENDLY_VIENEU_VOICE_NAMES = Object.freeze({
+  "Ngọc Huyền": "Ngọc Huyền · Nữ, giọng Bắc",
+  "Quốc Tuấn": "Quốc Tuấn · Nam, giọng Bắc",
+  "Hải Đăng": "Hải Đăng · Nam, giọng Bắc",
+  "Trúc Ly": "Trúc Ly · Nữ, giọng Bắc",
+  "Thiện Minh": "Thiện Minh · Nam, giọng Bắc",
+  "Mai Anh": "Mai Anh · Nữ, giọng Bắc",
+});
+
+const getDisplayVoiceName = (voiceName) => {
+  const value = String(voiceName || "Voiceover").trim();
+  const vieneuPrefix = "vieneu-v3-turbo:";
+
+  if (value.startsWith(vieneuPrefix)) {
+    const presetName = value.slice(vieneuPrefix.length).trim();
+    return FRIENDLY_VIENEU_VOICE_NAMES[presetName] || presetName || "Giọng tiếng Việt";
+  }
+
+  return value;
+};
+
 export default function AudioPlayer({
   src,
   voiceName = "Voiceover",
@@ -164,7 +185,7 @@ export default function AudioPlayer({
 
   const rawPercent = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
   const progressPercent = Math.min(Math.max(Number.isNaN(rawPercent) ? 0 : rawPercent, 0), 100);
-  const displayVoice = voiceName || "Voiceover";
+  const displayVoice = getDisplayVoiceName(voiceName);
 
   if (!src) return null;
 
