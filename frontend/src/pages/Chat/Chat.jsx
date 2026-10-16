@@ -303,7 +303,8 @@ function Chat() {
           isLoading={isLoadingMessages}
           autoScroll={preferences.autoScroll}
           isEmpty={!isLoadingMessages && messages.length === 0 && !error}
-          scrollTrigger={`${selectedConversation || "new"}:${messages.length}`}
+          scrollContext={selectedConversation || "new"}
+          scrollTrigger={`${messages.length}:${messages[messages.length - 1]?.content?.length ?? 0}:${isTyping}`}
         >
           {error && <div className="chat-page-error">{error}</div>}
 

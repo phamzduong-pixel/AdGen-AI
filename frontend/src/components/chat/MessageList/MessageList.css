@@ -8,8 +8,7 @@
   overflow-x: hidden;
 
   overscroll-behavior: contain;
-  scroll-behavior: smooth;
-  overflow-anchor: none;
+  overflow-anchor: auto;
 
   background: var(--color-background, #ffffff);
 }
