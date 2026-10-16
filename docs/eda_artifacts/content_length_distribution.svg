@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Distribution of Content Length">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="84.0" y="78.0" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="#222222" text-anchor="start">Distribution of Content Length</text>
+<text x="84.0" y="116.0" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#555555" text-anchor="start">Non-empty assistant message text | n = 29 | 6 equal-width bins</text>
+<line x1="130" y1="740.0" x2="1330" y2="740.0" stroke="#dddddd"/>
+<text x="112.0" y="745.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">0</text>
+<line x1="130" y1="630.0" x2="1330" y2="630.0" stroke="#dddddd"/>
+<text x="112.0" y="635.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">3</text>
+<line x1="130" y1="520.0" x2="1330" y2="520.0" stroke="#dddddd"/>
+<text x="112.0" y="525.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">6</text>
+<line x1="130" y1="410.0" x2="1330" y2="410.0" stroke="#dddddd"/>
+<text x="112.0" y="415.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">9</text>
+<line x1="130" y1="300.0" x2="1330" y2="300.0" stroke="#dddddd"/>
+<text x="112.0" y="305.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">12</text>
+<line x1="130" y1="190.0" x2="1330" y2="190.0" stroke="#dddddd"/>
+<text x="112.0" y="195.0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#555555" text-anchor="end">15</text>
+<rect x="137.0" y="336.7" width="186.0" height="403.3" rx="6" fill="#999999"/>
+<text x="230.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">44-2,070</text>
+<rect x="337.0" y="666.7" width="186.0" height="73.3" rx="6" fill="#999999"/>
+<text x="430.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">2,071-4,098</text>
+<rect x="537.0" y="373.3" width="186.0" height="366.7" rx="6" fill="#999999"/>
+<text x="630.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">4,099-6,126</text>
+<rect x="737.0" y="593.3" width="186.0" height="146.7" rx="6" fill="#999999"/>
+<text x="830.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">6,127-8,154</text>
+<rect x="937.0" y="703.3" width="186.0" height="36.7" rx="6" fill="#999999"/>
+<text x="1030.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">8,155-10,182</text>
+<rect x="1137.0" y="703.3" width="186.0" height="36.7" rx="6" fill="#999999"/>
+<text x="1230.0" y="770.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#555555" text-anchor="middle">10,183-12,210</text>
+<text x="730.0" y="830.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#555555" text-anchor="middle">Content length (Unicode code points)</text>
+<text x="32.0" y="465.0" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#555555" text-anchor="middle" transform="rotate(-90 32.0 465.0)">Number of messages</text>
+</svg>

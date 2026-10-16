@@ -1,0 +1,8 @@
+﻿Metric,Count
+Analysis population: assistant messages,29
+Missing platform labels,0
+Missing or invalid timestamps,0
+Missing or blank content,0
+Exact duplicate non-empty content excess (NFC normalized),0
+Records with non-empty content used for length chart,29
+Length histogram bins (Sturges rule),6

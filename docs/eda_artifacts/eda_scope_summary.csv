@@ -1,0 +1,15 @@
+﻿Field,Value
+Source file,adgen_dev.db
+Population,Assistant messages joined to conversations
+Records,29
+Date range (inclusive),2026-10-04 to 2026-10-16
+Platforms,facebook: 19; instagram: 1; shopee: 1; tiktok: 8
+Content length definition,Python Unicode code points after NFC normalization
+Content length minimum,44
+Content length first quartile (inclusive),659.0
+Content length median,4587
+Content length third quartile (inclusive),5661.0
+Content length mean,3963.1
+Content length maximum,12210
+Duplicate definition,Excess rows with exactly equal non-empty content after NFC normalization
+Data exported,Aggregates only; no message content or record identifiers
